@@ -56,6 +56,7 @@ function validateEvent(obj){
   const spec = {
     "workflow.started":[],
     "tool.completed":["tool","duration_ms","status"],
+    "agent.timing":["role","duration_ms","status"],
     "agent.completed":["role","summary","findings"],
     "workflow.completed":["total_ms","tool_count"],
     "workflow.failed":["phase"]
@@ -66,6 +67,9 @@ function validateEvent(obj){
   if(obj.classification!==expected)return false;
   const p=obj.payload;
   if(obj.type==="tool.completed"&&(!TOOL_NAMES.has(p.tool)||!["ok","error"].includes(p.status)||!Number.isFinite(p.duration_ms)||p.duration_ms<0||p.duration_ms>120000))return false;
+  if(obj.type==="agent.timing"&&
+    (!ROLES.has(p.role)||!["ok","error"].includes(p.status)||
+      !Number.isFinite(p.duration_ms)||p.duration_ms<0||p.duration_ms>1200000))return false;
   if(obj.type==="agent.completed"&&(!ROLES.has(p.role)||typeof p.summary!=="string"||p.summary.length<10||p.summary.length>1000||!Number.isInteger(p.findings)||p.findings<0||p.findings>12))return false;
   if(obj.type==="workflow.completed"&&(!Number.isFinite(p.total_ms)||p.total_ms<=0||!Number.isInteger(p.tool_count)||p.tool_count<0))return false;
   if(obj.type==="workflow.failed"&&!["foundry_review","schema_validation","provenance_gate"].includes(p.phase))return false;
