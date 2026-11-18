@@ -9,7 +9,7 @@ A technical reviewer should be able to explore the system architecture, role-sco
 ## Source of truth
 
 - `data/evidence.json` is a **curated, recorded snapshot**, grounded in a successful [Foundry review run](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318354937) and the [CI result](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318536294).
-- The snapshot is explicitly **not live monitoring** and has no fabricated trace IDs, spans, token usage, costs or completion times. See `observability.traceStatus`.
+- The snapshot is explicitly **not live monitoring**. It includes a second, directly measured Foundry run at commit `aa01b168` with 16 tool calls over 90.8 seconds. The recorded event waterfall uses actual relative UTC offsets and duration measurements. No fabricated model-token counts, costs, per-agent timings or OTel trace IDs are shown.
 - The three engineering cases refer to real merged PRs [#1](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/1), [#2](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/2) and [#3](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/3). Humans directed those repairs; agents in the present repo are read-only reviewers.
 - Business assumptions about removing duplicates, reconstructing prices and interpreting negative quantities remain unproven by test results alone.
 - The assignment instructions themselves never appear in this app or the repository.
