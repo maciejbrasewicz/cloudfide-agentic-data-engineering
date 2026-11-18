@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="./styles.css"/>
   <script src="./app.js" defer></script>
   <script src="./trace.js" defer></script>
+  <script src="./fault.js" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -135,6 +136,14 @@
           <div class="data-topline" id="data-topline"></div>
           <div class="data-layout"><article class="data-panel revenue-panel"><div class="panel-head"><span>NET REVENUE / BY REGION</span><span>PLAIN DECIMAL, NO FLOATING POINT</span></div><div id="revenue-bars" class="revenue-bars"></div></article><article class="data-panel anomaly-panel"><div class="panel-head"><span>DATA QUALITY / OBSERVED COUNTS</span><span>STAGE-AWARE</span></div><div id="anomaly-bars" class="anomaly-bars"></div></article></div>
           <div class="control-panel"><div><span class="label-mono">SOURCE CONTROL RECONCILIATION</span><h3>Validate first. Transform second.</h3><p>The embedded TOTAL record validates the raw export, including rows later removed as duplicates. The cleaned dataset has its own independent reconciliation.</p></div><div class="control-stats" id="control-stats"></div></div>
+          <section class="fault-lab" aria-labelledby="fault-heading">
+            <div class="fault-heading">
+              <div><div class="label-mono">QUALITY ENGINEERING / CONTROLLED CHALLENGES</div><h2 id="fault-heading">What happens when<br/><em>we break the pipeline?</em></h2><p>Controlled mutations are applied only to isolated copies of source code and data. Independent checks must detect them before release. This measures the <strong>deterministic quality gates</strong>—not the accuracy of the AI agents.</p></div>
+              <div class="fault-counter" id="fault-counts">Loading measured results…</div>
+            </div>
+            <div id="fault-cases" class="fault-cases" aria-live="polite"></div>
+            <div class="fault-footer"><span>NO LIVE DATA MUTATIONS · SOURCE SHA-256 PRESERVED</span><a href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44334663407" target="_blank" rel="noopener noreferrer">OPEN REAL EVALUATION RUN ↗</a></div>
+          </section>
         </section>
 
         <section id="view-evidence" data-section="evidence" class="view" aria-labelledby="evidence-heading">
