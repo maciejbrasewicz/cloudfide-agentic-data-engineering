@@ -51,7 +51,7 @@ The agent workflow uses the documented `FoundryChatClient` with a project-scoped
 3. Raw input and output file hashes embedded in quality report; agent report also records contract SHA-256.
 4. Original assignment instructions never committed.
 5. Azure authentication via Entra ID (`az login` locally or GitHub OIDC); no secret in source control.
-6. Versions of framework components are pinned, and a frozen `uv.lock` must be generated and committed after dependency verification in a network-enabled environment.
+6. Versions of framework components are pinned, and a resolved `uv.lock` is committed and CI uses `uv sync --locked`.
 
 ## Implementation status
 
