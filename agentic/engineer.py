@@ -49,7 +49,8 @@ def verified_architect(path: Path, spec: TaskSpec, mode: str):
 
 
 def engineer_tools(spec: TaskSpec, architect: ArchitectReport,
-                   workspace: CandidateWorkspace, ledger: EngineerLedger):
+                   workspace: CandidateWorkspace, ledger: EngineerLedger,
+                   architect_digest: str):
     """Every write tool is scoped to the actual candidate file set."""
     from agent_framework import tool
 
@@ -63,7 +64,10 @@ def engineer_tools(spec: TaskSpec, architect: ArchitectReport,
     def read_architect_contract() -> str:
         """Read P1's evidence-checked requirements and approved policy."""
         ledger.record("read_architect_contract")
-        return architect.model_dump_json()
+        return json.dumps({
+            "architect_report_sha256": architect_digest,
+            "verified_contract": architect.model_dump(mode="json"),
+        }, ensure_ascii=False)
 
     @tool(approval_mode="never_require")
     def list_workspace() -> str:
@@ -145,7 +149,7 @@ def instructions(mode: str) -> str:
 
 async def perform(spec: TaskSpec, architect: ArchitectReport,
                   workspace: CandidateWorkspace, ledger: EngineerLedger,
-                  endpoint: str, model: str) -> str:
+                  architect_digest: str, endpoint: str, model: str) -> str:
     from agent_framework import Agent
     from agent_framework.foundry import FoundryChatClient
     from azure.identity import DefaultAzureCredential
@@ -162,11 +166,14 @@ async def perform(spec: TaskSpec, architect: ArchitectReport,
         })
     agent = Agent(
         name="data_engineer", client=client, instructions=instructions(workspace.mode),
-        tools=engineer_tools(spec, architect, workspace, ledger),
+        tools=engineer_tools(spec, architect, workspace, ledger, architect_digest),
     )
     result = await agent.run(
         "Use your tools to create REAL code and tests from scratch; "
         "then request isolated validation. Task SHA-256: " + spec.sha256
+        + ". EXACT verified Architect report SHA-256 to copy into "
+        + "architect_report_sha256 (NOT the policy SHA or task SHA): "
+        + architect_digest
     )
     return result.text or ""
 
@@ -212,7 +219,10 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="cloudfide-engineer-") as temporary:
         workspace = create_workspace(ROOT, Path(temporary) / "candidate", args.mode)
         ledger = EngineerLedger()
-        result = asyncio.run(perform(spec, architect, workspace, ledger, endpoint, model))
+        result = asyncio.run(perform(
+            spec, architect, workspace, ledger, accepted.report_sha256,
+            endpoint, model,
+        ))
         verify_unchanged_inputs(ROOT, inputs)
         try:
             report = EngineerReport.model_validate_json(result.strip())
