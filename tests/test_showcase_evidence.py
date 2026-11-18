@@ -111,3 +111,23 @@ def test_public_recorded_trace_is_same_review_and_has_only_allowlisted_metadata(
         assert event["durationMs"] >= 0
         assert set(event) == {"seq", "startSeconds", "name", "durationMs", "status"}
     assert "prompt" not in json.dumps(trace).lower()
+
+
+def test_fault_injection_snapshot_is_real_and_distinct_from_agent_evaluation():
+    evidence = _read()
+    fault = json.loads((SHOWCASE / "data/fault_evaluation.json").read_text(encoding="utf-8"))
+    assert fault["schemaVersion"] == 1
+    assert fault["source"] == "recorded_ci_artifact"
+    assert fault["scope"] == "deterministic_gate_sensitivity_only"
+    assert fault["sourceSha256"] == evidence["provenance"]["sourceSha256"]
+    assert fault["originalDataIntact"] is True
+    assert set(fault["validatedPlatforms"]) == {"ubuntu-latest", "windows-latest"}
+    assert fault["mutantCaught"] == fault["mutantTotal"] == 4
+    assert fault["sourceAnomaliesRejected"] == fault["sourceAnomaliesTotal"] == 1
+    cases = fault["cases"]
+    assert len(cases) == 5
+    assert len({case["id"] for case in cases}) == 5
+    assert all(case["detected"] is True for case in cases)
+    assert all(case["gate"] for case in cases)
+    assert "/actions/runs/" in fault["runUrl"]
+    assert "agent_accuracy" not in fault["scope"]
