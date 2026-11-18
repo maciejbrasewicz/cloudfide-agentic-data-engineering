@@ -1,0 +1,51 @@
+name: Foundry SDK compatibility - MCP and middleware smoke
+
+on:
+  push:
+    paths:
+      - "agentic/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/foundry-smoke.yml"
+  pull_request:
+    paths:
+      - "agentic/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/foundry-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  sdk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify locked Foundry dependencies
+        run: uv sync --locked --extra quality --extra foundry
+      - name: Check pinned Microsoft Agent Framework MCP integration
+        run: |
+          uv run --no-sync python - <<'PY'
+          from agent_framework import Agent, AgentMiddleware, MCPStdioTool
+          from agent_framework.foundry import FoundryChatClient
+          from agent_framework.orchestrations import SequentialBuilder
+          import inspect
+          from agentic.review_metrics import ReviewMetrics
+          from agentic.github_mcp import config_from_environment
+          assert Agent and AgentMiddleware and SequentialBuilder and FoundryChatClient
+          sig=inspect.signature(MCPStdioTool)
+          assert all(x in sig.parameters for x in ("name","command","args"))
+          assert config_from_environment() is None
+          assert ReviewMetrics().summary()["model_token_usage"] is None
+          print("Foundry, MCPStdioTool and middleware SDK imports verified")
+          PY
+      - name: Validate schema, privacy and telemetry tests
+        run: uv run --no-sync python -m pytest tests/test_decision_ledger.py tests/test_agent_telemetry.py tests/test_review_metrics.py tests/test_telemetry_export.py
