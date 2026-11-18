@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "046e007707f37ccaa64e15837a513cb7a68f10cc",
+  "generated_at_utc": "2026-11-18T18:58:37.598791+00:00",
+  "source_manifest_sha256": "ede1ff35ee7544fc06f485567e70f5b6a0d399383c29591cc92208e8e8b21daf",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Specify and test the exact formulas, inclusion scope, rounding, and tolerance for both TOTAL control values before deduplication, then exclude the control row only after successful reconciliation.",
+      "evidence": "The source contains one TOTAL row with Quantity='37150' and Discount='65924.67', while the approved policy specifies verification before deduplication but does not expose calculation semantics.",
+      "risk": "An incorrect interpretation of either control value could allow corrupted data to pass or valid data to fail.",
+      "status": "pending_human_review",
+      "source_report_sha256": "fc75aa1a1ba1495294d7a9aad280a953a84bc738fc320d5dd70e0303dd27b182",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "duplicates",
+      "proposal": "Retain the approved exact-deduplication rule only after producing a duplicate-group audit and confirming that exact repetition represents upstream duplication rather than legitimate transactions.",
+      "evidence": "The measured source contains 5 exact-duplicate rows before deduplication.",
+      "risk": "Removal could understate legitimate activity; retention could double-count replayed records.",
+      "status": "pending_human_review",
+      "source_report_sha256": "fc75aa1a1ba1495294d7a9aad280a953a84bc738fc320d5dd70e0303dd27b182",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit product-based price inference only when an executable uniqueness check passes within an approved business scope and preserve source-row and donor-price lineage.",
+      "evidence": "There are 4 missing unit prices, and the approved policy currently uses unique price per product or fails closed.",
+      "risk": "A product may have valid price variation by date, region, promotion, or transaction even when limited source observations appear unique.",
+      "status": "pending_human_review",
+      "source_report_sha256": "fc75aa1a1ba1495294d7a9aad280a953a84bc738fc320d5dd70e0303dd27b182",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Specify and test exact formulas, inclusion scope, rounding, and tolerance for both TOTAL values before deduplication; exclude the control row only after successful reconciliation.",
+      "evidence": "The source has one TOTAL row with Quantity='37150' and Discount='65924.67', while the policy does not expose their calculation semantics.",
+      "risk": "A wrong interpretation could allow corrupted data to pass or cause valid data to fail.",
+      "status": "pending_human_review",
+      "source_report_sha256": "484fca8d4cdad591bc8186025eddb72f8f8b07ab6b62623be2f437c55aaf89ca",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "duplicates",
+      "proposal": "Apply exact deduplication only with an audit report that identifies each removed group and confirms its business treatment.",
+      "evidence": "The source profile reports 5 exact-duplicate rows before deduplication.",
+      "risk": "Removal may understate legitimate activity, while retention may double-count replayed records.",
+      "status": "pending_human_review",
+      "source_report_sha256": "484fca8d4cdad591bc8186025eddb72f8f8b07ab6b62623be2f437c55aaf89ca",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "data_engineer",
+      "target": "missing_prices",
+      "proposal": "Allow price inference only after an executable uniqueness check under an approved business scope, preserving affected-row and donor-value lineage.",
+      "evidence": "There are 4 missing unit prices, and the policy uses a unique price per product or fails closed.",
+      "risk": "Prices may legitimately vary by date, region, promotion, or transaction despite apparent product-level uniqueness.",
+      "status": "pending_human_review",
+      "source_report_sha256": "484fca8d4cdad591bc8186025eddb72f8f8b07ab6b62623be2f437c55aaf89ca",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Require an upstream duplicate-group reconciliation before presenting the deduplicated revenue as business-authoritative; retain both five-row audit evidence and sensitivity totals.",
+      "evidence": "Five exact source duplicates are removed, and README.md acknowledges that their accidental nature cannot be proved from the export.",
+      "risk": "Removing legitimate repeated orders understates revenue, while retaining replayed export rows overstates it.",
+      "status": "pending_human_review",
+      "source_report_sha256": "85bdc6c89710aa7fe55341169ec4546c634041252164d9a1ff4203fe191a4463",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Confirm all six negative rows against return or credit-note records and explicitly approve discount treatment for returns.",
+      "evidence": "Six negative quantities are retained under the policy, but available tests only preserve their sign and do not prove return semantics.",
+      "risk": "Negative quantities may represent corrections, cancellations, or data errors rather than returns, and discount arithmetic may differ by transaction type.",
+      "status": "pending_human_review",
+      "source_report_sha256": "85bdc6c89710aa7fe55341169ec4546c634041252164d9a1ff4203fe191a4463",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0009",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Validate each of the four inferred prices against date-effective authoritative pricing and record donor lineage.",
+      "evidence": "Both production and oracle infer a price when the product has one observed normalized price, but this repeats the same business assumption rather than independently proving it.",
+      "risk": "Product prices may vary by date, customer, region, or promotion even when the current extract exposes only one nonmissing value.",
+      "status": "pending_human_review",
+      "source_report_sha256": "85bdc6c89710aa7fe55341169ec4546c634041252164d9a1ff4203fe191a4463",
+      "approved_by": null
+    }
+  ]
+}
