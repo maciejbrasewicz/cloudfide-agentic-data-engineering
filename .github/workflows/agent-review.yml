@@ -1,13 +1,27 @@
 name: Foundry - evidence-bound multiagent review
+
+# A workflow edit starts the run automatically. workflow_dispatch remains for replay.
+# Only main can exchange an OIDC token (matching the project-scoped Entra credential).
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/agent-review.yml"
+
 permissions:
   contents: read
   id-token: write
+
 jobs:
   review:
+    # Never issue an Azure token from unconfigured or untrusted contexts.
+    if: ${{ github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != '' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
+      FOUNDRY_MODEL: gpt-5.6-sol
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,28 +32,27 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install Foundry and test dependencies
+      - name: Install locked dependencies
         run: uv sync --locked --extra quality --extra foundry
-      - name: Verify deterministic ETL before AI review
+      - name: Check source and calculate source-controlled results
         run: |
+          uv run --no-sync python -m ruff check solution.py pipeline.py contracts.py agentic tests
           uv run --no-sync python -m pytest
           uv run --no-sync python pipeline.py
           git diff --exit-code -- revenue_by_region.csv reports/data_quality.json
-      - name: Azure login via OIDC
+      - name: Azure login using GitHub OIDC
         uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: Three-agent analysis of verified task
+          tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
+          allow-no-subscriptions: true
+      - name: Three-agent Foundry analysis
         env:
-          FOUNDRY_PROJECT_ENDPOINT: ${{ vars.FOUNDRY_PROJECT_ENDPOINT }}
-          FOUNDRY_MODEL: ${{ vars.FOUNDRY_MODEL }}
           APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         run: uv run --no-sync python -m agentic.run --output agentic_review_runtime.json
-      - name: Verify evidence matches current source
+      - name: Validate evidence provenance against the checked-out source
         run: uv run --no-sync python -m agentic.verify --input agentic_review_runtime.json
-      - name: Publish review evidence
+      - name: Upload actual agent outputs for audit
         if: always()
         uses: actions/upload-artifact@v4
         with:
