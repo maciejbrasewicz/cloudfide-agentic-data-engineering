@@ -58,14 +58,13 @@ def clean_sales(raw: pd.DataFrame, policy: DataPolicy | None = None) -> tuple[pd
         rows.loc[~rows.order_id.isin(["Order ID", "TOTAL"]), "region"]
         != rows.loc[~rows.order_id.isin(["Order ID", "TOTAL"]), "region"].str.strip().str.title()
     ).sum())
-    for col in rows.columns:
-        rows[col] = rows[col].map(lambda x: x.strip() if isinstance(x, str) else x)
-
+    # Only normalize columns explicitly permitted by the approved policy.
+    # All other source fields must retain their original meaning.
     headers = rows[rows.order_id == "Order ID"]
     totals = rows[rows.order_id == "TOTAL"]
     if len(totals) != 1:
         raise DataQualityError("Expected exactly one TOTAL control row")
-    expected_header = {normalized: original.strip() for original, normalized in FIELDS.items()}
+    expected_header = {normalized: original for original, normalized in FIELDS.items()}
     for _, record in headers.iterrows():
         if any(record[column] != expected for column, expected in expected_header.items()):
             raise DataQualityError("Malformed repeated header row")
@@ -73,6 +72,9 @@ def clean_sales(raw: pd.DataFrame, policy: DataPolicy | None = None) -> tuple[pd
     if any(control[column] != "" for column in ("region", "product", "unit_price", "order_date")):
         raise DataQualityError("Malformed TOTAL control row metadata")
     transactions = rows[~rows.order_id.isin(["Order ID", "TOTAL"])].copy()
+    for col in ("order_id", "product", "unit_price", "discount", "order_date"):
+        if (transactions[col] != transactions[col].str.strip()).any():
+            raise DataQualityError(f"Unapproved surrounding whitespace in {col}")
     if not transactions.order_id.map(lambda x: bool(ID_PATTERN.fullmatch(x))).all():
         raise DataQualityError("Malformed order ID; manual investigation required")
 
