@@ -9,7 +9,7 @@ recruitment task and passed deterministic evidence checks.
 
 Keep the ORIGINAL CloudFide task outside this public repository.
 Create a GitHub Actions repository secret named CLOUDFIDE_TASK_SPEC_B64.
-Its value is the Base64 encoding of the original UTF-8 assignment Markdown.
+Its value may be the **original UTF-8 assignment text** or the Base64 encoding of the same Markdown. The existing secret name ends in `_B64` for compatibility, but both forms are accepted and independently validated.
 
 Example: run locally in Python and paste the output into the secret editor:
 
