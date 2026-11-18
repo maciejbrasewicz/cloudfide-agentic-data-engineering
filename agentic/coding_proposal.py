@@ -16,7 +16,6 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from pipeline import ROOT
-from .tools import read_project_file, check_quality
 
 
 OUTPUT_FILE = "tests/test_agent_generated_regression.py"
@@ -61,6 +60,7 @@ def validate_content(proposal: CodeProposal, root: Path = ROOT) -> Path:
 
 async def author() -> CodeProposal:
     from agent_framework import Agent
+    from .tools import read_project_file, check_quality
     from agent_framework.foundry import FoundryChatClient
     from azure.identity import DefaultAzureCredential
 
