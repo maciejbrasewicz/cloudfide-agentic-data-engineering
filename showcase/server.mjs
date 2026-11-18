@@ -52,7 +52,7 @@ export function createAppServer(){
       res.writeHead(400,HEADERS);res.end();return;
     }
     // Only explicit public assets; block dotfiles, source files and directory traversal.
-    const allowed = new Set(["/index.html","/styles.css","/app.js","/trace.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json"]);
+    const allowed = new Set(["/index.html","/styles.css","/app.js","/trace.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/fault.js","/data/fault_evaluation.json"]);
     if(!allowed.has(location)){
       res.writeHead(404,HEADERS);res.end();return;
     }
