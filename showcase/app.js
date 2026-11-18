@@ -79,7 +79,7 @@
     return node;
   };
   const pl=(text,english)=>language==="pl"?text:english;
-  const formatMoney=(value)=>new Intl.NumberFormat(language==="pl"?"pl-PL":"en-US",{minimumFractionDigits:2,maximumFractionDigits:2,maximumSignificantDigits:15}).format(Number(value));
+  const formatMoney=(value)=>new Intl.NumberFormat(language==="pl"?"pl-PL":"en-US",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(value));
   const formatCount=(value)=>new Intl.NumberFormat(language==="pl"?"pl-PL":"en-US").format(value);
   function setLanguage(next){
     language=next==="en"?"en":"pl";
