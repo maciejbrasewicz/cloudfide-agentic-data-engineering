@@ -9,6 +9,9 @@ on:
     paths:
       - ".github/workflows/architect-e2e.yml"
       - "agentic/architect.py"
+      - "agentic/spec_loader.py"
+      - "agentic/input_manifest.py"
+      - "tests/test_spec_loader.py"
       - "agentic/source_tools.py"
       - "agentic/policy_gate.py"
       - "agentic/schemas/architect.py"
