@@ -31,6 +31,7 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
   id-token: write
 
 jobs:
@@ -44,6 +45,8 @@ jobs:
       FOUNDRY_MODEL: gpt-5.6-sol
       LIVE_REQUEST_ID: ${{ inputs.live_request_id }}
       REVIEW_LIVE_SINK_URL: https://engineering-intelligence-production-a972180f.up.railway.app
+      GITHUB_MCP_READONLY: '1'
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,6 +71,8 @@ jobs:
           client-id: 459e0c31-5a4c-40b0-88d4-4f521ead55fc
           tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
           allow-no-subscriptions: true
+      - name: Verify official GitHub MCP container is available
+        run: docker image inspect ghcr.io/github/github-mcp-server:v2.1.0 >/dev/null 2>&1 || docker pull ghcr.io/github/github-mcp-server:v2.1.0
       - name: Three-agent Foundry analysis
         env:
           APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
