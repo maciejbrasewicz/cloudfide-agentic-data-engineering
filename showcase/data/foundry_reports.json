@@ -14,7 +14,8 @@
         "Removing exact duplicates may be operationally reasonable, but treating identical rows as accidental duplicates rather than separate events remains an assumption.",
         "Retaining negative quantities as returns is a documented but unvalidated business interpretation.",
         "Missing unit prices require inference for four rows, and the contract's unique-price-per-product rule could fail or infer an inappropriate value if prices vary by date, region, or order context."
-      ]
+      ],
+      "originalRecommendedNextAction": "Run an independent, read-only validation that first reconciles the raw 1,505 transaction rows to the TOTAL controls, then inspects all duplicate groups, six negative-quantity rows, and four missing-price rows before comparing a fresh ETL result with the submitted final CSV and executing the documented test suite."
     },
     {
       "id": "engineer",
@@ -25,7 +26,8 @@
         "Conformance of solution.py, pipeline.py, and the final CSV to the approved policy remains unverified, not established as defective.",
         "Automated test coverage and suite results remain unverified.",
         "Documentation completeness remains unverified, particularly the distinction between specified behavior and business assumptions."
-      ]
+      ],
+      "originalRecommendedNextAction": "Provide read-only access to solution.py, pipeline.py, documentation, tests, and the final CSV; then run check_quality and independently execute the ETL. Reconcile the 1,505 raw transaction rows before deduplication, inspect all duplicate groups, six negative-quantity rows, and four missing-price rows, and compare the generated output with the submitted CSV."
     },
     {
       "id": "verifier",
@@ -36,8 +38,10 @@
         "The final CSV and tracked reconciliation values are reproducible under executable checks.",
         "Artifact writes are not atomic, so an interrupted or partially failing run may leave the output CSV updated without a corresponding audit report.",
         "The decision to remove five exact duplicate lines remains a business assumption rather than a proven property of the source."
-      ]
+      ],
+      "originalRecommendedNextAction": "Accept the arithmetic and artifact reproducibility as independently verified under the current policy, but do not claim the three business assumptions are proven. Obtain source-owner validation for the five removed duplicate lines, six negative-quantity lines, and four inferred prices, then add atomic output/report publication with failure-injection tests."
     }
   ],
-  "disclosure": "The English summaries and selected findings above are verbatim excerpts from the recorded Foundry JSON artifact. Polish/English explanatory captions in the site are editorial interpretation, not verbatim model output. Tool-event attribution to an individual agent was not captured."
+  "disclosure": "Verbatim English agent summaries, selected verbatim finding statements, and original recommended actions extracted from the GitHub Actions artifact at the recorded run. Translated editorial commentary is separate; source access and tool-call-to-agent attribution were limited.",
+  "originalManifestSha256": "d66c9c275581d56bbef286fa80d9d85858087899276918426a8e037516955ba5"
 }
