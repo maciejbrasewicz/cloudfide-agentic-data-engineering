@@ -8,7 +8,14 @@ The present `.github/workflows/agent-review.yml` is a **real, read-only, three-a
 
 The consolidated bilingual engineering showcase is hosted separately but remains one portal.
 
-## Target: not yet implemented
+## Target: incremental implementation (not yet complete)
+
+**P0:** committed and tested (private task intake, input hashes, fixture integrity).
+
+**P1:** implemented in source and tested on Windows, Linux and the pinned Agent Framework SDK: real Data Architect tools, independent original CSV profiling, typed evidence contract and fail-closed policy gate. A *live P1 Foundry execution on the private original specification is not yet verified*; it requires the operator to set the Actions secret `CLOUDFIDE_TASK_SPEC_B64` and run `architect-e2e.yml`. See [P1 operator guide](architect-operator.md). No code-generation claim is made for P1.
+
+**P2–P7:** not implemented yet. The existing auditor remains available separately.
+
 
 Read [Autonomous Data Engineering Delivery — architecture, milestones, test gates and E2E acceptance](autonomous-delivery-plan.md).
 

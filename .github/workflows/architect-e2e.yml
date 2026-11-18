@@ -31,7 +31,6 @@ jobs:
     env:
       FOUNDRY_PROJECT_ENDPOINT: https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
       FOUNDRY_MODEL: gpt-5.6-sol
-      CLOUDFIDE_TASK_SPEC_B64: ${{ secrets.CLOUDFIDE_TASK_SPEC_B64 }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,6 +44,8 @@ jobs:
       - name: Install pinned engineering and Foundry dependencies
         run: uv sync --locked --extra quality --extra foundry
       - name: Require private task specification secret
+        env:
+          CLOUDFIDE_TASK_SPEC_B64: ${{ secrets.CLOUDFIDE_TASK_SPEC_B64 }}
         shell: bash
         run: |
           if [ -z "$CLOUDFIDE_TASK_SPEC_B64" ]; then
@@ -62,6 +63,8 @@ jobs:
           tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
           allow-no-subscriptions: true
       - name: Execute actual Foundry Architect and verify seven source tools
+        env:
+          CLOUDFIDE_TASK_SPEC_B64: ${{ secrets.CLOUDFIDE_TASK_SPEC_B64 }}
         run: uv run --no-sync python -m agentic.architect --mode "${{ inputs.mode }}" --output-dir architect-evidence
       - name: Publish source-grounded architecture evidence
         if: always()
