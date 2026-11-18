@@ -93,6 +93,9 @@ def observed_tool(name: str) -> Callable[[F], F]:
                 recorder = _active
                 if recorder is not None:
                     recorder.add(name, started, elapsed_ms, status)
+                    # Publish metadata only. Never send the raw arguments or result.
+                    from .live_events import emit
+                    emit("tool.completed", tool=name, duration_ms=round(elapsed_ms, 3), status=status)
 
         return wrapped  # type: ignore[return-value]
 
