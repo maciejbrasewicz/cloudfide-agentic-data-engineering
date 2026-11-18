@@ -12,11 +12,15 @@ import os
 import subprocess
 import time
 from datetime import datetime, timezone
+from contextlib import AsyncExitStack
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .models import parse_report
+from .live_events import emit
+from .github_mcp import config_from_environment
+from .review_metrics import ReviewMetrics
 from .telemetry import ToolRecorder, active_recorder
 from .verify import collect_provenance, verify_manifest
 from .tools import (
@@ -69,6 +73,10 @@ Use pipeline (not implementation/output), testing (not tests), spec (not policy)
 Every finding.severity MUST be exactly low, medium, or high.
 Return no markdown, no additional fields, and no more than 12 findings.
 Findings are hypotheses until independently validated by executable checks.
+For each agent, optionally include "decision_proposals": [] (0 to 3 objects) with EXACT keys:
+target (duplicates|negative_quantities|missing_prices|regions|source_controls|quality_gate|other),
+proposal (specific action), evidence (source-grounded), risk (unresolved uncertainty).
+These are proposals ONLY; never claim to have approved or applied a decision.
 """
 
 
@@ -102,24 +110,80 @@ async def perform(task_file: Path | None) -> dict:
 
     credential = DefaultAzureCredential(exclude_interactive_browser_credential=True)
     client = FoundryChatClient(project_endpoint=endpoint, model=model, credential=credential)
-    architect = Agent(name="data_architect", client=client, instructions=ARCHITECT + REVIEW_TAXONOMY,
-                      tools=[profile_source, inspect_orders, inspect_approved_policy])
-    engineer = Agent(name="data_engineer", client=client, instructions=ENGINEER + REVIEW_TAXONOMY,
-                     tools=[read_project_file, check_quality, inspect_approved_policy])
-    verifier = Agent(name="verification_engineer", client=client, instructions=VERIFIER + REVIEW_TAXONOMY,
-                     tools=[read_project_file, inspect_reconciliation, check_quality])
+    from agent_framework import AgentMiddleware
 
-    workflow = SequentialBuilder(participants=[architect, engineer, verifier], output_from="all").build()
-    prompt = (
-        "Analyze and independently review this actual Data Engineering deliverable, from input anomalies "
-        "to final CSV, policy, implementation, documentation and tests. "
-        "Return JSON in each agent's prescribed schema. The repository is read-only. "
-        "Original task source (provided privately, do not commit it):\n" + task_context
-    )
-    recorder = ToolRecorder()
-    started_ns = time.perf_counter_ns()
-    with active_recorder(recorder):
-        response = await workflow.run(prompt)
+    metrics = ReviewMetrics()
+
+    class TimedReviewer(AgentMiddleware):
+        def __init__(self, role: str) -> None:
+            self.role = role
+
+        async def process(self, context, call_next) -> None:
+            started = time.perf_counter_ns()
+            status = "ok"
+            try:
+                await call_next(context)
+            except Exception:
+                status = "error"
+                raise
+            finally:
+                elapsed_ms = (time.perf_counter_ns() - started) / 1_000_000
+                measured_response = context.result if status == "ok" else None
+                metrics.record(self.role, elapsed_ms, measured_response, status=status)
+                emit(
+                    "agent.timing",
+                    role=self.role,
+                    duration_ms=round(elapsed_ms, 3),
+                    status=status,
+                )
+
+    mcp_config = config_from_environment()
+    # The MCP connection remains open throughout the Foundry orchestration.
+    # GitHub Actions grants the subprocess a read-only repository token.
+    async with AsyncExitStack() as stack:
+        github_mcp = None
+        if mcp_config:
+            from agent_framework import MCPStdioTool
+
+            github_mcp = await stack.enter_async_context(
+                MCPStdioTool(
+                    name=mcp_config.name,
+                    command=mcp_config.command,
+                    args=list(mcp_config.args),
+                )
+            )
+        engineer_tools = [read_project_file, check_quality, inspect_approved_policy]
+        if github_mcp is not None:
+            engineer_tools.append(github_mcp)
+        architect = Agent(
+            name="data_architect", client=client, instructions=ARCHITECT + REVIEW_TAXONOMY,
+            tools=[profile_source, inspect_orders, inspect_approved_policy],
+            middleware=[TimedReviewer("data_architect")],
+        )
+        engineer = Agent(
+            name="data_engineer", client=client, instructions=ENGINEER + REVIEW_TAXONOMY,
+            tools=engineer_tools,
+            middleware=[TimedReviewer("data_engineer")],
+        )
+        verifier = Agent(
+            name="verification_engineer", client=client, instructions=VERIFIER + REVIEW_TAXONOMY,
+            tools=[read_project_file, inspect_reconciliation, check_quality],
+            middleware=[TimedReviewer("verification_engineer")],
+        )
+        workflow = SequentialBuilder(
+            participants=[architect, engineer, verifier], output_from="all"
+        ).build()
+        prompt = (
+            "Analyze and independently review this actual Data Engineering deliverable, from input anomalies "
+            "to final CSV, policy, implementation, documentation and tests. "
+            "Return JSON in each agent's prescribed schema. The repository is read-only. "
+            "Original task source (provided privately, do not commit it):\\n" + task_context
+        )
+        recorder = ToolRecorder()
+        emit("workflow.started")
+        started_ns = time.perf_counter_ns()
+        with active_recorder(recorder):
+            response = await workflow.run(prompt)
     measured_wall_ms = round((time.perf_counter_ns() - started_ns) / 1_000_000, 3)
     outputs = list(response.get_outputs())
     if len(outputs) != 3:
@@ -138,8 +202,10 @@ async def perform(task_file: Path | None) -> dict:
             git_revision = revision.stdout.strip() if revision.returncode == 0 else None
         except (FileNotFoundError, subprocess.TimeoutExpired):
             git_revision = None
+    role_summary = metrics.summary()
     manifest = {
         "schema_version": 2,
+        "github_mcp_enabled": bool(mcp_config),
         "git_revision": git_revision,
         "provenance": collect_provenance(),
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -153,14 +219,28 @@ async def perform(task_file: Path | None) -> dict:
             "wall_duration_ms": measured_wall_ms,
             "tool_call_count": len(recorder.snapshot()),
             "tool_events": recorder.snapshot(),
-            "individual_agent_wall_ms": None,
-            "model_token_usage": None,
-            "estimated_model_cost": None,
+            "individual_agent_wall_ms": role_summary["individual_agent_wall_ms"],
+            "agent_measurements": role_summary["agent_measurements"],
+            "model_token_usage": role_summary["model_token_usage"],
+            "estimated_model_cost": role_summary["estimated_model_cost"],
+            "pricing_status": role_summary["pricing_status"],
             "github_run_id": os.getenv("GITHUB_RUN_ID") or None,
             "otel_exporter_configured": bool(os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")),
         },
     }
     manifest["deterministic_attestation"] = verify_manifest(manifest)
+    for report in reports:
+        emit(
+            "agent.completed",
+            role=report.role,
+            summary=report.summary,
+            findings=len(report.findings),
+        )
+    emit(
+        "workflow.completed",
+        total_ms=measured_wall_ms,
+        tool_count=len(recorder.snapshot()),
+    )
     return manifest
 
 
@@ -184,7 +264,13 @@ def main() -> None:
             f"{context.trace_id:032x}" if context.is_valid and span.is_recording() else None
         )
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    from .decision_ledger import create_ledger, write_ledger_atomic
+
+    ledger_path = args.output.parent / "agentic_decision_ledger_runtime.json"
+    ledger = create_ledger(result)
+    write_ledger_atomic(ledger, ledger_path)
     print(f"Three Foundry agent reviews completed: {args.output}")
+    print(f"Human-gated decision proposals recorded: {len(ledger.decisions)}")
 
 
 if __name__ == "__main__":

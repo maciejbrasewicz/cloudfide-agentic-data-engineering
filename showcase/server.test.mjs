@@ -36,7 +36,7 @@ test("recorded evidence is available and cannot be cached as live state",async()
 });
 
 test("client assets are served without requiring any dependency",async()=>{
-  for(const path of ["/app.js","/styles.css","/favicon.svg"]){
+  for(const path of ["/app.js","/engineering.js","/styles.css","/engineering.css","/favicon.svg"]){
     const r=await fetch(origin+path);
     assert.equal(r.status,200);
     assert.ok((await r.text()).length>100);
@@ -60,4 +60,23 @@ test("real reviewer output is served from the verified Foundry run",async()=>{
   assert.equal(reports.roles.length,3);
   assert.equal(reports.roles[2].findingCount,11);
   assert.match(reports.roles[2].originalSummary,/79 tests/);
+});
+
+test("dedicated Engineering Lab explains the real human/ChatGPT/Foundry hierarchy",async()=>{
+  const response=await fetch(origin+"/engineering.html?lang=pl");
+  assert.equal(response.status,200);
+  assert.match(response.headers.get("content-type"),/text\/html/);
+  const html=await response.text();
+  assert.match(html,/ChatGPT/);
+  assert.match(html,/SequentialBuilder/);
+  assert.match(html,/Microsoft Foundry/);
+  assert.match(html,/Human-in-the-loop/i);
+  assert.match(html,/id="live"/);
+});
+
+test("public portal cannot invoke arbitrary endpoints",async()=>{
+  const r=await fetch(origin+"/api/live/start",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});
+  assert.equal(r.status,503);
+  assert.equal((await fetch(origin+"/.env")).status,404);
+  assert.equal((await fetch(origin+"/live_gateway.mjs")).status,404);
 });

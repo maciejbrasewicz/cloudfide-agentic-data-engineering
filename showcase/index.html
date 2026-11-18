@@ -19,7 +19,7 @@
 <header class="header">
  <div class="container header-inner">
   <a class="logo" href="#intro"><b>CF<span class="slash">/</span></b><span>Agentic Data Engineering<small>MICROSOFT FOUNDRY × DATA ENGINEERING</small></span></a>
-  <nav class="nav" aria-label="Sections"><a href="#task" data-i18n="navTask">Zadanie</a><a href="#architecture" data-i18n="navArchitecture">Architektura</a><a href="#execution" data-i18n="navAgents">Agenci</a><a href="#data" data-i18n="navData">Wyniki</a><a href="#evidence" data-i18n="navProof">Dowody</a></nav>
+  <nav class="nav" aria-label="Sections"><a href="#task" data-i18n="navTask">Zadanie</a><a href="#architecture" data-i18n="navArchitecture">Architektura</a><a href="#execution" data-i18n="navAgents">Agenci</a><a href="#data" data-i18n="navData">Wyniki</a><a href="#evidence" data-i18n="navProof">Dowody</a><a href="./engineering.html?lang=pl" data-route="engineering" class="engineering-nav-link" data-i18n="navLab">Engineering Lab ↗</a></nav>
   <div class="header-end"><div class="lang" role="group" aria-label="Language / Język"><button type="button" id="pl" data-lang="pl" aria-pressed="true">PL</button><button type="button" id="en" data-lang="en" aria-pressed="false">EN</button></div><a class="run-link" target="_blank" rel="noopener noreferrer" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568"><span data-i18n="originalRun">Oryginalny przebieg</span> ↗</a></div>
  </div>
 </header>
@@ -29,7 +29,7 @@
   <div class="kicker"><span class="ink-dot"></span><span data-i18n="kicker">Studium rzeczywistego wdrożenia / bez symulacji</span></div>
   <h1 data-i18n="heroTitle">Zadanie Data Engineering. Trzech agentów w Foundry. Sprawdzalny rezultat.</h1>
   <p class="lead" data-i18n="heroLead">Zbudowaliśmy działający pipeline Python/pandas, a następnie uruchomiliśmy jego audyt przez trzy wyspecjalizowane agenty Microsoft Agent Framework. Pokazujemy co naprawdę uruchomiono, co agenci ustalili, co poprawiliśmy i skąd pochodzą wyniki.</p>
-  <div class="hero-actions"><a class="primary-button" href="#execution"><span data-i18n="heroAction">Zobacz pracę agentów</span> <span>↘</span></a><a class="secondary-button" href="#data"><span data-i18n="heroResult">Zobacz wynik danych</span> <span>↘</span></a></div>
+  <div class="hero-actions"><a class="primary-button" href="#execution"><span data-i18n="heroAction">Zobacz pracę agentów</span> <span>↘</span></a><a class="secondary-button" href="./engineering.html?lang=pl" data-route="engineering"><span data-i18n="heroLab">Otwórz Engineering Lab</span> <span>↗</span></a></div>
   <div class="tech-tags"><span>Microsoft Foundry</span><span>Agent Framework</span><span>SequentialBuilder</span><span>Python / Decimal</span><span>GitHub OIDC</span></div>
  </div>
  <aside class="hero-proof" aria-label="Verified results">
@@ -44,6 +44,17 @@
  <div class="two-cards"><article class="plain-card"><div class="card-top"><span>01 — PYTHON API</span><code>solution.py</code></div><h3 data-i18n="virtualTitle">Kolumna wirtualna</h3><p data-i18n="virtualDesc">Funkcja add_virtual_column(df, role, new_column) tworzy kolumnę na podstawie bezpiecznie ograniczonych działań arytmetycznych. AST waliduje dozwolone nazwy i operatory, bez wykonywania arbitralnego kodu.</p><div class="card-footer" data-i18n="virtualFooter">Wynik: funkcja, oryginalne testy, testy regresyjne.</div></article>
  <article class="plain-card"><div class="card-top"><span>02 — ETL</span><code>pipeline.py</code></div><h3 data-i18n="etlTitle">Przychód netto ze sprzedaży</h3><p data-i18n="etlDesc">CSV zawierał duplikaty, dodatkowy nagłówek, wiersz TOTAL, różne formaty liczb i regionów oraz brakujące ceny. Pipeline weryfikuje dane, stosuje zatwierdzoną politykę i wylicza przychód dla pięciu regionów.</p><div class="card-footer" data-i18n="etlFooter">Wynik: revenue_by_region.csv i raport jakości.</div></article></div>
  <div class="data-flow"><div><span data-i18n="rawSource">DANE ŹRÓDŁOWE</span><strong>1 507</strong><small data-i18n="rawExplain">wierszy, w tym nagłówek i TOTAL</small></div><span class="flow-arrow">→</span><div><span data-i18n="cleanSource">PO OCZYSZCZENIU</span><strong>1 500</strong><small data-i18n="cleanExplain">wierszy transakcyjnych</small></div><span class="flow-arrow">→</span><div><span data-i18n="finalSource">WYNIK</span><strong>5 <small data-i18n="regionWord">regionów</small></strong><small data-i18n="finalExplain">kwoty dokładne do grosza</small></div></div>
+</section>
+<section class="ownership-story container" id="ownership">
+  <div class="section-heading"><div><span class="section-no">02 / <span data-i18n="ownershipEyebrow">JAK POWSTAŁ SYSTEM</span></span><h2 data-i18n="ownershipTitle">Kto zaprojektował agentów — i kto podejmował decyzje?</h2></div><p data-i18n="ownershipLead">To właśnie ta warstwa odróżnia realizację zadania od zwykłego uruchomienia trzech promptów. Proces powstawał w pętli human-in-the-loop.</p></div>
+  <div class="ownership-chain">
+    <article><span class="ownership-actor">HUMAN / 00</span><h3 data-i18n="ownershipHuman">Człowiek zatwierdzał kierunek</h3><p data-i18n="ownershipHumanDesc">Wymagania, decyzje o polityce, ocena propozycji i akceptacja zmian.</p></article><span class="ownership-arrow">→</span>
+    <article><span class="ownership-actor">CHATGPT / 01</span><h3 data-i18n="ownershipChat">ChatGPT projektował i wdrażał</h3><p data-i18n="ownershipChatDesc">Architektura, kod, poprawki, stworzenie agentów, GitHub i konfiguracja OIDC.</p></article><span class="ownership-arrow">→</span>
+    <article><span class="ownership-actor">FOUNDRY / 02–04</span><h3 data-i18n="ownershipFoundry">Trzej agenci audytowali</h3><p data-i18n="ownershipFoundryDesc">Rzeczywisty SequentialBuilder, narzędzia tylko do odczytu i ustrukturyzowane raporty.</p></article><span class="ownership-arrow">→</span>
+    <article><span class="ownership-actor">CI / GATE</span><h3 data-i18n="ownershipGate">Testy dostarczyły dowodów</h3><p data-i18n="ownershipGateDesc">Niezależny oracle, kontrola artefaktów i walidacja danych, niezależnie od opinii modelu.</p></article>
+  </div>
+  <p class="ownership-disclosure" data-i18n="ownershipCaveat">Uwaga: ChatGPT był zewnętrznym architektem współpracującym z człowiekiem, a nie czwartym agentem wewnątrz Foundry. Historyczne poprawki nie powstały przez autonomiczne commity Engineer Agenta.</p>
+  <a class="ownership-link" href="./engineering.html?lang=pl" data-route="engineering"><span data-i18n="ownershipCTA">Poznaj szczegółową architekturę i uruchom rzeczywisty workflow</span> ↗</a>
 </section>
 <section class="section gray-area" id="architecture" data-section="architecture"><div class="container">
  <div class="section-heading"><div><span class="section-no">02 / <span data-i18n="architectureEyebrow">ARCHITEKTURA</span></span><h2 data-i18n="architectureHeading">Jak działa system — bez marketingowych schematów.</h2></div><p data-i18n="architectureLead">Wynik oblicza kod. Agenci go analizują. Oddzielamy deterministyczny ETL od niedeterministycznej oceny LLM.</p></div>

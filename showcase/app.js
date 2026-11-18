@@ -4,6 +4,21 @@
   "use strict";
   const en = {
     skip:"Skip to content",
+    navLab:"Engineering Lab ↗",
+    heroLab:"Open Engineering Lab",
+    ownershipEyebrow:"HOW WE BUILT IT",
+    ownershipTitle:"Who designed the agents — and who made the decisions?",
+    ownershipLead:"The process was human-in-the-loop. That's the difference between a real engineering delivery and merely running three prompts.",
+    ownershipHuman:"A human approved direction",
+    ownershipHumanDesc:"Requirements, data policy, review of proposals and acceptance of changes.",
+    ownershipChat:"ChatGPT designed and implemented",
+    ownershipChatDesc:"Architecture, code, repairs, the agents, GitHub CI and Azure OIDC.",
+    ownershipFoundry:"Three Foundry agents reviewed",
+    ownershipFoundryDesc:"Actual SequentialBuilder, read-only tools and structured reports.",
+    ownershipGate:"Deterministic tests supplied proof",
+    ownershipGateDesc:"Independent oracle, artifact checks and data validation outside model judgment.",
+    ownershipCaveat:"ChatGPT was an external architect collaborating with the human, not a fourth Foundry agent. Earlier code corrections were not autonomous commits from the Engineer reviewer.",
+    ownershipCTA:"Explore the full architecture and launch a real review",
     topDate:"Documented implementation · 18 November 2026",
     navTask:"Assignment",navArchitecture:"Architecture",navAgents:"Agent run",navData:"Results",navProof:"Evidence",originalRun:"Original run",
     kicker:"Real implementation case study / no simulation",
@@ -87,6 +102,9 @@
     for(const node of document.querySelectorAll("[data-i18n]")){
       const key=node.dataset.i18n;
       node.textContent=language==="en"?(en[key]??meta[key]):meta[key];
+    }
+    for(const link of document.querySelectorAll('[data-route="engineering"]')){
+      link.href="./engineering.html?lang="+language;
     }
     for(const node of document.querySelectorAll("[data-lang]")){
       node.setAttribute("aria-pressed",String(node.dataset.lang===language));

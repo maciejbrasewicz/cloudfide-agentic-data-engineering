@@ -5,6 +5,12 @@ name: Foundry - evidence-bound multiagent review
 # Only main can exchange an OIDC token (matching the project-scoped Entra credential).
 on:
   workflow_dispatch:
+    inputs:
+      live_request_id:
+        description: "Optional validated UUID issued by the portal (no secrets)"
+        required: false
+        type: string
+        default: ""
   push:
     branches: [main]
     paths:
@@ -17,8 +23,15 @@ on:
       - "pyproject.toml"
       - "uv.lock"
 
+run-name: 'Foundry review · ${{ inputs.live_request_id || github.sha }}'
+
+concurrency:
+  group: foundry-verify-main
+  cancel-in-progress: false
+
 permissions:
   contents: read
+  pull-requests: read
   id-token: write
 
 jobs:
@@ -30,6 +43,10 @@ jobs:
     env:
       FOUNDRY_PROJECT_ENDPOINT: https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
       FOUNDRY_MODEL: gpt-5.6-sol
+      LIVE_REQUEST_ID: ${{ inputs.live_request_id }}
+      REVIEW_LIVE_SINK_URL: https://engineering-intelligence-production-a972180f.up.railway.app
+      GITHUB_MCP_READONLY: '1'
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,6 +71,8 @@ jobs:
           client-id: 459e0c31-5a4c-40b0-88d4-4f521ead55fc
           tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
           allow-no-subscriptions: true
+      - name: Verify official GitHub MCP container is available
+        run: docker image inspect ghcr.io/github/github-mcp-server:v2.1.0 >/dev/null 2>&1 || docker pull ghcr.io/github/github-mcp-server:v2.1.0
       - name: Three-agent Foundry analysis
         env:
           APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
@@ -62,6 +81,18 @@ jobs:
         run: uv run --no-sync python -m agentic.verify --input agentic_review_runtime.json
       - name: Export measured, redacted tool telemetry
         run: uv run --no-sync python -m agentic.telemetry_export --input agentic_review_runtime.json --output public_agent_trace.json
+      - name: Validate unapproved decision proposal ledger
+        run: |
+          uv run --no-sync python - <<'PY'
+          import json
+          from pathlib import Path
+          from agentic.decision_ledger import DecisionLedger
+          ledger = DecisionLedger.model_validate_json(
+              Path("agentic_decision_ledger_runtime.json").read_text(encoding="utf-8")
+          )
+          assert all(d.status == "pending_human_review" for d in ledger.decisions)
+          print(f"Validated {len(ledger.decisions)} unapproved, evidence-linked data decisions")
+          PY
       - name: Publish verified run summary
         shell: bash
         run: |
@@ -109,5 +140,64 @@ jobs:
           path: |
             agentic_review_runtime.json
             public_agent_trace.json
+            agentic_decision_ledger_runtime.json
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 90
+
+  persist-human-gated-decisions:
+    name: Persist DataDecision proposals outside production main
+    needs: review
+    if: ${{ needs.review.result == 'success' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      id-token: none
+    steps:
+      - name: Checkout audit branch metadata
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Retrieve validated Foundry decision artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: foundry-agentic-review
+          path: /tmp/foundry-output
+      - name: Validate record does not contain an agent-approved decision
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          ledger=json.loads(Path('/tmp/foundry-output/agentic_decision_ledger_runtime.json').read_text())
+          assert ledger['schema_version']==1
+          assert ledger['approval_boundary']=='human_review_required'
+          assert all(x['status']=='pending_human_review' and x['approved_by'] is None for x in ledger['decisions'])
+          assert len(ledger['source_manifest_sha256'])==64
+          print("Human approval gate remains closed for", len(ledger['decisions']), "proposals")
+          PY
+      - name: Append immutable record to audit-only branch
+        env:
+          TARGET_BRANCH: foundry-evidence-ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "$TARGET_BRANCH" >/dev/null; then
+            git fetch origin "$TARGET_BRANCH"
+            git switch -C "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+          else
+            git switch --orphan "$TARGET_BRANCH"
+            git rm -rf --quiet . || true
+          fi
+          mkdir -p records
+          target="records/${GITHUB_RUN_ID}.json"
+          if [[ -e "$target" ]]; then
+            echo "This run already has a permanent decision record" >&2
+            exit 1
+          fi
+          cp /tmp/foundry-output/agentic_decision_ledger_runtime.json "$target"
+          git add -- "$target"
+          git commit -m "Record human-gated Foundry proposals for run ${GITHUB_RUN_ID}"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
