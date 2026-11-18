@@ -1,37 +1,24 @@
-# Architecture and implementation plan
+# CloudFide — implementation status and delivery plan
 
-## Scope and acceptance gates
+## Current system: implemented and verified
 
-**Gate 1 — Required task (implemented / locally verified)**
+The recruitment solution is complete: `solution.py`, `pipeline.py`, `revenue_by_region.csv`, original fixtures, regression/property tests, approved `DataPolicy`, independent `csv + Decimal` checks and cross-platform CI.
 
-- Preserve the two original test/data inputs, without committing the assignment instructions.
-- Safe virtual-column parser in `solution.py`, returning a new DataFrame or an empty one for invalid roles/labels.
-- Deterministic `pipeline.py` computes `quantity * unit_price - discount` and writes `revenue_by_region.csv`.
-- `contracts/data_policy.json` constrains accepted business rules, and `reports/data_quality.json` records actual metrics.
-- Original tests, extra edge-case and integration tests, and a second independent Decimal calculation.
-- Acceptance: exact 1500 clean transactions and regional net revenue of 2,570,247.03.
+The present `.github/workflows/agent-review.yml` is a **real, read-only, three-agent Foundry audit** of that solution; it is **not** an autonomous code-delivery workflow. A verified run is [44379368776](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44379368776). `agent-coding-proposal.yml` is limited to proposing a single additional regression test, and its full execution has not yet been verified.
 
-**Gate 2 — Engineering verification (prepared; remote CI not yet run)**
+The consolidated bilingual engineering showcase is hosted separately but remains one portal.
 
-- `ci.yml` performs lint, unit/integration/property tests, pipeline rerun, and Git diff of committed result.
-- Resolved `uv.lock` is committed; CI verifies dependency installation with `--locked` on both Windows and Linux.
-- Activate branch protection for CI on the GitHub repository.
-- Acceptance: successful GitHub Actions build from a fresh checkout.
+## Target: not yet implemented
 
-**Gate 3 — Agentic audit (code prepared; cloud run awaiting credentials)**
+Read [Autonomous Data Engineering Delivery — architecture, milestones, test gates and E2E acceptance](autonomous-delivery-plan.md).
 
-- Establish Foundry project endpoint and model deployment; use Azure CLI credentials locally.
-- Authenticate GitHub Actions with Entra workload identity/OIDC, scoped to this repository and manual workflow.
-- Three actual Agent Framework participants with separated read-only tools: Architect, Engineer, Verifier.
-- Review report must validate against Pydantic schema and show evidence, not free-form model endorsement.
-- Acceptance: one genuine Foundry trace, verified tool calls, three parsed agent reports and one resulting tested change/decision, if the agents find a justified issue.
+The target system must take the **original assignment specification provided privately at runtime**, original `sales.csv` and supplied tests, then run:
 
-**Gate 4 — Submission (pending GitHub repo)**
+1. **Data Architect** — actual input profiling and evidence-linked policy/contract proposal.
+2. **Data Engineer** — actual code, tests, README and candidate patch creation in a restricted workspace.
+3. **Independent sandbox** — run the candidate without Azure credentials or write permissions.
+4. **Verification Engineer** — code inspection and at least one executable independent counterexample.
+5. **Deterministic controller** — accept, request bounded rework or stop with a supported reason; never trust a model-only success statement.
+6. **Draft PR** — submit validated code and evidence for human review; never auto-merge.
 
-- Create a new standalone GitHub repository, not in the Registry9 application repositories.
-- Push code and check a clean CI pass; verify all mandatory file names and `revenue_by_region.csv`.
-- Put repo URL into the CloudFide form. Public access avoids collaborator setup; if private, add `cf-recruitment` and send the requested email.
-
-## Non-goals
-
-No Fabric workspace, no Spark cluster, no arbitrary LLM-driven data transformations, no hosted web frontend, and no API key in repo. Model outputs cannot mutate approved policies or merge code without review.
+This replaces the earlier aspirational gates in this document, several of which were written before the now-successful Foundry and CI deployments. The existing audited solution must remain intact until the new pipeline passes the plan's ten end-to-end acceptance scenarios.
