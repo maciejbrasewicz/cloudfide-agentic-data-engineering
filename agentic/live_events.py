@@ -57,6 +57,7 @@ def sanitize_event(kind: str, payload: dict[str, Any]) -> dict:
     allowed = {
         "workflow.started": set(),
         "tool.completed": {"tool", "duration_ms", "status"},
+        "agent.timing": {"role", "duration_ms", "status"},
         "agent.completed": {"role", "summary", "findings"},
         "workflow.completed": {"total_ms", "tool_count"},
         "workflow.failed": {"phase"},
@@ -70,6 +71,13 @@ def sanitize_event(kind: str, payload: dict[str, Any]) -> dict:
         not 0 <= payload["duration_ms"] <= 120_000
     ):
         raise ValueError("Invalid tool event")
+    if kind == "agent.timing" and (
+        payload["role"] not in _ROLES
+        or payload["status"] not in ("ok", "error")
+        or not isinstance(payload["duration_ms"], (int, float))
+        or not 0 <= payload["duration_ms"] <= 1_200_000
+    ):
+        raise ValueError("Invalid measured role duration")
     if kind == "agent.completed" and (
         payload["role"] not in _ROLES or
         not isinstance(payload["summary"], str) or
