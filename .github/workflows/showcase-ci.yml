@@ -39,5 +39,31 @@ jobs:
         run: uv sync --locked --extra quality
       - name: Verify every published claim against committed evidence
         run: uv run --no-sync python -m pytest tests/test_showcase_evidence.py
+      - name: Render visual regression snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          node showcase/server.mjs &
+          SITE_PID=$!
+          trap 'kill "$SITE_PID" 2>/dev/null || true' EXIT
+          sleep 2
+          curl --fail --silent --show-error http://127.0.0.1:4173/data/evidence.json > /dev/null
+          BROWSER="$(command -v google-chrome || command -v chromium || true)"
+          if [ -z "$BROWSER" ]; then
+            echo "Chrome/Chromium unavailable for visual rendering" >&2
+            exit 1
+          fi
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=1600,1000 --screenshot="$PWD/engineering-desktop.png" http://127.0.0.1:4173/
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=430,900 --screenshot="$PWD/engineering-mobile.png" http://127.0.0.1:4173/
+          test -s engineering-desktop.png
+          test -s engineering-mobile.png
+      - name: Upload visual QA evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-intelligence-visual-qa
+          path: |
+            engineering-desktop.png
+            engineering-mobile.png
+          retention-days: 7
       - name: Verify ETL source files have not been touched
         run: git status --short
