@@ -1,4 +1,4 @@
-name: Showcase - evidence integrity and syntax
+name: Case study - real Foundry evidence and bilingual UI
 
 on:
   push:
@@ -18,7 +18,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,10 +26,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Validate client JavaScript syntax
+      - name: Validate client syntax and real HTTP response
         run: |
           node --check showcase/app.js
-          node --check showcase/trace.js
           node --check showcase/server.mjs
           node --test showcase/server.test.mjs
       - uses: astral-sh/setup-uv@v6
@@ -38,9 +37,9 @@ jobs:
           python-version: "3.12"
       - name: Install locked deterministic dependencies
         run: uv sync --locked --extra quality
-      - name: Verify every published claim against committed evidence
+      - name: Verify publication against original Foundry and ETL evidence
         run: uv run --no-sync python -m pytest tests/test_showcase_evidence.py
-      - name: Render visual regression snapshots
+      - name: Browser smoke test in Polish and English with visual evidence
         shell: bash
         run: |
           set -euo pipefail
@@ -48,29 +47,43 @@ jobs:
           SITE_PID=$!
           trap 'kill "$SITE_PID" 2>/dev/null || true' EXIT
           sleep 2
-          curl --fail --silent --show-error http://127.0.0.1:4173/data/evidence.json > /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:4173/data/foundry_reports.json > /dev/null
           BROWSER="$(command -v google-chrome || command -v chromium || true)"
           if [ -z "$BROWSER" ]; then
-            echo "Chrome/Chromium unavailable for visual rendering" >&2
+            echo "Chrome/Chromium unavailable" >&2
             exit 1
           fi
-          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=1600,1000 --screenshot="$PWD/engineering-desktop.png" http://127.0.0.1:4173/
-          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=430,900 --screenshot="$PWD/engineering-mobile.png" http://127.0.0.1:4173/
-          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=1600,1100 --screenshot="$PWD/engineering-execution.png" 'http://127.0.0.1:4173/#execution'
-          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=430,900 --screenshot="$PWD/engineering-execution-mobile.png" 'http://127.0.0.1:4173/#execution'
-          test -s engineering-desktop.png
-          test -s engineering-mobile.png
-          test -s engineering-execution.png
-          test -s engineering-execution-mobile.png
-      - name: Upload visual QA evidence
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:4173/?lang=pl' > polish-dom.html
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --virtual-time-budget=5500 --dump-dom 'http://127.0.0.1:4173/?lang=en' > english-dom.html
+          grep -q 'Zadanie Data Engineering' polish-dom.html
+          grep -q 'A Data Engineering assignment' english-dom.html
+          grep -q '79 tests' english-dom.html
+          grep -q 'Data Architect' english-dom.html
+          grep -q 'Source profiling confirms 1,507 rows' english-dom.html
+          grep -q '79 tests' english-dom.html
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=1600,1000 --screenshot="$PWD/case-study-desktop-pl.png" 'http://127.0.0.1:4173/?lang=pl'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=1600,1000 --screenshot="$PWD/case-study-desktop-en.png" 'http://127.0.0.1:4173/?lang=en'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=430,930 --screenshot="$PWD/case-study-mobile-pl.png" 'http://127.0.0.1:4173/?lang=pl'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=430,930 --screenshot="$PWD/case-study-mobile-en.png" 'http://127.0.0.1:4173/?lang=en'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1600,1900 --screenshot="$PWD/case-study-real-agents-en.png" 'http://127.0.0.1:4173/?lang=en#execution'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1600,1900 --screenshot="$PWD/case-study-results-pl.png" 'http://127.0.0.1:4173/?lang=pl#data'
+          test -s case-study-real-agents-en.png
+          test -s case-study-results-pl.png
+          test -s case-study-desktop-pl.png
+          test -s case-study-desktop-en.png
+          test -s case-study-mobile-pl.png
+          test -s case-study-mobile-en.png
+      - name: Upload desktop and mobile visual evidence
         uses: actions/upload-artifact@v4
         with:
-          name: engineering-intelligence-visual-qa
+          name: bilingual-foundry-case-study-visuals
           path: |
-            engineering-desktop.png
-            engineering-mobile.png
-            engineering-execution.png
-            engineering-execution-mobile.png
+            case-study-desktop-pl.png
+            case-study-desktop-en.png
+            case-study-mobile-pl.png
+            case-study-mobile-en.png
+            case-study-real-agents-en.png
+            case-study-results-pl.png
           retention-days: 7
-      - name: Verify ETL source files have not been touched
+      - name: Check working tree
         run: git status --short

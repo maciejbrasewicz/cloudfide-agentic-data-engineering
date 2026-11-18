@@ -1,7 +1,7 @@
 /* Static evidence site server. Node 22+, dependency-free, no API or private data. */
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
-import { dirname, extname, join, resolve, sep } from "node:path";
+import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -52,7 +52,7 @@ export function createAppServer(){
       res.writeHead(400,HEADERS);res.end();return;
     }
     // Only explicit public assets; block dotfiles, source files and directory traversal.
-    const allowed = new Set(["/index.html","/styles.css","/app.js","/trace.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json"]);
+    const allowed = new Set(["/index.html","/styles.css","/app.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
     if(!allowed.has(location)){
       res.writeHead(404,HEADERS);res.end();return;
     }

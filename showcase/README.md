@@ -1,37 +1,38 @@
-# Engineering Intelligence / Field Report 001
+# CloudFide · Agentic Data Engineering / real implementation case study
 
-A standalone, **dependency-free static web experience** showing the real delivery and verification history of the CloudFide agentic Data Engineering task.
+This is the **Polish/English public explanation** of a real recruitment engineering delivery, not a simulated AI dashboard. Its job is to help an engineering reviewer understand **what the assignment required, what was implemented, how Microsoft Foundry was actually used, what each agent concluded, and what the deterministic code produced**.
 
-## Purpose
+## The actual system
 
-A technical reviewer should be able to explore the system architecture, role-scoped tool access, three real code-correction cases, the raw-to-clean data lifecycle, the independent verification and the source-linked evidence without reading raw Python files first.
+- `solution.py` implements the requested virtual-column function with constrained expression validation.
+- `pipeline.py` turns the raw sales export into five net revenue totals using an approved Pydantic policy, Decimal arithmetic, reconciliation and independent tests.
+- `agentic/run.py` runs three **read-only reviewers** with Microsoft Agent Framework, sequentially using `SequentialBuilder` and `FoundryChatClient` on the `gpt-5.6-sol` deployment.
+- GitHub Actions authenticates to Azure using an OIDC federation. The report and its integrity checks are tied to a concrete commit.
+- The currently recorded run is [#44331275568](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568): **3 validated reports, 16 measured tool invocations and 90.8 seconds**. **79 deterministic tests** passed on Windows and Ubuntu in related CI. The computed net revenue is **2,570,247.03**.
+- Three real code corrections arose from the wider human-directed AI review process: [PR #1](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/1), [PR #2](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/2) and [PR #3](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/3).
 
-## Source of truth
+## Evidence contract
 
-- `data/evidence.json` is a **curated, recorded snapshot**, grounded in a successful [Foundry review run](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318354937) and the [CI result](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318536294).
-- The snapshot is explicitly **not live monitoring**. It includes a second, directly measured Foundry run at commit `aa01b168` with 16 tool calls over 90.8 seconds. The recorded event waterfall uses actual relative UTC offsets and duration measurements. No fabricated model-token counts, costs, per-agent timings or OTel trace IDs are shown.
-- The three engineering cases refer to real merged PRs [#1](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/1), [#2](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/2) and [#3](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/3). Humans directed those repairs; agents in the present repo are read-only reviewers.
-- Business assumptions about removing duplicates, reconstructing prices and interpreting negative quantities remain unproven by test results alone.
-- The assignment instructions themselves never appear in this app or the repository.
+Public files:
+- `data/evidence.json` — source and output hashes, reconciliation results, test counts, reviewed commit and allowed tools.
+- `data/agent_trace.json` — actual time-stamped, privacy-safe tool events, no fabricated spans or per-agent attribution.
+- `data/foundry_reports.json` — the **verbatim original English summaries** and a small selection of verbatim finding statements from the recorded Foundry report. Editorial explanations shown in Polish and English are explicitly separate from those original outputs.
 
-## Run locally
+The [original Foundry JSON artifact](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568) is the primary source. Download access to workflow artifacts may expire under the workflow's retention policy. No raw model prompts, tool arguments, secrets, protected Azure endpoints or unpublished task instructions are embedded in this showcase.
 
-From `showcase/`:
+**Scope limits:** no autonomous Engineer edits or PR creation; no GitHub MCP inside reviewer workflows; no verified Application Insights exporter or per-agent token/cost telemetry; no measured agent-detection benchmark. The Fault-Injection Lab measures deterministic test-gate sensitivity, not model accuracy.
+
+## Local preview
 
 ```bash
-python -m http.server 4173
+cd showcase
+node server.mjs
 ```
 
-Open http://localhost:4173.
+Open `http://localhost:4173/?lang=pl` or `http://localhost:4173/?lang=en`. No build step, external framework, API key or database is required.
 
-The app is plain HTML/CSS/JS. Navigation, architecture nodes, cases, agent details, revenue exploration, decision expansion and hash copying work in a browser without any API keys or paid backend.
+## Quality gates
 
-## Deploy
+`node --test showcase/server.test.mjs` verifies HTTP behavior and content-security headers. `python -m pytest tests/test_showcase_evidence.py` compares published figures with committed source, result and report hashes. GitHub Actions additionally checks JavaScript syntax and takes Polish/English Chromium screenshots on desktop and mobile.
 
-Link this repository to a static hosting project whose root directory is `showcase`. Vercel uses the included `vercel.json` security headers; there is no build step.
-
-## Engineering boundary
-
-The UI renders curated evidence, never interprets untrusted model output as HTML. The JS escaping helpers prevent textual evidence from becoming executable markup; external links are constrained to GitHub. Snapshot integrity tests in `tests/test_showcase_evidence.py` ensure numerical fields and displayed source hashes agree with committed ETL artifacts.
-
-**Future instrumentation:** connect OpenTelemetry from GitHub runners to Foundry/Application Insights, export redacted trace summaries with measured durations and model usage, and add a deterministic fault-injection evaluation. Until those real measurements exist, the UI keeps their status visibly unconfigured.
+Railway serves only the `showcase/` directory, independently of the ETL and Foundry project.
