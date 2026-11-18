@@ -20,7 +20,7 @@ Public files:
 
 The [original Foundry JSON artifact](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568) is the primary source. Download access to workflow artifacts may expire under the workflow's retention policy. No raw model prompts, tool arguments, secrets, protected Azure endpoints or unpublished task instructions are embedded in this showcase.
 
-**Scope limits:** no autonomous Engineer edits or PR creation; no GitHub MCP inside reviewer workflows; no verified Application Insights exporter or per-agent token/cost telemetry; no measured agent-detection benchmark. The Fault-Injection Lab measures deterministic test-gate sensitivity, not model accuracy.
+**Scope and verification:** The recorded run #44331275568 contains original Foundry reports and measured tool calls; it does not include verified Application Insights spans, provider token usage, per-agent runtimes or verified pricing. The later implementation adds Pandera validation, a human-gated DataDecision ledger, scoped GitHub MCP review, per-agent runtime instrumentation, and a protected execution API. Features requiring additional deployment credentials or independent runtime evidence remain explicitly identified as such.
 
 ## Local preview
 
@@ -29,7 +29,7 @@ cd showcase
 node server.mjs
 ```
 
-Open `http://localhost:4173/?lang=pl` or `http://localhost:4173/?lang=en`. No build step, external framework, API key or database is required.
+Open `http://localhost:4173/?lang=pl` or `http://localhost:4173/?lang=en`. The Results, Multi-Agent Review, System Specification and Execution Control sections coexist on the same page. No build step, external framework, API key or database is required.
 
 ## Quality gates
 
@@ -38,34 +38,42 @@ Open `http://localhost:4173/?lang=pl` or `http://localhost:4173/?lang=en`. No bu
 Railway serves only the `showcase/` directory, independently of the ETL and Foundry project.
 
 
-## Two-part portal (November 18 integration)
+## Unified case study and execution interface
 
-The public site is now split into two deliberately distinct experiences:
+The public interface is one responsive, bilingual technical report at `/?lang=pl` or `/?lang=en`, with an uninterrupted hierarchy:
 
-- **Results:** `/index.html?lang=pl` or `?lang=en` — recruitment task, inputs, five-region outcome, validation and pull-request evidence. The homepage contains the actual responsibility chain **human decision-maker → ChatGPT architect/implementer → GitHub CI + Foundry three-role review → independent test gate**. This is a documented collaboration, **not** a claim that ChatGPT was a fourth running Foundry agent.
-- **Engineering Lab:** `/engineering.html?lang=pl` or `?lang=en` — original Foundry reviewer summaries, 16 measured tool calls, role-scoped capabilities, schema/decision code, OIDC runner connection and optional protected real execution.
+1. The task and deterministic deliverables.
+2. Computation vs agent review architecture and exact source evidence.
+3. Original Foundry reviews and measured tool events.
+4. Sales results and engineering changes arising from review.
+5. Integrated system specification and controlled workflow execution.
+6. Operational verification status and direct evidence links.
 
-The recorded panel never invents model outputs or times. The live section requests the **existing GitHub Actions** review rather than starting a cloud model inside the browser.
+There is **no independent dashboard or second portal**. Existing `/engineering.html` bookmarks permanently route visitors to the `#technical` section of this same page. It uses professional component labels: **DataPolicy, Engineering Pipeline, Agent Orchestration, DataDecision, Assurance and Execution Control**.
 
-### Provision protected recruiter executions
+### Optional authenticated recruiter execution
 
-By default **live launch is disabled**. This is intentional: the portal contains no embedded GitHub PAT or Azure token.
+By default, the real execution UI is present but **dispatch is disabled until credentials are explicitly provisioned**. The portal keeps original Foundry evidence available regardless. To enable the protected `workflow_dispatch` path, set Railway service variables:
 
-Set these **Railway service environment variables**, as confidential/sealed values:
+- `GITHUB_WORKFLOW_TOKEN`: repository-scoped, short-lived fine-grained GitHub token allowing Actions read/write (dispatch plus run polling). Do not use a general account-level token.
+- `REVIEWER_ACCESS_CODE`: independent, high-entropy access code of at least 20 characters, distributed privately to an intended reviewer.
+- `PUBLIC_BASE_URL`: only if the public hostname changes; used to bind event OIDC audience.
 
-- `GITHUB_WORKFLOW_TOKEN`: a *fine-grained GitHub token scoped only to this repository*, granting **Actions: Read and write** to dispatch exactly `.github/workflows/agent-review.yml` and read the run status. Avoid classic wide-scope `repo` tokens. Use a short expiration and rotate after the interview.
-- `REVIEWER_ACCESS_CODE`: separate randomly generated high-entropy passcode of 20+ characters; share it privately with the recruiter. This code is checked server-side and **never sent to GitHub or Azure**.
-- `PUBLIC_BASE_URL`: `https://engineering-intelligence-production-a972180f.up.railway.app`, only if using a different deployment hostname (the default is already set).
+The browser posts only an access code to the backend, which enforces a daily dispatch quota, cooldown and single-run concurrency. Actions runners authenticate event delivery with short-lived GitHub OIDC. Server verifies the expected workflow, repository, ref, run ID, JWT signature and publisher audience. Only allowlisted event metadata and explicitly untrusted report summaries can reach the browser. **No Azure key, arbitrary shell command, prompts or raw tool arguments are exposed.**
 
-After provisioning, `GET /api/live/capabilities` returns `liveReady: true`. The real workflow uses **Azure OIDC on main** with a read-only GitHub MCP tool and separate metadata-only event JWTs signed by GitHub OIDC. The portal verifies the exact branch, workflow reference, repo, run and expected audience; it never accepts unauthenticated simulated tool traces. Only 2 launches/day, 1 concurrently active and a 30-minute cool-down are permitted. The in-memory demo session store is **single-replica and restart-volatile**; do not use this gateway as a durable, multi-node billing or authorization system.
+The Railway in-memory session store is single-replica and restart-volatile; it is not described as a durable task queue. For live readiness inspect `GET /api/live/capabilities`. A missing token produces `recorded_only`, not simulated execution.
 
-**Reviewer UX:** open Engineering Lab → enter code → start → see real GitHub job steps, actual tool completion metadata and Pydantic-validated agent report summaries. The original GitHub run link is available for independent auditing. The workflow isn't classified as successful until its existing source hashes and Pydantic reviews pass.
+### Engineering controls
 
-### Data and code security boundaries
+- `dataframe_contracts.py`: non-coercive Pandera validation of cleaned Decimal source data before aggregation.
+- `agentic/run.py`: actual Microsoft Agent Framework `SequentialBuilder` execution with three independent role-specific reviewers.
+- `agentic/github_mcp.py`: official GitHub MCP integration, read-only GitHub Actions token, no repository write permissions.
+- `agentic/decision_ledger.py`: evidence-bound unapproved model suggestions with explicit human approval boundary, atomic serialization and separate audit history.
+- `agentic/review_metrics.py`: per-agent measured durations; model token usage only when the SDK actually supplies it; absent billing rates produce no cost claim.
+- `.github/workflows/agent-coding-proposal.yml`: a separate privileged workflow in which an authoring agent proposes one regression test, isolated no-secret CI executes it, and a distinct job may create a **draft PR**. No autonomous merge.
 
-- ETL never needs Foundry to compute revenue. Pandera validates the real Decimal transaction DataFrame without coercion.
-- Model `decision_proposals` are strictly schema-checked and written to an atomic ledger. They always remain `pending_human_review`. On successful workflow completion, a separate GitHub job with write-only audit-branch access persists the ledger on `foundry-evidence-ledger`, not `main`.
-- The **read-only** GitHub MCP server is instantiated by the real Engineer reviewer using the scoped GitHub Actions token, pinned to `ghcr.io/github/github-mcp-server:v2.1.0`. The reviewer cannot write to the repository.
-- The **autonomous regression code author** is intentionally a separate **manual** workflow, `agent-coding-proposal.yml`. A Foundry agent writes a new, strictly allowlisted Python test proposal. A separate job without Azure or write-scoped credentials validates and executes it. Only after tests pass does another job open a **draft PR**; humans remain responsible for review and merge. The reviewer portal does not expose this privileged coding workflow to anonymous visitors.
-- Source content, model prompts, full tool parameters, Azure credentials and private environment variables are excluded from public event payloads and static responses.
-- In-process per-agent wall-clock middleware and SDK-provided usage counters are recorded where available. **Costs are not invented.** Active Azure Application Insights export requires the existing protected `APPLICATIONINSIGHTS_CONNECTION_STRING` secret to be provisioned in the GitHub Actions environment; the recorded legacy run has no exported trace ID.
+The latest review controls require authentic cloud execution for operational verification. The static interface does not imply a new agent run was successful when only CI source checks passed.
+
+### Quality gates
+
+`node --test showcase/server.test.mjs showcase/live_gateway.test.mjs` validates the real gateway, strict allowlist, signed OIDC acceptance and unauthorized-event rejection. `pytest tests/test_showcase_evidence.py` enforces original run consistency, bilingual rendering invariants and a unified layout. Chromium screenshots in `.github/workflows/showcase-ci.yml` cover Polish/English desktop/mobile and the embedded technical section.

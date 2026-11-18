@@ -36,7 +36,7 @@ test("recorded evidence is available and cannot be cached as live state",async()
 });
 
 test("client assets are served without requiring any dependency",async()=>{
-  for(const path of ["/app.js","/engineering.js","/styles.css","/engineering.css","/favicon.svg"]){
+  for(const path of ["/app.js","/technical.js","/styles.css","/technical.css","/favicon.svg"]){
     const r=await fetch(origin+path);
     assert.equal(r.status,200);
     assert.ok((await r.text()).length>100);
@@ -62,16 +62,27 @@ test("real reviewer output is served from the verified Foundry run",async()=>{
   assert.match(reports.roles[2].originalSummary,/79 tests/);
 });
 
-test("dedicated Engineering Lab explains the real human/ChatGPT/Foundry hierarchy",async()=>{
-  const response=await fetch(origin+"/engineering.html?lang=pl");
+test("single integrated site presents implementation and governed Foundry execution",async()=>{
+  const response=await fetch(origin+"/?lang=pl");
   assert.equal(response.status,200);
-  assert.match(response.headers.get("content-type"),/text\/html/);
   const html=await response.text();
-  assert.match(html,/ChatGPT/);
+  assert.match(html,/id="technical"/);
+  assert.match(html,/id="technical-start-form"/);
   assert.match(html,/SequentialBuilder/);
   assert.match(html,/Microsoft Foundry/);
-  assert.match(html,/Human-in-the-loop/i);
-  assert.match(html,/id="live"/);
+  assert.match(html,/DataDecision/);
+  assert.doesNotMatch(html,/ChatGPT/i);
+  assert.doesNotMatch(html,/engineering.html/);
+});
+
+test("old Engineering Lab bookmarks redirect to canonical single page",async()=>{
+  for(const language of ["pl","en"]){
+    const response=await fetch(origin+"/engineering.html?lang="+language,{redirect:"manual"});
+    assert.equal(response.status,302);
+    assert.equal(response.headers.get("location"),"/?lang="+language+"#technical");
+  }
+  assert.equal((await fetch(origin+"/engineering.js")).status,404);
+  assert.equal((await fetch(origin+"/engineering.css")).status,404);
 });
 
 test("public portal cannot invoke arbitrary endpoints",async()=>{

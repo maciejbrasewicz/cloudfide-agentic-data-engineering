@@ -75,9 +75,15 @@ def test_public_claims_do_not_invent_telemetry():
 
 def test_showcase_is_bilingual_and_explains_the_real_delivery():
     html = (SHOWCASE / "index.html").read_text(encoding="utf-8")
-    for page in ("overview", "task", "architecture", "execution", "data", "cases", "status", "evidence"):
+    for page in ("overview", "task", "architecture", "execution", "data", "cases", "technical", "status", "evidence"):
         assert f'data-section="{page}"' in html
     assert '<script src="./app.js" defer>' in html
+    assert '<script src="./technical.js" defer>' in html
+    assert '<link rel="stylesheet" href="./technical.css">' in html
+    assert 'id="technical-start-form"' in html
+    assert 'id="technical-modules"' in html
+    assert "ChatGPT" not in html
+    assert "engineering.html" not in html
     assert '<script src="./trace.js" defer>' not in html
     assert 'id="en" data-lang="en"' in html
     assert 'id="pl" data-lang="pl"' in html
@@ -156,3 +162,20 @@ def test_polish_and_english_have_complete_static_translation_coverage():
     assert len(translation_keys) >= 100
     assert "document.documentElement.lang=language" in js
     assert "renderDynamic()" in js
+
+
+def test_system_is_one_portal_and_has_no_legacy_personal_branding():
+    html = (SHOWCASE / "index.html").read_text(encoding="utf-8")
+    js = (SHOWCASE / "app.js").read_text(encoding="utf-8")
+    technical = (SHOWCASE / "technical.js").read_text(encoding="utf-8")
+    server = (SHOWCASE / "server.mjs").read_text(encoding="utf-8")
+    for forbidden in ("ChatGPT", "Human-in-the-loop /", "Engineering Lab"):
+        assert forbidden not in html, forbidden
+        assert forbidden not in js, forbidden
+    assert "engineering.js" not in server
+    assert "engineering.css" not in server
+    assert "human-in-the-loop" not in technical.lower()
+    assert "cloudfide:language" in technical
+    assert "data/agent_trace.json" not in technical
+    assert "api/live/start" in technical
+    assert 'location==="/engineering.html"' in server

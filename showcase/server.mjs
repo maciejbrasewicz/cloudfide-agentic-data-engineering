@@ -54,8 +54,15 @@ export function createAppServer({gateway=createLiveGateway()}={}){
     }catch{
       res.writeHead(400,HEADERS);res.end();return;
     }
+    // Existing Engineering Lab bookmarks resolve to the same unified portal.
+    if(location==="/engineering.html"){
+      const requested=new URL(req.url||"/","http://localhost").searchParams.get("lang");
+      const language=requested==="en"?"en":"pl";
+      res.writeHead(302,{...HEADERS,"Cache-Control":"no-store","Location":"/?lang="+language+"#technical"});
+      res.end();return;
+    }
     // Only explicit public assets; block dotfiles, source files and directory traversal.
-    const allowed = new Set(["/index.html","/engineering.html","/styles.css","/engineering.css","/app.js","/engineering.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
+    const allowed = new Set(["/index.html","/styles.css","/technical.css","/app.js","/technical.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
     if(!allowed.has(location)){
       res.writeHead(404,HEADERS);res.end();return;
     }
