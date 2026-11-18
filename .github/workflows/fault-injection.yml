@@ -1,0 +1,56 @@
+name: Fault Injection - deterministic quality gates
+
+on:
+  push:
+    paths:
+      - "agentic/fault_injection.py"
+      - "tests/test_fault_injection_lab.py"
+      - ".github/workflows/fault-injection.yml"
+      - "pipeline.py"
+      - "solution.py"
+      - "tests/test_raw_oracle.py"
+      - "tests/test_path_safety.py"
+  pull_request:
+    paths:
+      - "agentic/fault_injection.py"
+      - "tests/test_fault_injection_lab.py"
+      - ".github/workflows/fault-injection.yml"
+      - "pipeline.py"
+      - "solution.py"
+      - "tests/test_raw_oracle.py"
+      - "tests/test_path_safety.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-gates:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install locked test environment
+        run: uv sync --locked --extra quality
+      - name: Prove all mutations are isolated
+        run: uv run --no-sync python -m pytest tests/test_fault_injection_lab.py
+      - name: Exercise 4 mutants and 1 corrupt-source scenario
+        run: uv run --no-sync python -m agentic.fault_injection --output fault_injection_runtime.json
+      - name: Upload measured and independently classified fault-gate results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fault-injection-${{ matrix.os }}
+          path: fault_injection_runtime.json
+          retention-days: 7
+          if-no-files-found: warn
