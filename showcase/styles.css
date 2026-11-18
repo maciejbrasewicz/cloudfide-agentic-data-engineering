@@ -349,3 +349,54 @@ main{flex:1;max-width:1600px;width:100%;margin:0 auto;padding:0 clamp(24px,4vw,7
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+
+
+/* EXECUTION TRACE / measured activity, not synthetic spans */
+.tool-trace-panel{border:1px solid var(--line);background:#0c131c;margin-top:15px}
+.trace-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--line)}
+.trace-metric{padding:23px 26px;border-right:1px solid var(--line)}
+.trace-metric:last-child{border-right:0}
+.trace-metric small{display:block;font:10px var(--mono);letter-spacing:.07em;color:#869ba7;margin-bottom:10px}
+.trace-metric strong{font:500 31px/1 var(--display);letter-spacing:-.04em}
+.trace-metric strong.not-recorded{color:var(--gold);font-size:19px}
+.trace-toolbar{display:flex;align-items:center;justify-content:space-between;padding:22px 26px 10px;gap:15px}
+.trace-scale{display:flex;border:1px solid #38505a}
+.trace-scale button{border:0;border-right:1px solid #38505a;padding:9px 13px;background:transparent;color:#8fa2af;font:10px var(--mono)}
+.trace-scale button:last-child{border:0}
+.trace-scale button[aria-pressed="true"]{background:#20352b;color:var(--mint)}
+.tool-timeline{padding:18px 27px 16px}
+.trace-axis,.trace-row{display:grid;grid-template-columns:175px minmax(0,1fr) 100px;gap:20px}
+.trace-axis{align-items:center;margin-bottom:10px}
+.trace-axis-ticks{display:flex;justify-content:space-between;align-items:center;color:#80929e;font:10px var(--mono);border-bottom:1px solid #42505d;padding-bottom:10px}
+.trace-axis .trace-axis-label{color:#8194a2;font:10px var(--mono)}
+.trace-row{width:100%;padding:8px 0;border:0;border-bottom:1px solid #1e2b36;background:transparent;color:#c1d4d7;align-items:center;text-align:left}
+.trace-row:hover,.trace-row.selected{background:#13211e}
+.trace-row .trace-name{font:10px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trace-row .trace-rail{height:16px;display:block;background:repeating-linear-gradient(90deg,transparent,transparent calc(25% - 1px),#25313c calc(25% - 1px),#25313c 25%);position:relative}
+.trace-row .trace-bar{display:block;position:absolute;top:2px;bottom:2px;min-width:4px;background:#6cc8ae;border-left:2px solid var(--mint)}
+.trace-row .trace-duration{text-align:right;color:#90a6af;font:10px var(--mono);font-variant-numeric:tabular-nums}
+.trace-row .trace-duration strong{font-weight:500;color:var(--ink)}
+.trace-selected{border-top:1px solid #354650;padding:17px 26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:13px;background:#111d24}
+.trace-selected strong{color:var(--mint);font:11px var(--mono)}
+.trace-selected span{color:#8fa5af;font:11px var(--mono)}
+.trace-footnote{padding:15px 26px 22px;color:#81949f;font-size:11px;line-height:1.7}
+.status-recorded{color:var(--mint);border-color:#486d51;background:#1c3024}
+@media(max-width:850px){
+  .trace-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .trace-metric:nth-child(2){border-right:0}
+  .trace-metric:nth-child(-n+2){border-bottom:1px solid var(--line)}
+}
+@media(max-width:590px){
+  .hero-network{inset:28px 0 0;max-height:300px;height:88%}
+  .trace-metric{padding:17px}
+  .trace-metric strong{font-size:24px}
+  .trace-metric strong.not-recorded{font-size:16px}
+  .trace-toolbar{padding:18px 15px 8px;display:block}
+  .trace-scale{margin-top:12px;display:inline-flex}
+  .tool-timeline{padding:15px}
+  .trace-axis,.trace-row{grid-template-columns:94px minmax(0,1fr) 55px;gap:7px}
+  .trace-row .trace-name{font-size:9px}
+  .trace-row .trace-duration{font-size:9px}
+  .trace-selected{padding:15px}
+  .trace-footnote{padding:15px}
+}
