@@ -5,6 +5,12 @@ name: Foundry - evidence-bound multiagent review
 # Only main can exchange an OIDC token (matching the project-scoped Entra credential).
 on:
   workflow_dispatch:
+    inputs:
+      live_request_id:
+        description: "Optional validated UUID issued by the portal (no secrets)"
+        required: false
+        type: string
+        default: ""
   push:
     branches: [main]
     paths:
@@ -16,6 +22,12 @@ on:
       - "tests/**"
       - "pyproject.toml"
       - "uv.lock"
+
+run-name: 'Foundry review · ${{ inputs.live_request_id || github.sha }}'
+
+concurrency:
+  group: foundry-verify-main
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -30,6 +42,8 @@ jobs:
     env:
       FOUNDRY_PROJECT_ENDPOINT: https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
       FOUNDRY_MODEL: gpt-5.6-sol
+      LIVE_REQUEST_ID: ${{ inputs.live_request_id }}
+      REVIEW_LIVE_SINK_URL: https://engineering-intelligence-production-a972180f.up.railway.app
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,6 +76,18 @@ jobs:
         run: uv run --no-sync python -m agentic.verify --input agentic_review_runtime.json
       - name: Export measured, redacted tool telemetry
         run: uv run --no-sync python -m agentic.telemetry_export --input agentic_review_runtime.json --output public_agent_trace.json
+      - name: Validate unapproved decision proposal ledger
+        run: |
+          uv run --no-sync python - <<'PY'
+          import json
+          from pathlib import Path
+          from agentic.decision_ledger import DecisionLedger
+          ledger = DecisionLedger.model_validate_json(
+              Path("agentic_decision_ledger_runtime.json").read_text(encoding="utf-8")
+          )
+          assert all(d.status == "pending_human_review" for d in ledger.decisions)
+          print(f"Validated {len(ledger.decisions)} unapproved, evidence-linked data decisions")
+          PY
       - name: Publish verified run summary
         shell: bash
         run: |
@@ -109,5 +135,6 @@ jobs:
           path: |
             agentic_review_runtime.json
             public_agent_trace.json
+            agentic_decision_ledger_runtime.json
           if-no-files-found: warn
-          retention-days: 7
+          retention-days: 90
