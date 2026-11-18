@@ -73,11 +73,17 @@ def test_public_claims_do_not_invent_telemetry():
     assert all(c["url"].startswith(evidence["provenance"]["repoUrl"] + "/pull/") for c in evidence["cases"])
 
 
-def test_showcase_has_six_sections_and_only_local_js():
+def test_showcase_is_bilingual_and_explains_the_real_delivery():
     html = (SHOWCASE / "index.html").read_text(encoding="utf-8")
-    for page in ("overview", "architecture", "cases", "execution", "data", "evidence"):
+    for page in ("overview", "task", "architecture", "execution", "data", "cases", "status", "evidence"):
         assert f'data-section="{page}"' in html
     assert '<script src="./app.js" defer>' in html
+    assert '<script src="./trace.js" defer>' not in html
+    assert 'id="en" data-lang="en"' in html
+    assert 'id="pl" data-lang="pl"' in html
+    assert "SequentialBuilder" in html
+    assert "Microsoft Foundry" in html
+    assert "revenue_by_region.csv" in html
     assert len(_read()["decisions"]) >= 5
     assert len(_read()["cases"]) == 3
 
@@ -111,3 +117,40 @@ def test_public_recorded_trace_is_same_review_and_has_only_allowlisted_metadata(
         assert event["durationMs"] >= 0
         assert set(event) == {"seq", "startSeconds", "name", "durationMs", "status"}
     assert "prompt" not in json.dumps(trace).lower()
+
+
+
+def test_public_original_foundry_report_excerpts_are_from_same_attested_run():
+    evidence = _read()
+    trace = json.loads((SHOWCASE / "data/agent_trace.json").read_text(encoding="utf-8"))
+    reports = json.loads((SHOWCASE / "data/foundry_reports.json").read_text(encoding="utf-8"))
+    assert reports["schemaVersion"] == 1
+    assert reports["source"] == "recorded_foundry_report"
+    assert reports["runId"] == trace["githubRunId"]
+    assert reports["reviewedCommit"] == evidence["provenance"]["reviewedCommit"]
+    assert reports["runUrl"] == evidence["provenance"]["reviewUrl"]
+    assert [r["role"] for r in reports["roles"]] == [
+        "data_architect", "data_engineer", "verification_engineer"
+    ]
+    assert len(reports["roles"]) == 3
+    for role in reports["roles"]:
+        assert role["findingCount"] == 11
+        assert len(role["selectedFindings"]) == 3
+        assert len(role["originalSummary"]) > 300
+    assert "unverified" in reports["roles"][1]["originalSummary"]
+    assert "79 tests" in reports["roles"][2]["originalSummary"]
+    assert reports["disclosure"].startswith("The English summaries")
+
+
+def test_polish_and_english_have_complete_static_translation_coverage():
+    import re
+
+    html = (SHOWCASE / "index.html").read_text(encoding="utf-8")
+    js = (SHOWCASE / "app.js").read_text(encoding="utf-8")
+    translation_keys = set(re.findall(r'data-i18n="([a-zA-Z]+)"', html))
+    dictionary_source = js.split("const meta = {}", 1)[0]
+    for key in translation_keys:
+        assert re.search(rf"\b{re.escape(key)}\s*:", dictionary_source), key
+    assert len(translation_keys) >= 100
+    assert "document.documentElement.lang=language" in js
+    assert "renderDynamic()" in js
