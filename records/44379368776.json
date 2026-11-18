@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "dd2cb1288bd7d258d729a7f19b19918ae4e57889",
+  "generated_at_utc": "2026-11-18T19:21:52.332199+00:00",
+  "source_manifest_sha256": "cf62030c846622df13c298b1533da679ef4ab72e263567a5daa840ea451768e4",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Require executable reconciliation of both TOTAL values against pre-deduplication parsed transactions before excluding the control row.",
+      "evidence": "The source has a TOTAL row with values 37150 and 65924.67, and the policy requires verification before deduplication.",
+      "risk": "The business measure represented by the value stored in the Discount column is not established by the available profile.",
+      "status": "pending_human_review",
+      "source_report_sha256": "fe2d1daf17a0c1f2a316801b1516318bfefd74adac4ce38f107b618c9a1b00b8",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative-quantity rows only after owner confirmation that negatives represent returns; otherwise fail closed.",
+      "evidence": "Six negative-quantity rows were measured, while the returns interpretation is policy rather than source-proven semantics.",
+      "risk": "Incorrect interpretation could reverse transaction meaning and distort financial totals.",
+      "status": "pending_human_review",
+      "source_report_sha256": "fe2d1daf17a0c1f2a316801b1516318bfefd74adac4ce38f107b618c9a1b00b8",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit inference only when each affected product has exactly one distinct normalized observed unit price, with the candidate and lineage recorded; fail otherwise.",
+      "evidence": "Four unit prices are missing and the approved contract already specifies unique-price-per-product-or-fail.",
+      "risk": "A unique observed value may still be temporally or commercially inappropriate for the affected order.",
+      "status": "pending_human_review",
+      "source_report_sha256": "fe2d1daf17a0c1f2a316801b1516318bfefd74adac4ce38f107b618c9a1b00b8",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Require both TOTAL values to reconcile against parsed transactions before deduplication and before excluding the control row.",
+      "evidence": "The source contains TOTAL values 37150 and 65924.67, and the policy explicitly requires verification before deduplication.",
+      "risk": "The business measure represented by 65924.67 in the Discount field is not established by the available evidence.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2d13b63156e9a1c4bb8f7427267a5334e419a02ff24981cce05a4cfd4ceb56a5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative quantities only after confirming they represent returns; otherwise fail closed.",
+      "evidence": "Six negative rows were profiled, while return semantics are asserted only by policy.",
+      "risk": "An incorrect interpretation could materially distort quantity and revenue totals.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2d13b63156e9a1c4bb8f7427267a5334e419a02ff24981cce05a4cfd4ceb56a5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "data_engineer",
+      "target": "missing_prices",
+      "proposal": "Infer each missing price only from exactly one distinct normalized price for the same product, recording the candidate and lineage; fail otherwise.",
+      "evidence": "Four prices are missing and the policy requires unique-price-per-product-or-fail.",
+      "risk": "Even a unique historical product price may be inappropriate for a transaction at a different date or commercial condition.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2d13b63156e9a1c4bb8f7427267a5334e419a02ff24981cce05a4cfd4ceb56a5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Retain exact-duplicate removal only as an explicitly approved policy until source-system lineage confirms the five removable rows are export repetitions.",
+      "evidence": "Five exact duplicates are removed, and README.md acknowledges that accidental duplication cannot be proved from the CSV alone.",
+      "risk": "Legitimate repeated sales could be discarded, understating regional and total revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "37657c3f6be6a828a9430fb295c6ca6aa69e6c27ebcf0508c12346a4603a61c1",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Require business-owner or source-system confirmation that all six negative quantities are returns and that discounts use the implemented sign convention.",
+      "evidence": "The source contains six negative quantities, but no independent return indicator was demonstrated.",
+      "risk": "Misclassified adjustments or data errors could produce incorrect net revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "37657c3f6be6a828a9430fb295c6ca6aa69e6c27ebcf0508c12346a4603a61c1",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0009",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Validate the four inferred unit prices against dated authoritative price or invoice records while retaining fail-closed behavior for nonunique candidates.",
+      "evidence": "The implementation and independent oracle agree on unique same-product inference, but both encode the same business assumption.",
+      "risk": "A unique observed product price may still be wrong for the transaction date, customer, or contractual terms.",
+      "status": "pending_human_review",
+      "source_report_sha256": "37657c3f6be6a828a9430fb295c6ca6aa69e6c27ebcf0508c12346a4603a61c1",
+      "approved_by": null
+    }
+  ]
+}
