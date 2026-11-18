@@ -7,8 +7,8 @@ This repo deliberately has **no long-running cloud service**. GitHub Actions exe
 1. Keep `.env` in project root with:
 
    ```dotenv
-   FOUNDRY_PROJECT_ENDPOINT=https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
-   FOUNDRY_MODEL=gpt-5.6-sol
+   FOUNDRY_PROJECT_ENDPOINT=https://YOUR-RESOURCE.services.ai.azure.com/api/projects/YOUR-PROJECT
+   FOUNDRY_MODEL=YOUR-DEPLOYMENT-NAME
    APPLICATIONINSIGHTS_CONNECTION_STRING=
    ```
 
@@ -17,9 +17,8 @@ This repo deliberately has **no long-running cloud service**. GitHub Actions exe
    ```powershell
    uv lock
    uv sync --locked --extra quality --extra foundry
-   uv run --no-sync ruff format solution.py pipeline.py contracts.py agentic tests
-   uv run --no-sync ruff check .
-   uv run --no-sync pytest
+   uv run --no-sync python -m ruff check solution.py pipeline.py contracts.py agentic tests
+   uv run --no-sync python -m pytest
    uv run --no-sync python pipeline.py
    ```
 
@@ -32,17 +31,9 @@ This repo deliberately has **no long-running cloud service**. GitHub Actions exe
 
    Keep the provided task instructions outside the submitted repo. A passed attestation means that the report applies to the current artifact hashes; it is **not** an LLM correctness endorsement.
 
-## B. Publish to GitHub
+## B. GitHub delivery and deterministic CI
 
-Target: `https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering` (currently created as an empty public repo).
-
-```powershell
-.\scripts\publish.ps1
-```
-
-The script initializes Git if necessary; preserves the original CSV and test as a distinct first commit; refuses to stage `.env` or task instructions; then pushes `main`. Confirm that `uv.lock` is tracked. If `git` prompts for authentication, use Git Credential Manager / browser login.
-
-Then inspect **Actions → CI**. Both Windows and Ubuntu jobs must pass. If either job fails, review the logs and correct the specific issue before configuring cloud CI.
+The project has already been published to [the GitHub repository](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering). Both `windows-latest` and `ubuntu-latest` are checked automatically on each push. The supplied fixtures are preserved byte-for-byte, and CI installs pinned dependencies from `uv.lock`. No local Git or GitHub CLI is needed to review or run it.
 
 ## C. GitHub → Foundry OIDC identity (after green CI)
 
