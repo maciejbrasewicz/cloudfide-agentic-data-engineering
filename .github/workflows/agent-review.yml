@@ -60,6 +60,8 @@ jobs:
         run: uv run --no-sync python -m agentic.run --output agentic_review_runtime.json
       - name: Validate evidence provenance against the checked-out source
         run: uv run --no-sync python -m agentic.verify --input agentic_review_runtime.json
+      - name: Export measured, redacted tool telemetry
+        run: uv run --no-sync python -m agentic.telemetry_export --input agentic_review_runtime.json --output public_agent_trace.json
       - name: Publish verified run summary
         shell: bash
         run: |
@@ -69,6 +71,7 @@ jobs:
           from pathlib import Path
 
           document = json.loads(Path("agentic_review_runtime.json").read_text(encoding="utf-8"))
+          telemetry = json.loads(Path("public_agent_trace.json").read_text(encoding="utf-8"))
           attestation = document["deterministic_attestation"]
           assert all(attestation[key] for key in (
               "provenance_matched",
@@ -82,6 +85,10 @@ jobs:
               f"**Deployment:** `{document['model_deployment']}`",
               "**Source integrity:** verified against the reviewed commit",
               "**ETL reconciliation:** passed",
+              f"**Measured workflow runtime:** {telemetry['wall_duration_ms']:.0f} ms",
+              f"**Recorded tool calls:** {telemetry['tool_call_count']}",
+              f"**Distributed OTel trace ID:** {telemetry['trace_id'] or 'not configured'}",
+              "**Token usage / cost:** not measured",
               "",
               "| Independent review role | Findings | High severity |",
               "| --- | ---: | ---: |",
@@ -99,6 +106,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: foundry-agentic-review
-          path: agentic_review_runtime.json
+          path: |
+            agentic_review_runtime.json
+            public_agent_trace.json
           if-no-files-found: warn
           retention-days: 7

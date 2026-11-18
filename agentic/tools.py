@@ -9,6 +9,7 @@ import pandas as pd
 from agent_framework import tool
 
 from pipeline import ROOT
+from .telemetry import observed_tool
 
 _READABLE = {
     "solution.py", "pipeline.py", "contracts.py", "contracts/data_policy.json",
@@ -21,6 +22,7 @@ _READABLE = {
 
 
 @tool(approval_mode="never_require")
+@observed_tool("profile_source")
 def profile_source() -> str:
     """Profile the original CSV without invoking the ETL under review; return measured counts."""
     raw = pd.read_csv(ROOT / "sales.csv", dtype=str, keep_default_na=False)
@@ -45,6 +47,7 @@ def profile_source() -> str:
 
 
 @tool(approval_mode="never_require")
+@observed_tool("inspect_orders")
 def inspect_orders(order_ids: str) -> str:
     """Read up to 10 comma-separated order IDs from original source, preserving actual rows."""
     ids = [item.strip() for item in order_ids.split(",") if item.strip()][:10]
@@ -55,6 +58,7 @@ def inspect_orders(order_ids: str) -> str:
 
 
 @tool(approval_mode="never_require")
+@observed_tool("read_project_file")
 def read_project_file(relative_path: str) -> str:
     """Read at most 16000 characters from a specific allowlisted engineering file."""
     if relative_path not in _READABLE:
@@ -63,6 +67,7 @@ def read_project_file(relative_path: str) -> str:
 
 
 @tool(approval_mode="never_require")
+@observed_tool("check_quality")
 def check_quality() -> str:
     """Run the fixed pytest suite in a bounded subprocess (no arbitrary commands)."""
     proc = subprocess.run(
@@ -77,12 +82,14 @@ def check_quality() -> str:
 
 
 @tool(approval_mode="never_require")
+@observed_tool("inspect_approved_policy")
 def inspect_approved_policy() -> str:
     """Read the exact approved, immutable policy currently used by the deterministic ETL."""
     return (ROOT / "contracts/data_policy.json").read_text(encoding="utf-8")
 
 
 @tool(approval_mode="never_require")
+@observed_tool("inspect_reconciliation")
 def inspect_reconciliation() -> str:
     """Read the machine-generated report and tracked region totals for verification."""
     report = json.loads((ROOT / "reports/data_quality.json").read_text(encoding="utf-8"))

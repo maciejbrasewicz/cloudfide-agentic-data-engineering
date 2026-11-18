@@ -10,12 +10,14 @@ import asyncio
 import json
 import os
 import subprocess
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .models import parse_report
+from .telemetry import ToolRecorder, active_recorder
 from .verify import collect_provenance, verify_manifest
 from .tools import (
     check_quality, inspect_approved_policy, inspect_orders, inspect_reconciliation,
@@ -114,7 +116,11 @@ async def perform(task_file: Path | None) -> dict:
         "Return JSON in each agent's prescribed schema. The repository is read-only. "
         "Original task source (provided privately, do not commit it):\n" + task_context
     )
-    response = await workflow.run(prompt)
+    recorder = ToolRecorder()
+    started_ns = time.perf_counter_ns()
+    with active_recorder(recorder):
+        response = await workflow.run(prompt)
+    measured_wall_ms = round((time.perf_counter_ns() - started_ns) / 1_000_000, 3)
     outputs = list(response.get_outputs())
     if len(outputs) != 3:
         raise RuntimeError(f"Expected exactly three agent responses, got {len(outputs)}")
@@ -141,6 +147,18 @@ async def perform(task_file: Path | None) -> dict:
         "foundry_project_endpoint_present": True,
         "reports_are_untrusted_suggestions": True,
         "agent_reviews": [part.model_dump(mode="json") for part in reports],
+        "observability": {
+            "schema_version": 1,
+            "source": "measured_runtime",
+            "wall_duration_ms": measured_wall_ms,
+            "tool_call_count": len(recorder.snapshot()),
+            "tool_events": recorder.snapshot(),
+            "individual_agent_wall_ms": None,
+            "model_token_usage": None,
+            "estimated_model_cost": None,
+            "github_run_id": os.getenv("GITHUB_RUN_ID") or None,
+            "otel_exporter_configured": bool(os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")),
+        },
     }
     manifest["deterministic_attestation"] = verify_manifest(manifest)
     return manifest
@@ -153,7 +171,18 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=ROOT / "agentic_review_runtime.json")
     args = parser.parse_args()
     setup_tracing()
-    result = asyncio.run(perform(args.task_file))
+    from opentelemetry import trace
+
+    tracer = trace.get_tracer("cloudfide.agentic.review")
+    with tracer.start_as_current_span("cloudfide.foundry.multiagent_review") as span:
+        span.set_attribute("cloudfide.review.read_only", True)
+        span.set_attribute("cloudfide.review.github_run_id", os.getenv("GITHUB_RUN_ID", "local"))
+        span.set_attribute("cloudfide.review.model", os.getenv("FOUNDRY_MODEL", "unknown"))
+        result = asyncio.run(perform(args.task_file))
+        context = span.get_span_context()
+        result["observability"]["trace_id"] = (
+            f"{context.trace_id:032x}" if context.is_valid and span.is_recording() else None
+        )
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Three Foundry agent reviews completed: {args.output}")
 
