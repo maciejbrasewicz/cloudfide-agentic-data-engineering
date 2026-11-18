@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "397f54b9099311fb216bcdd45c7fc2663c3ee3eb",
+  "generated_at_utc": "2026-11-18T22:40:23.108414+00:00",
+  "source_manifest_sha256": "43eb4e25cd850db25f446c04b2f7cb87027c92eab0a014b36613772eebb4cb94",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Make successful pre-deduplication reconciliation to Quantity 37150 and Discount 65924.67 a blocking quality gate before excluding the TOTAL row.",
+      "evidence": "The source contains one TOTAL row with those values, and the approved contract requires verification before deduplication.",
+      "risk": "The meaning, arithmetic precision, and inclusion rules for the Discount control have not yet been independently demonstrated.",
+      "status": "pending_human_review",
+      "source_report_sha256": "44f5fe4187d2a7f763d909877280c4498a41b711b0a00a937ab8157caed7adea",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain negative quantities only after order-level evidence or source-owner confirmation establishes that they are returns; otherwise quarantine them under fail-closed handling.",
+      "evidence": "Six negative-quantity rows were measured, while the returns interpretation appears only as an approved assumption.",
+      "risk": "Rejecting legitimate returns could interrupt processing, while accepting unexplained negatives could misstate sales.",
+      "status": "pending_human_review",
+      "source_report_sha256": "44f5fe4187d2a7f763d909877280c4498a41b711b0a00a937ab8157caed7adea",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Fill a missing unit price only when an executable check finds exactly one valid price for the normalized product in a documented reference population; fail otherwise.",
+      "evidence": "Four unit prices are missing, and the policy already requires unique_price_per_product_or_fail.",
+      "risk": "A globally unique historical price may still be inappropriate when prices vary by date, region, promotion, or other unmodeled dimensions.",
+      "status": "pending_human_review",
+      "source_report_sha256": "44f5fe4187d2a7f763d909877280c4498a41b711b0a00a937ab8157caed7adea",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Retain exact-row deduplication only as an explicitly approved assumption until source-system identifiers or export lineage confirm that the five additional rows are accidental copies.",
+      "evidence": "Independent CSV parsing confirms five additional exact rows, while the raw TOTAL reconciles with all 1,505 pre-deduplication rows.",
+      "risk": "Removing genuine repeated transactions would understate revenue; retaining export duplicates would overstate it.",
+      "status": "pending_human_review",
+      "source_report_sha256": "ffe7bbb78921aec11b43f2174ff51d69251ce81db61912d2c1c63d68f7dc3e31",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Require order-level return or credit evidence for the six negative quantities and confirm the discount treatment on signed lines.",
+      "evidence": "Six negatives are retained by policy, but neither the source oracle nor regression tests provide independent return semantics.",
+      "risk": "The current formula may misstate return revenue if discounts require reversal or separate credit handling.",
+      "status": "pending_human_review",
+      "source_report_sha256": "ffe7bbb78921aec11b43f2174ff51d69251ce81db61912d2c1c63d68f7dc3e31",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Validate the four inferred prices against an authoritative effective-dated price or order source, while preserving fail-closed behavior for multiple candidates.",
+      "evidence": "The implementation proves only that one product-level price appears in this export, and the ambiguity test correctly rejects conflicting candidates.",
+      "risk": "A unique observed product price can still be wrong for a particular date, region, promotion, or customer agreement.",
+      "status": "pending_human_review",
+      "source_report_sha256": "ffe7bbb78921aec11b43f2174ff51d69251ce81db61912d2c1c63d68f7dc3e31",
+      "approved_by": null
+    }
+  ]
+}
