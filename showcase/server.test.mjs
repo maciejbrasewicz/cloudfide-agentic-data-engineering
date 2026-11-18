@@ -36,7 +36,7 @@ test("recorded evidence is available and cannot be cached as live state",async()
 });
 
 test("client assets are served without requiring any dependency",async()=>{
-  for(const path of ["/app.js","/styles.css","/favicon.svg"]){
+  for(const path of ["/app.js","/trace.js","/styles.css","/favicon.svg"]){
     const r=await fetch(origin+path);
     assert.equal(r.status,200);
     assert.ok((await r.text()).length>100);
