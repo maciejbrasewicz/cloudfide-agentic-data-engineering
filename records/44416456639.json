@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "1ed6a6710311d4a40526eafa5c8c743be05a6482",
+  "generated_at_utc": "2026-11-18T23:00:45.459064+00:00",
+  "source_manifest_sha256": "5e24c6ac54aefec016c7ab91c8c5a77fe2270e13fbb0a2748a48ff6beaade534",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Make successful pre-deduplication reconciliation to both TOTAL control values a blocking quality gate and retain the calculated values in audit output.",
+      "evidence": "The source contains one TOTAL row with control values 37150 and 65924.67, and the approved contract requires verification before deduplication.",
+      "risk": "The business meaning and calculation formula for each control field must be confirmed before the gate can be considered authoritative.",
+      "status": "pending_human_review",
+      "source_report_sha256": "be02907ebf2c14506d75bce704f58f652cf23436d5be5e5b4e4509638a7f4d1d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Continue retaining the 6 negative-quantity rows only if row-level or source-owner evidence confirms that they represent returns; otherwise fail for review.",
+      "evidence": "Six negative-quantity rows were measured, while the current return interpretation is a documented assumption.",
+      "risk": "Incorrect interpretation could reverse revenue or quantity effects in the final dataset.",
+      "status": "pending_human_review",
+      "source_report_sha256": "be02907ebf2c14506d75bce704f58f652cf23436d5be5e5b4e4509638a7f4d1d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit price filling only when each affected product has exactly one normalized, nonmissing observed price and record the donor evidence; fail on zero or multiple candidates.",
+      "evidence": "Four unit prices are missing, and the approved contract already specifies unique-price-per-product inference with fail-closed ambiguity handling.",
+      "risk": "A historically unique observed price may still be inappropriate for a different date, region, promotion, or order context.",
+      "status": "pending_human_review",
+      "source_report_sha256": "be02907ebf2c14506d75bce704f58f652cf23436d5be5e5b4e4509638a7f4d1d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "quality_gate",
+      "proposal": "Reject numeric text outside an explicitly allowlisted fixed-decimal grammar before Decimal conversion.",
+      "evidence": "The approved policy allows dot or comma decimal separators and requires ambiguous data to fail closed, while the current parser delegates lexical acceptance to Decimal.",
+      "risk": "The original source may contain a legitimate representation not captured by the proposed grammar, so the accepted syntax should be confirmed before enforcement.",
+      "status": "pending_human_review",
+      "source_report_sha256": "b499a4e5539016b6165c8800908b2cce8c7852e5d3650f844359f259d73edcb5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Hash and parse source and policy content from the same immutable byte snapshots.",
+      "evidence": "run_pipeline currently hashes each file and then rereads it for parsing, creating a provenance time-of-check/time-of-use gap.",
+      "risk": "The practical risk is small for immutable local inputs, and changing input handling may require updates to path-based tests.",
+      "status": "pending_human_review",
+      "source_report_sha256": "b499a4e5539016b6165c8800908b2cce8c7852e5d3650f844359f259d73edcb5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Retain exact deduplication only as an explicitly provisional rule until the five duplicate groups are matched to source export or line-level identifiers.",
+      "evidence": "Independent raw parsing confirms that removing repeated full-row tuples yields 1,500 rows, but neither the CSV nor its control row proves that those repetitions are accidental.",
+      "risk": "Keeping genuine duplicate sales understates revenue if they are removed; retaining export replays overstates revenue if they are not.",
+      "status": "pending_human_review",
+      "source_report_sha256": "e6aab385b6a13d77bedd423a439871c105ee17a84e1f10570a3c949de61913c9",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Require authoritative return or credit evidence for all six negative-quantity rows and explicitly decide discount-sign behavior.",
+      "evidence": "Both implementations apply the same formula to negative quantities, but no independent return indicator or business rule was inspected.",
+      "risk": "The current formula may misstate return revenue even when arithmetic is internally consistent.",
+      "status": "pending_human_review",
+      "source_report_sha256": "e6aab385b6a13d77bedd423a439871c105ee17a84e1f10570a3c949de61913c9",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Record donor values for the four inferred prices and verify them against an authoritative price or order source before considering the result business-approved.",
+      "evidence": "The implementation proves only that each product has one observed normalized price in this export; it does not prove temporal or transactional applicability.",
+      "risk": "A unique observed product price can still be wrong for a different date, region, promotion, or contract.",
+      "status": "pending_human_review",
+      "source_report_sha256": "e6aab385b6a13d77bedd423a439871c105ee17a84e1f10570a3c949de61913c9",
+      "approved_by": null
+    }
+  ]
+}
