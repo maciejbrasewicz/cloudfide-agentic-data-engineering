@@ -1,0 +1,34 @@
+name: CI - deterministic data engineering
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  quality:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project dependencies
+        run: uv sync --extra quality
+      - name: Ruff lint only first-party code
+        run: uv run --no-sync python -m ruff check solution.py pipeline.py contracts.py agentic tests
+      - name: Run original, property, contract and integration tests
+        run: uv run --no-sync python -m pytest
+      - name: Generate audit and sales result
+        run: uv run --no-sync python pipeline.py
+      - name: Verify deterministic outputs against tracked artifacts
+        run: git diff --exit-code -- revenue_by_region.csv reports/data_quality.json
