@@ -400,3 +400,28 @@ main{flex:1;max-width:1600px;width:100%;margin:0 auto;padding:0 clamp(24px,4vw,7
   .trace-selected{padding:15px}
   .trace-footnote{padding:15px}
 }
+
+
+/* FAULT INJECTION / Actual deterministic detection, not LLM self-evaluation */
+.fault-lab{border:1px solid #456047;margin-top:25px;background:linear-gradient(155deg,#101d1b,#0d141e 60%)}
+.fault-heading{display:flex;justify-content:space-between;align-items:center;gap:35px;padding:40px;border-bottom:1px solid #33483e}
+.fault-heading h2{font-size:clamp(28px,3.6vw,48px);margin:16px 0 14px;letter-spacing:-.06em}
+.fault-heading p{max-width:710px;line-height:1.85;color:#9aafa8;font-size:13px;margin:0}
+.fault-heading strong{color:#d2e7db;font-weight:700}
+.fault-counter{min-width:194px;text-align:center;border-left:1px solid #40594d;padding:0 0 0 35px}
+.fault-counter strong{display:block;font:500 62px/1 var(--display);letter-spacing:-.075em;color:var(--mint)}
+.fault-counter span{display:block;margin:12px 0 9px;font:10px var(--mono);color:#a0baab}
+.fault-counter small{display:block;color:#7e998d;font:9px var(--mono)}
+.fault-cases{padding:0 32px}
+.fault-card{display:grid;grid-template-columns:72px minmax(0,1fr) 128px;gap:20px;padding:23px 0;border-bottom:1px solid #2a3c38;align-items:center}
+.fault-card:last-child{border:0}
+.fault-index{align-self:start;font:12px var(--mono);color:var(--mint);padding-top:3px}
+.fault-content .fault-category{color:#819d92;font:10px var(--mono);letter-spacing:.07em}
+.fault-content h3{font-size:20px;margin:7px 0}
+.fault-content p{color:#a1b2ac;font-size:12px;line-height:1.6;margin:0}
+.fault-content .fault-gate{font:10px var(--mono);margin-top:12px;color:#8baf9d}
+.fault-result{font:11px var(--mono);color:var(--mint);text-align:right}
+.fault-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:22px 33px;border-top:1px solid #33483e;color:#809c90;font:10px var(--mono)}
+.fault-footer a{color:var(--mint)}
+@media(max-width:850px){.fault-heading{display:block}.fault-counter{border-left:0;border-top:1px solid #40594d;margin-top:28px;padding:23px 0 0;text-align:left}}
+@media(max-width:590px){.fault-heading{padding:26px}.fault-cases{padding:0 20px}.fault-card{grid-template-columns:1fr auto;gap:8px}.fault-index{grid-column:1/-1}.fault-content h3{font-size:18px}.fault-result{align-self:start;font-size:10px}.fault-footer{padding:19px 22px;display:block}.fault-footer a{display:block;margin-top:12px}}
