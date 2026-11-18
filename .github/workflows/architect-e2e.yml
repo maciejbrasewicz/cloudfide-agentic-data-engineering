@@ -1,0 +1,73 @@
+name: Foundry - evidence-bound Data Architect (P1)
+
+# Manual, trusted main-branch run. Original task is a repository Actions secret.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Architect context; candidate generation is implemented in P2"
+        type: choice
+        required: true
+        default: rebuild
+        options:
+          - rebuild
+          - improve
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudfide-architect-p1
+  cancel-in-progress: false
+
+jobs:
+  architect:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
+      FOUNDRY_MODEL: gpt-5.6-sol
+      CLOUDFIDE_TASK_SPEC_B64: ${{ secrets.CLOUDFIDE_TASK_SPEC_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned engineering and Foundry dependencies
+        run: uv sync --locked --extra quality --extra foundry
+      - name: Require private task specification secret
+        shell: bash
+        run: |
+          if [ -z "$CLOUDFIDE_TASK_SPEC_B64" ]; then
+            echo "Missing CLOUDFIDE_TASK_SPEC_B64. Add the original task as a repository Actions secret." >&2
+            exit 1
+          fi
+      - name: Independent source and Architect contract tests
+        run: |
+          uv run --no-sync python -m pytest tests/test_architect_contract.py tests/test_spec_loader.py
+          uv run --no-sync python -m ruff check agentic/architect.py agentic/policy_gate.py agentic/source_tools.py agentic/schemas/architect.py
+      - name: Azure OIDC authentication for trusted main
+        uses: azure/login@v2
+        with:
+          client-id: 459e0c31-5a4c-40b0-88d4-4f521ead55fc
+          tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
+          allow-no-subscriptions: true
+      - name: Execute actual Foundry Architect and verify seven source tools
+        run: uv run --no-sync python -m agentic.architect --mode "${{ inputs.mode }}" --output-dir architect-evidence
+      - name: Publish source-grounded architecture evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: architect-p1-evidence
+          path: architect-evidence/*.json
+          if-no-files-found: warn
+          retention-days: 30
