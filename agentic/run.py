@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 from .models import parse_report
 from .live_events import emit
 from .github_mcp import config_from_environment
+from .review_metrics import ReviewMetrics
 from .telemetry import ToolRecorder, active_recorder
 from .verify import collect_provenance, verify_manifest
 from .tools import (
@@ -109,6 +110,33 @@ async def perform(task_file: Path | None) -> dict:
 
     credential = DefaultAzureCredential(exclude_interactive_browser_credential=True)
     client = FoundryChatClient(project_endpoint=endpoint, model=model, credential=credential)
+    from agent_framework import AgentMiddleware
+
+    metrics = ReviewMetrics()
+
+    class TimedReviewer(AgentMiddleware):
+        def __init__(self, role: str) -> None:
+            self.role = role
+
+        async def process(self, context, call_next) -> None:
+            started = time.perf_counter_ns()
+            status = "ok"
+            try:
+                await call_next(context)
+            except Exception:
+                status = "error"
+                raise
+            finally:
+                elapsed_ms = (time.perf_counter_ns() - started) / 1_000_000
+                measured_response = context.result if status == "ok" else None
+                metrics.record(self.role, elapsed_ms, measured_response, status=status)
+                emit(
+                    "agent.timing",
+                    role=self.role,
+                    duration_ms=round(elapsed_ms, 3),
+                    status=status,
+                )
+
     mcp_config = config_from_environment()
     # The MCP connection remains open throughout the Foundry orchestration.
     # GitHub Actions grants the subprocess a read-only repository token.
@@ -130,14 +158,17 @@ async def perform(task_file: Path | None) -> dict:
         architect = Agent(
             name="data_architect", client=client, instructions=ARCHITECT + REVIEW_TAXONOMY,
             tools=[profile_source, inspect_orders, inspect_approved_policy],
+            middleware=[TimedReviewer("data_architect")],
         )
         engineer = Agent(
             name="data_engineer", client=client, instructions=ENGINEER + REVIEW_TAXONOMY,
             tools=engineer_tools,
+            middleware=[TimedReviewer("data_engineer")],
         )
         verifier = Agent(
             name="verification_engineer", client=client, instructions=VERIFIER + REVIEW_TAXONOMY,
             tools=[read_project_file, inspect_reconciliation, check_quality],
+            middleware=[TimedReviewer("verification_engineer")],
         )
         workflow = SequentialBuilder(
             participants=[architect, engineer, verifier], output_from="all"
@@ -171,6 +202,7 @@ async def perform(task_file: Path | None) -> dict:
             git_revision = revision.stdout.strip() if revision.returncode == 0 else None
         except (FileNotFoundError, subprocess.TimeoutExpired):
             git_revision = None
+    role_summary = metrics.summary()
     manifest = {
         "schema_version": 2,
         "github_mcp_enabled": bool(mcp_config),
@@ -187,9 +219,11 @@ async def perform(task_file: Path | None) -> dict:
             "wall_duration_ms": measured_wall_ms,
             "tool_call_count": len(recorder.snapshot()),
             "tool_events": recorder.snapshot(),
-            "individual_agent_wall_ms": None,
-            "model_token_usage": None,
-            "estimated_model_cost": None,
+            "individual_agent_wall_ms": role_summary["individual_agent_wall_ms"],
+            "agent_measurements": role_summary["agent_measurements"],
+            "model_token_usage": role_summary["model_token_usage"],
+            "estimated_model_cost": role_summary["estimated_model_cost"],
+            "pricing_status": role_summary["pricing_status"],
             "github_run_id": os.getenv("GITHUB_RUN_ID") or None,
             "otel_exporter_configured": bool(os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING")),
         },
