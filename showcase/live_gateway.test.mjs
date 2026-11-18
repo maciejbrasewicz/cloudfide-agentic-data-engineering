@@ -1,10 +1,28 @@
 import assert from "node:assert/strict";
+import { generateKeyPairSync, sign } from "node:crypto";
 import { after, before, test } from "node:test";
 import { once } from "node:events";
 import { createAppServer } from "./server.mjs";
 import { createLiveGateway } from "./live_gateway.mjs";
 
 const FIXED_ID="d31f31a0-417e-4b78-9d74-19762212b001";
+const {publicKey,privateKey}=generateKeyPairSync("rsa",{modulusLength:2048});
+const jwk=publicKey.export({format:"jwk"});
+const TEST_KID="unit-test-github-oidc-kid";
+const CURRENT_TIME=1_800_000_000_000;
+function signedJwt(){
+  const header=Buffer.from(JSON.stringify({alg:"RS256",kid:TEST_KID,typ:"JWT"})).toString("base64url");
+  const claims=Buffer.from(JSON.stringify({
+    iss:"https://token.actions.githubusercontent.com",
+    aud:BASE+"/api/live/events",
+    repository:"maciejbrasewicz/cloudfide-agentic-data-engineering",
+    ref:"refs/heads/main",event_name:"workflow_dispatch",
+    workflow_ref:"maciejbrasewicz/cloudfide-agentic-data-engineering/.github/workflows/agent-review.yml@refs/heads/main",
+    run_id:"9911",iat:CURRENT_TIME/1000-30,exp:CURRENT_TIME/1000+300
+  })).toString("base64url");
+  const signature=sign("RSA-SHA256",Buffer.from(header+"."+claims),privateKey).toString("base64url");
+  return [header,claims,signature].join(".");
+}
 const CODE="test-reviewer-access-code-at-least-24-characters";
 const BASE="https://engineering-intelligence-production-a972180f.up.railway.app";
 const mockEnv={
@@ -13,6 +31,9 @@ const mockEnv={
   PUBLIC_BASE_URL:BASE
 };
 const fakeFetch=async(url,options={})=>{
+  if(url==="https://token.actions.githubusercontent.com/.well-known/jwks"){
+    return Response.json({keys:[{...jwk,kid:TEST_KID}]});
+  }
   if(url.includes("/dispatches")){
     assert.equal(options.method,"POST");
     const body=JSON.parse(options.body);
@@ -42,7 +63,7 @@ const fakeFetch=async(url,options={})=>{
 let server,origin;
 before(async()=>{
   const gateway=createLiveGateway({
-    env:mockEnv,fetchImpl:fakeFetch,now:()=>1_800_000_000_000,uuid:()=>FIXED_ID
+    env:mockEnv,fetchImpl:fakeFetch,now:()=>CURRENT_TIME,uuid:()=>FIXED_ID
   });
   server=createAppServer({gateway});
   server.listen(0,"127.0.0.1");await once(server,"listening");
@@ -123,4 +144,39 @@ test("unconfigured gateway remains available only in recorded mode",async()=>{
   }finally{
     await new Promise(resolve=>temp.close(resolve));
   }
+});
+
+test("real signed GitHub OIDC event is verified and exposed without raw tool arguments",async()=>{
+  const event={
+    type:"tool.completed",at_utc:"2027-01-15T08:00:00Z",
+    classification:"measured_metadata",
+    payload:{tool:"profile_source",duration_ms:12.5,status:"ok"}
+  };
+  const r=await fetch(origin+"/api/live/events",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+signedJwt()},
+    body:JSON.stringify({request_id:FIXED_ID,event})
+  });
+  assert.equal(r.status,202);
+  const accepted=await r.json();
+  assert.equal(accepted.sequence,1);
+  const status=await (await fetch(origin+"/api/live/session/"+FIXED_ID)).json();
+  assert.equal(status.events[0].payload.tool,"profile_source");
+  assert(!JSON.stringify(status).includes("raw_arguments"));
+});
+
+test("signed OIDC identity still cannot inject unknown fields into event records",async()=>{
+  const event={
+    type:"tool.completed",at_utc:"2027-01-15T08:00:00Z",
+    classification:"measured_metadata",
+    payload:{tool:"profile_source",duration_ms:12.5,status:"ok",arguments:"PRIVATE"}
+  };
+  const r=await fetch(origin+"/api/live/events",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+signedJwt()},
+    body:JSON.stringify({request_id:FIXED_ID,event})
+  });
+  assert.equal(r.status,400);
+  const status=await (await fetch(origin+"/api/live/session/"+FIXED_ID)).json();
+  assert.equal(status.events.length,1);
 });
