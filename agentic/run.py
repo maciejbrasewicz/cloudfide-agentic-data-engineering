@@ -51,6 +51,17 @@ Return ONLY JSON with role='verification_engineer', summary, findings (category,
 statement, evidence, suggested_verification), recommended_next_action.
 """
 
+# Shared vocabulary is versioned with the Pydantic contract and checked again
+# at the orchestration boundary. The instructions never grant validation power.
+REVIEW_TAXONOMY = """
+Every finding.category MUST be exactly one of:
+spec, source_data, pipeline, security, testing, documentation.
+Use pipeline (not implementation/output), testing (not tests), spec (not policy).
+Every finding.severity MUST be exactly low, medium, or high.
+Return no markdown, no additional fields, and no more than 12 findings.
+Findings are hypotheses until independently validated by executable checks.
+"""
+
 
 def setup_tracing() -> None:
     connection = os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "")
@@ -82,11 +93,11 @@ async def perform(task_file: Path | None) -> dict:
 
     credential = DefaultAzureCredential(exclude_interactive_browser_credential=True)
     client = FoundryChatClient(project_endpoint=endpoint, model=model, credential=credential)
-    architect = Agent(name="data_architect", client=client, instructions=ARCHITECT,
+    architect = Agent(name="data_architect", client=client, instructions=ARCHITECT + REVIEW_TAXONOMY,
                       tools=[profile_source, inspect_orders, inspect_approved_policy])
-    engineer = Agent(name="data_engineer", client=client, instructions=ENGINEER,
+    engineer = Agent(name="data_engineer", client=client, instructions=ENGINEER + REVIEW_TAXONOMY,
                      tools=[read_project_file, check_quality, inspect_approved_policy])
-    verifier = Agent(name="verification_engineer", client=client, instructions=VERIFIER,
+    verifier = Agent(name="verification_engineer", client=client, instructions=VERIFIER + REVIEW_TAXONOMY,
                      tools=[read_project_file, inspect_reconciliation, check_quality])
 
     workflow = SequentialBuilder(participants=[architect, engineer, verifier], output_from="all").build()
