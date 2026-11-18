@@ -4,26 +4,35 @@
   "use strict";
   const en = {
     skip:"Skip to content",
-    navLab:"Engineering Lab ↗",
-    heroLab:"Open Engineering Lab",
-    ownershipEyebrow:"HOW WE BUILT IT",
-    ownershipTitle:"Who designed the agents — and who made the decisions?",
-    ownershipLead:"The process was human-in-the-loop. That's the difference between a real engineering delivery and merely running three prompts.",
-    ownershipHuman:"A human approved direction",
-    ownershipHumanDesc:"Requirements, data policy, review of proposals and acceptance of changes.",
-    ownershipChat:"ChatGPT designed and implemented",
-    ownershipChatDesc:"Architecture, code, repairs, the agents, GitHub CI and Azure OIDC.",
-    ownershipFoundry:"Three Foundry agents reviewed",
-    ownershipFoundryDesc:"Actual SequentialBuilder, read-only tools and structured reports.",
-    ownershipGate:"Deterministic tests supplied proof",
-    ownershipGateDesc:"Independent oracle, artifact checks and data validation outside model judgment.",
-    ownershipCaveat:"ChatGPT was an external architect collaborating with the human, not a fourth Foundry agent. Earlier code corrections were not autonomous commits from the Engineer reviewer.",
-    ownershipCTA:"Explore the full architecture and launch a real review",
+    navLab:"System",
+    heroLab:"Technical specification",
+    technicalEyebrow:"IMPLEMENTATION & OPERATIONS",
+    technicalHeading:"Technical implementation",
+    technicalLead:"Data contracts, change control, Foundry executions, agent tools and telemetry. One system and one set of evidence.",
+    governanceTitle:"Specification and policy approval",
+    governanceDesc:"Task requirements, data-quality policy, business decisions and human approval control. Agents cannot approve their own rules.",
+    engineeringTitle:"Implementation and change control",
+    engineeringDesc:"Versioned Python code, regression tests, Pandera validation and pull-request review.",
+    orchestrationTitle:"Three-stage Foundry review",
+    orchestrationDesc:"SequentialBuilder: Data Architect → Data Engineer → Verification Engineer. Role-scoped tools and permissions.",
+    assuranceTitle:"Verification and audit trail",
+    assuranceDesc:"Source controls, independent Decimal recomputation, Pydantic, SHA-256, CI and a human-gated decision ledger.",
+    launchHeading:"Execute Microsoft Foundry workflow",
+    launchLead:"Dispatch a real GitHub Actions run. Job states and events come from the execution itself; no repository-write or secret access is delegated to visitors.",
+    recordedLink:"Original execution ↗",
+    execStatusLabel:"SERVICE STATUS",
+    execChecking:"Checking execution availability",
+    accessLabel:"Execution access code",
+    startRun:"Run in Foundry",
+    executionLimits:"Authorized access only. Cost controls: maximum two runs per day and one active run. Access codes and Azure tokens are never public.",
+    openJob:"Open execution in GitHub Actions ↗",
+    implementationDetails:"Runtime modules, permissions and contracts",
+    technicalFootnote:"The separate regression-code generation workflow creates draft pull requests that require human review. Model output cannot approve policy changes or merge code automatically.",
     topDate:"Documented implementation · 18 November 2026",
     navTask:"Assignment",navArchitecture:"Architecture",navAgents:"Agent run",navData:"Results",navProof:"Evidence",originalRun:"Original run",
-    kicker:"Real implementation case study / no simulation",
-    heroTitle:"A Data Engineering assignment. Three Foundry agents. Verifiable results.",
-    heroLead:"We built a working Python/pandas pipeline, then audited it with three specialized reviewers using Microsoft Agent Framework. Here is the real execution, what the agents found, what we fixed and where the numbers come from.",
+    kicker:"DATA ENGINEERING / VERIFIED EXECUTION",
+    heroTitle:"Data Engineering. Multi-Agent Validation.",
+    heroLead:"A deterministic ETL pipeline, governed Microsoft Foundry execution and a three-agent Microsoft Agent Framework review. Results, execution evidence and implementation details in one place.",
     heroAction:"See what the agents did",heroResult:"Explore the data output",
     resultCard:"RESULT FROM AN ACTUAL EXECUTION",revenueTag:"Net revenue / 5 regions",
     revenueExplanation:"Computed deterministically — not by AI",
@@ -48,7 +57,7 @@
     laneB:"Review / Microsoft Foundry",roleArchitect:"Source profiling, anomalies and assumptions",roleEngineer:"Code and test review",roleVerifier:"Independent verification and falsification",
     reviewStep:"REVIEW OUTPUT",reviewStepDesc:"Findings, evidence and next steps; manifest validated.",
     trustBoundary:"Important trust boundary",
-    trustDesc:"Agents do not calculate revenue, nor can they certify it by assertion. The present Engineer Agent has read-only review tools; it does not modify repository code or create pull requests autonomously.",
+    trustDesc:"The pipeline calculates revenue independently. Agent output remains untrusted until schema-validated, bound to artifact provenance, and checked by deterministic tests. GitHub MCP repository access is read-only.",
     executionEyebrow:"RECORDED EXECUTION",executionHeading:"What did the three agents actually do?",
     executionLead:"The following results came from a real Foundry workflow run. We show differences between the three roles, including what they were unable to verify.",
     runDate:"DATE",walltime:"WALL TIME",openEvidence:"Open recorded execution ↗",
@@ -70,8 +79,8 @@
     testLabel:"tests passed",testProof:"Windows and Ubuntu CI. Separately, a fault-injection lab caught 4/4 seeded code defects and rejected 1/1 corrupted source. That tests the deterministic quality gates, not the LLM agents.",
     ciLink:"Open CI result ↗",faultLink:"Open fault-injection run ↗",
     statusEyebrow:"LIMITATIONS",statusHeading:"What is implemented — and what isn't?",
-    statusLead:"The precise state of the system. We do not claim autonomous code authoring or observability we have not configured.",
-    doneHeading:"IMPLEMENTED AND CHECKED",pendingHeading:"NOT IMPLEMENTED YET",
+    statusLead:"Verified evidence is distinguished from features whose cloud configuration or operational validation remains outstanding.",
+    doneHeading:"VERIFIED IMPLEMENTATION",pendingHeading:"DEPLOYMENT DEPENDENCIES / UNVERIFIED",
     evidenceEyebrow:"EVIDENCE",evidenceHeading:"Verify the implementation yourself.",
     evidenceLead:"The case study explains the work; these are the original, inspectable runs, artifacts and code.",
     eFoundry:"Actual three-agent Foundry review",eFoundryNote:"Azure OIDC · Foundry · JSON reports · 16 tool calls",
@@ -103,17 +112,15 @@
       const key=node.dataset.i18n;
       node.textContent=language==="en"?(en[key]??meta[key]):meta[key];
     }
-    for(const link of document.querySelectorAll('[data-route="engineering"]')){
-      link.href="./engineering.html?lang="+language;
-    }
     for(const node of document.querySelectorAll("[data-lang]")){
       node.setAttribute("aria-pressed",String(node.dataset.lang===language));
     }
     const url=new URL(location.href);
     url.searchParams.set("lang",language);
     history.replaceState(null,"",url.pathname+url.search+url.hash);
-    document.title=language==="pl"?"CloudFide — Agenci AI w Microsoft Foundry / studium wdrożenia":"CloudFide — Real Microsoft Foundry multiagent engineering case study";
+    document.title=language==="pl"?"CloudFide | Data Engineering i Microsoft Foundry":"CloudFide | Data Engineering & Microsoft Foundry";
     if(data&&trace&&reviews) renderDynamic();
+    window.dispatchEvent(new CustomEvent("cloudfide:language",{detail:{language}}));
   }
   function safeUrl(url){
     const parsed=new URL(url);
@@ -171,24 +178,23 @@
       detailPL:"Zmiana: kontrola kolizji ścieżek jeszcze przed zapisem oraz testy zachowania bajtów źródła.",detailEN:"Fix: reject artifact-path collisions before writes and test source-byte preservation."}
   ];
   const implemented=[
-    ["3 agenty Microsoft Agent Framework + Foundry","3 Microsoft Agent Framework agents in Foundry"],
-    ["Orkiestracja SequentialBuilder","SequentialBuilder orchestration"],
-    ["Ograniczone narzędzia tylko do odczytu","Restricted read-only reviewer tools"],
-    ["Pydantic + wersjonowany kontrakt danych","Pydantic + versioned data contract"],
-    ["ETL pandas/Decimal + niezależny oracle","pandas/Decimal ETL + independent oracle"],
-    ["GitHub Actions + Azure Entra OIDC","GitHub Actions + Azure Entra OIDC"],
-    ["79 testów CI / Windows + Ubuntu","79 CI tests / Windows + Ubuntu"],
-    ["16 zmierzonych wywołań narzędzi","16 measured tool calls"],
-    ["Kontrolowany Fault-Injection Lab","Controlled deterministic fault-injection lab"]
+    ["Deterministyczny ETL · pandas / Decimal","Deterministic ETL · pandas / Decimal"],
+    ["Kontrole jakości i niezależny oracle CSV","Data-quality checks and independent CSV oracle"],
+    ["3 recenzenci Microsoft Agent Framework","3 Microsoft Agent Framework reviewers"],
+    ["SequentialBuilder + GitHub Actions OIDC","SequentialBuilder + GitHub Actions OIDC"],
+    ["Pydantic · raporty i walidacja manifestu","Pydantic · reports and manifest validation"],
+    ["Pandera · kontrakt DataFrame bez konwersji","Pandera · non-coercive DataFrame schema"],
+    ["DataDecision · propozycje z dowodami i akceptacją","DataDecision · evidence-linked human-gated proposals"],
+    ["124 testy CI na Windows i Ubuntu (najnowszy zestaw)","124 CI tests across Windows and Ubuntu (updated suite)"],
+    ["Historyczny przebieg: 16 zmierzonych wywołań","Recorded run: 16 measured tool calls"]
   ];
   const pending=[
-    ["Autonomiczne pisanie kodu przez Engineer Agent","Autonomous code authoring by Engineer Agent"],
-    ["GitHub MCP jako narzędzia agentów","GitHub MCP integrated into agent workflows"],
-    ["Trwały DataDecision / decision ledger agentów","Persistent DataDecision records produced by agents"],
-    ["Pandera jako warstwa walidacji DataFrame","Pandera DataFrame validation layer"],
-    ["Aktywny Application Insights z pełnym trace ID","Connected Application Insights with real trace IDs"],
-    ["Pomiar tokenów/kosztu i czasu każdego agenta","Measured tokens/cost and per-agent timings"],
-    ["Osobna ewaluacja skuteczności agentów","Independent agent accuracy evaluation"]
+    ["Publiczne uruchomienia: wymagają tokenu GitHub i kodu dostępu","Public dispatch requires a GitHub token and access code"],
+    ["GitHub MCP: integracja kodu; walidacja przebiegu live","GitHub MCP: integrated; live runtime verification pending"],
+    ["Agent tworzący testy: workflow draft PR; brak potwierdzonego przebiegu","Autonomous test author: draft-PR workflow; execution unverified"],
+    ["Application Insights: brak potwierdzonego eksportu trace","Application Insights: exporter not verified"],
+    ["Koszt modelu: brak potwierdzonych stawek rozliczeniowych","Model cost: deployment billing rates not verified"],
+    ["Ewaluacja skuteczności agentów: bez benchmarku","Agent effectiveness evaluation: no independent benchmark"]
   ];
   function renderReports(){
     const tabs=$("#agent-tabs"),body=$("#agent-detail");
