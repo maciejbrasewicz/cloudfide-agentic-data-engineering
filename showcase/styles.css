@@ -236,3 +236,12 @@ code{font:11px var(--mono);color:#485b50}
 
 
 .engineering-nav-link{color:#215c38!important;border-bottom:1px solid #8cac93;padding-bottom:2px}
+
+/* Navigation must remain fully visible at standard phone widths. */
+@media(max-width:760px){
+  .nav{gap:10px;justify-content:space-between;overflow-x:visible;flex-wrap:wrap;row-gap:7px}
+  .nav a{font-size:10px}
+}
+@media(max-width:360px){
+  .nav{overflow-x:auto;flex-wrap:nowrap;justify-content:flex-start;gap:16px}
+}
