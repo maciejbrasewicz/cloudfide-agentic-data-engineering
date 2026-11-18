@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "kind": "deterministic_fault_injection",
+  "source": "recorded_ci_artifact",
+  "githubRunId": "44334663407",
+  "runUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44334663407",
+  "evaluatedCommit": "55336dc4478c22be8ec9d0db720cdd78990e420f",
+  "sourceSha256": "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4",
+  "validatedPlatforms": [
+    "ubuntu-latest",
+    "windows-latest"
+  ],
+  "mutantCaught": 4,
+  "mutantTotal": 4,
+  "sourceAnomaliesRejected": 1,
+  "sourceAnomaliesTotal": 1,
+  "originalDataIntact": true,
+  "scope": "deterministic_gate_sensitivity_only",
+  "note": "This is NOT a measurement of agent error detection or LLM evaluation. All faults were isolated to disposable source copies.",
+  "cases": [
+    {
+      "id": "FI-001",
+      "category": "Code mutant",
+      "title": "Discount sign inversion",
+      "fault": "Change line revenue from subtracting the discount to adding it.",
+      "gate": "Independent raw-CSV Decimal oracle",
+      "detected": true
+    },
+    {
+      "id": "FI-002",
+      "category": "Code mutant",
+      "title": "Duplicate handling bypass",
+      "fault": "Skip source-exact duplicate removal.",
+      "gate": "Independent raw-CSV Decimal oracle",
+      "detected": true
+    },
+    {
+      "id": "FI-003",
+      "category": "Code mutant",
+      "title": "Region normalization corruption",
+      "fault": "Convert region labels to lowercase instead of approved canonical values.",
+      "gate": "Five-region schema guard",
+      "detected": true
+    },
+    {
+      "id": "FI-004",
+      "category": "Code mutant",
+      "title": "Path safety removed",
+      "fault": "Disable collision detection between source and output artifact paths.",
+      "gate": "Source-preservation regression",
+      "detected": true
+    },
+    {
+      "id": "FI-005",
+      "category": "Source anomaly",
+      "title": "Export control tampering",
+      "fault": "Modify source TOTAL quantity while leaving transactions unchanged.",
+      "gate": "Raw control reconciliation",
+      "detected": true
+    }
+  ]
+}
