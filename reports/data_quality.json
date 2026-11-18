@@ -1,0 +1,23 @@
+{
+  "blank_discounts_zeroed": 959,
+  "comma_decimal_prices": 7,
+  "exact_duplicates_removed": 5,
+  "missing_unit_prices_recovered": 4,
+  "negative_quantities_retained": 6,
+  "net_revenue": "2570247.03",
+  "output_sha256": "b3e59f4f4ec0ef3d0f172c69d3751eaf2fcbf0224266f0695ea2fb61b56fb29f",
+  "policy_sha256": "254a87cf9fd20af7e3400c7f0a62e1655a5c95da63ffff96204db77b753936f4",
+  "policy_version": 1,
+  "raw_control_discount": "65924.67",
+  "raw_control_quantity": 37150,
+  "reconciliation_status": "passed",
+  "region_count": 5,
+  "regions_normalized": 15,
+  "repeated_headers": 1,
+  "source_rows": 1507,
+  "source_sha256": "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4",
+  "spaced_quantities": 4,
+  "total_control_rows": 1,
+  "transactions_after_dedup": 1500,
+  "transactions_before_dedup": 1505
+}
