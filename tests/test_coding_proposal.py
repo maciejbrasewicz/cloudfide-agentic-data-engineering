@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from agentic.coding_proposal import CodeProposal, parse_proposal, validate_content
+from agentic.coding_proposal import CodeProposal, validate_content
 
 
 GOOD = {
