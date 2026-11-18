@@ -23,7 +23,7 @@ from typing import Literal
 from pipeline import ROOT
 
 _ALLOWED_FILES = (
-    "solution.py", "pipeline.py", "contracts.py",
+    "solution.py", "pipeline.py", "dataframe_contracts.py", "contracts.py",
     "sales.csv", "revenue_by_region.csv",
     "contracts/data_policy.json", "reports/data_quality.json",
     "tests/test_raw_oracle.py", "tests/test_path_safety.py",
