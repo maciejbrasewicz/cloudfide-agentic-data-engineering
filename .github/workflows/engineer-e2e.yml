@@ -1,0 +1,123 @@
+name: Foundry - real Data Engineer candidate authoring (P2)
+
+# Trusted main only; no candidate Python is executed in an Azure/OIDC job.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Rebuild from original fixtures or improve allowlisted baseline"
+        type: choice
+        required: true
+        default: rebuild
+        options:
+          - rebuild
+          - improve
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/engineer-e2e.yml"
+      - "agentic/engineer.py"
+      - "agentic/workspace.py"
+      - "agentic/engineer_gate.py"
+      - "agentic/patch_policy.py"
+      - "agentic/schemas/engineer.py"
+      - "tests/test_engineer_gate.py"
+      - "tests/test_workspace_security.py"
+
+concurrency:
+  group: cloudfide-engineer-p2
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  architect:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
+      FOUNDRY_MODEL: gpt-5.6-sol
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Foundry dependencies
+        run: uv sync --locked --extra quality --extra foundry
+      - name: Verify P1 and P2 deterministic gates
+        run: |
+          uv run --no-sync python -m ruff check agentic tests
+          uv run --no-sync python -m pytest tests/test_architect_contract.py tests/test_workspace_security.py tests/test_engineer_gate.py
+      - name: Azure OIDC main-branch authentication
+        uses: azure/login@v2
+        with:
+          client-id: 459e0c31-5a4c-40b0-88d4-4f521ead55fc
+          tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
+          allow-no-subscriptions: true
+      - name: Run actual original-task Architect and approve evidence
+        env:
+          CLOUDFIDE_TASK_SPEC_B64: ${{ secrets.CLOUDFIDE_TASK_SPEC_B64 }}
+        run: uv run --no-sync python -m agentic.architect --mode "${{ inputs.mode || 'rebuild' }}" --output-dir architect-evidence
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p2-architect-receipt
+          path: architect-evidence/*.json
+          retention-days: 30
+          if-no-files-found: warn
+
+  engineer:
+    needs: architect
+    if: needs.architect.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
+      FOUNDRY_MODEL: gpt-5.6-sol
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: p2-architect-receipt
+          path: architect-evidence
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Foundry dependencies
+        run: uv sync --locked --extra quality --extra foundry
+      - name: Azure OIDC main-branch authentication
+        uses: azure/login@v2
+        with:
+          client-id: 459e0c31-5a4c-40b0-88d4-4f521ead55fc
+          tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
+          allow-no-subscriptions: true
+      - name: Foundry Engineer writes REAL candidate source (never executes it)
+        env:
+          CLOUDFIDE_TASK_SPEC_B64: ${{ secrets.CLOUDFIDE_TASK_SPEC_B64 }}
+        run: |
+          uv run --no-sync python -m agentic.engineer \
+            --architect-dir architect-evidence \
+            --mode "${{ inputs.mode || 'rebuild' }}" \
+            --output-dir engineer-evidence
+      - name: Publish P2 candidate and verified write receipts for P3 sandbox
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2-engineer-candidate-pending-sandbox
+          path: engineer-evidence/*
+          retention-days: 30
+          if-no-files-found: warn
