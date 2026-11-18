@@ -11,25 +11,27 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./styles.css">
+<link rel="stylesheet" href="./technical.css">
 <script src="./app.js" defer></script>
+<script src="./technical.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="skip">Przejdź do treści</a>
-<div class="topline"><div class="container topline-inner"><span>CF / ENGINEERING CASE STUDY</span><span data-i18n="topDate">Rzeczywiste wdrożenie · 18 listopada 2026</span></div></div>
+<div class="topline"><div class="container topline-inner"><span>CF / ENGINEERING SYSTEM</span><span data-i18n="topDate">Rzeczywiste wdrożenie · 18 listopada 2026</span></div></div>
 <header class="header">
  <div class="container header-inner">
   <a class="logo" href="#intro"><b>CF<span class="slash">/</span></b><span>Agentic Data Engineering<small>MICROSOFT FOUNDRY × DATA ENGINEERING</small></span></a>
-  <nav class="nav" aria-label="Sections"><a href="#task" data-i18n="navTask">Zadanie</a><a href="#architecture" data-i18n="navArchitecture">Architektura</a><a href="#execution" data-i18n="navAgents">Agenci</a><a href="#data" data-i18n="navData">Wyniki</a><a href="#evidence" data-i18n="navProof">Dowody</a><a href="./engineering.html?lang=pl" data-route="engineering" class="engineering-nav-link" data-i18n="navLab">Engineering Lab ↗</a></nav>
+  <nav class="nav" aria-label="Sections"><a href="#task" data-i18n="navTask">Zadanie</a><a href="#architecture" data-i18n="navArchitecture">Architektura</a><a href="#execution" data-i18n="navAgents">Agenci</a><a href="#data" data-i18n="navData">Wyniki</a><a href="#evidence" data-i18n="navProof">Dowody</a><a href="#technical" class="engineering-nav-link" data-i18n="navLab">System</a></nav>
   <div class="header-end"><div class="lang" role="group" aria-label="Language / Język"><button type="button" id="pl" data-lang="pl" aria-pressed="true">PL</button><button type="button" id="en" data-lang="en" aria-pressed="false">EN</button></div><a class="run-link" target="_blank" rel="noopener noreferrer" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568"><span data-i18n="originalRun">Oryginalny przebieg</span> ↗</a></div>
  </div>
 </header>
 <main id="main">
 <section class="intro container" id="intro" data-section="overview">
  <div class="intro-main">
-  <div class="kicker"><span class="ink-dot"></span><span data-i18n="kicker">Studium rzeczywistego wdrożenia / bez symulacji</span></div>
-  <h1 data-i18n="heroTitle">Zadanie Data Engineering. Trzech agentów w Foundry. Sprawdzalny rezultat.</h1>
-  <p class="lead" data-i18n="heroLead">Zbudowaliśmy działający pipeline Python/pandas, a następnie uruchomiliśmy jego audyt przez trzy wyspecjalizowane agenty Microsoft Agent Framework. Pokazujemy co naprawdę uruchomiono, co agenci ustalili, co poprawiliśmy i skąd pochodzą wyniki.</p>
-  <div class="hero-actions"><a class="primary-button" href="#execution"><span data-i18n="heroAction">Zobacz pracę agentów</span> <span>↘</span></a><a class="secondary-button" href="./engineering.html?lang=pl" data-route="engineering"><span data-i18n="heroLab">Otwórz Engineering Lab</span> <span>↗</span></a></div>
+  <div class="kicker"><span class="ink-dot"></span><span data-i18n="kicker">DATA ENGINEERING / VERIFIED EXECUTION</span></div>
+  <h1 data-i18n="heroTitle">Data Engineering. Multi-Agent Validation.</h1>
+  <p class="lead" data-i18n="heroLead">Deterministyczny pipeline ETL, kontrolowane środowisko Microsoft Foundry oraz audyt realizowany przez trzy agenty Microsoft Agent Framework. Wyniki, ścieżka wykonania i artefakty dostępne w jednym miejscu.</p>
+  <div class="hero-actions"><a class="primary-button" href="#execution"><span data-i18n="heroAction">Zobacz pracę agentów</span> <span>↘</span></a><a class="secondary-button" href="#technical"><span data-i18n="heroLab">Specyfikacja techniczna</span> <span>↘</span></a></div>
   <div class="tech-tags"><span>Microsoft Foundry</span><span>Agent Framework</span><span>SequentialBuilder</span><span>Python / Decimal</span><span>GitHub OIDC</span></div>
  </div>
  <aside class="hero-proof" aria-label="Verified results">
@@ -45,17 +47,6 @@
  <article class="plain-card"><div class="card-top"><span>02 — ETL</span><code>pipeline.py</code></div><h3 data-i18n="etlTitle">Przychód netto ze sprzedaży</h3><p data-i18n="etlDesc">CSV zawierał duplikaty, dodatkowy nagłówek, wiersz TOTAL, różne formaty liczb i regionów oraz brakujące ceny. Pipeline weryfikuje dane, stosuje zatwierdzoną politykę i wylicza przychód dla pięciu regionów.</p><div class="card-footer" data-i18n="etlFooter">Wynik: revenue_by_region.csv i raport jakości.</div></article></div>
  <div class="data-flow"><div><span data-i18n="rawSource">DANE ŹRÓDŁOWE</span><strong>1 507</strong><small data-i18n="rawExplain">wierszy, w tym nagłówek i TOTAL</small></div><span class="flow-arrow">→</span><div><span data-i18n="cleanSource">PO OCZYSZCZENIU</span><strong>1 500</strong><small data-i18n="cleanExplain">wierszy transakcyjnych</small></div><span class="flow-arrow">→</span><div><span data-i18n="finalSource">WYNIK</span><strong>5 <small data-i18n="regionWord">regionów</small></strong><small data-i18n="finalExplain">kwoty dokładne do grosza</small></div></div>
 </section>
-<section class="ownership-story container" id="ownership">
-  <div class="section-heading"><div><span class="section-no">02 / <span data-i18n="ownershipEyebrow">JAK POWSTAŁ SYSTEM</span></span><h2 data-i18n="ownershipTitle">Kto zaprojektował agentów — i kto podejmował decyzje?</h2></div><p data-i18n="ownershipLead">To właśnie ta warstwa odróżnia realizację zadania od zwykłego uruchomienia trzech promptów. Proces powstawał w pętli human-in-the-loop.</p></div>
-  <div class="ownership-chain">
-    <article><span class="ownership-actor">HUMAN / 00</span><h3 data-i18n="ownershipHuman">Człowiek zatwierdzał kierunek</h3><p data-i18n="ownershipHumanDesc">Wymagania, decyzje o polityce, ocena propozycji i akceptacja zmian.</p></article><span class="ownership-arrow">→</span>
-    <article><span class="ownership-actor">CHATGPT / 01</span><h3 data-i18n="ownershipChat">ChatGPT projektował i wdrażał</h3><p data-i18n="ownershipChatDesc">Architektura, kod, poprawki, stworzenie agentów, GitHub i konfiguracja OIDC.</p></article><span class="ownership-arrow">→</span>
-    <article><span class="ownership-actor">FOUNDRY / 02–04</span><h3 data-i18n="ownershipFoundry">Trzej agenci audytowali</h3><p data-i18n="ownershipFoundryDesc">Rzeczywisty SequentialBuilder, narzędzia tylko do odczytu i ustrukturyzowane raporty.</p></article><span class="ownership-arrow">→</span>
-    <article><span class="ownership-actor">CI / GATE</span><h3 data-i18n="ownershipGate">Testy dostarczyły dowodów</h3><p data-i18n="ownershipGateDesc">Niezależny oracle, kontrola artefaktów i walidacja danych, niezależnie od opinii modelu.</p></article>
-  </div>
-  <p class="ownership-disclosure" data-i18n="ownershipCaveat">Uwaga: ChatGPT był zewnętrznym architektem współpracującym z człowiekiem, a nie czwartym agentem wewnątrz Foundry. Historyczne poprawki nie powstały przez autonomiczne commity Engineer Agenta.</p>
-  <a class="ownership-link" href="./engineering.html?lang=pl" data-route="engineering"><span data-i18n="ownershipCTA">Poznaj szczegółową architekturę i uruchom rzeczywisty workflow</span> ↗</a>
-</section>
 <section class="section gray-area" id="architecture" data-section="architecture"><div class="container">
  <div class="section-heading"><div><span class="section-no">02 / <span data-i18n="architectureEyebrow">ARCHITEKTURA</span></span><h2 data-i18n="architectureHeading">Jak działa system — bez marketingowych schematów.</h2></div><p data-i18n="architectureLead">Wynik oblicza kod. Agenci go analizują. Oddzielamy deterministyczny ETL od niedeterministycznej oceny LLM.</p></div>
  <div class="architecture-grid">
@@ -70,7 +61,7 @@
    <div class="lane-node review-node"><small data-i18n="reviewStep">REZULTAT AUDYTU</small><b>3 × Pydantic JSON report</b><p data-i18n="reviewStepDesc">Ustalenia, dowody i zalecenia; walidacja manifestu.</p></div>
   </div>
  </div>
- <div class="truth-note"><b data-i18n="trustBoundary">Ważna granica zaufania</b><p data-i18n="trustDesc">Agenci nie liczą przychodu i nie zatwierdzają go własnym stwierdzeniem. Engineer Agent w obecnej wersji jest recenzentem z narzędziami do odczytu — nie edytuje repozytorium ani nie tworzy sam PR-ów.</p></div>
+ <div class="truth-note"><b data-i18n="trustBoundary">Ważna granica zaufania</b><p data-i18n="trustDesc">Przychód wylicza niezależny pipeline. Wyniki agentów są propozycjami podlegającymi walidacji Pydantic, kontroli pochodzenia artefaktów i weryfikacji testami. Dostęp GitHub MCP do repozytorium jest ograniczony do odczytu.</p></div>
 </div></section>
 <section class="section container" id="execution" data-section="execution">
  <div class="section-heading"><div><span class="section-no">03 / <span data-i18n="executionEyebrow">PRAWDZIWY PRZEBIEG</span></span><h2 data-i18n="executionHeading">Co naprawdę zrobiły trzy agenty?</h2></div><p data-i18n="executionLead">Poniżej są wyniki faktycznego uruchomienia w Foundry. Pokazujemy różnice między rolami i ograniczenia tego, co udało się im ustalić.</p></div>
@@ -94,12 +85,44 @@
  <div class="pr-list" id="pr-list"></div>
  <div class="quality-proof"><div><strong>79 <span data-i18n="testLabel">testów zaliczonych</span></strong><p data-i18n="testProof">CI na Windows i Ubuntu. Osobny Fault-Injection Lab wykrył 4/4 sztucznych błędów kodu i 1/1 uszkodzone źródło. To kontrola skuteczności testów, nie pomiar skuteczności agentów.</p></div><div class="quality-links"><a href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275374" target="_blank" rel="noopener noreferrer" data-i18n="ciLink">Zobacz CI ↗</a><a href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44334663407" target="_blank" rel="noopener noreferrer" data-i18n="faultLink">Zobacz Fault Injection ↗</a></div></div>
 </section>
+<section class="section technical-section" id="technical" data-section="technical">
+ <div class="container">
+  <div class="section-heading">
+   <div><span class="section-no">06 / <span data-i18n="technicalEyebrow">IMPLEMENTACJA I OPERACJE</span></span><h2 data-i18n="technicalHeading">Warstwa techniczna systemu</h2></div>
+   <p data-i18n="technicalLead">Kontrakty danych, kontrola zmian, wykonania Foundry, narzędzia agentów i telemetria. Ta sama implementacja i te same artefakty co w prezentacji wyników.</p>
+  </div>
+  <div class="technical-architecture">
+   <article><span>01 / GOVERNANCE</span><h3 data-i18n="governanceTitle">Specyfikacja i zatwierdzenie polityki</h3><p data-i18n="governanceDesc">Wymagania zadania, polityka jakości danych, decyzje biznesowe i kontrola akceptacji. Agent nie może sam zatwierdzić reguł.</p><code>contracts/data_policy.json</code></article>
+   <article><span>02 / ENGINEERING</span><h3 data-i18n="engineeringTitle">Implementacja i kontrola zmian</h3><p data-i18n="engineeringDesc">Wersjonowany kod Python, testy regresyjne, walidacja Pandera i kontrola zmian przez pull requesty.</p><code>solution.py · pipeline.py</code></article>
+   <article><span>03 / AGENT ORCHESTRATION</span><h3 data-i18n="orchestrationTitle">Trzystopniowy audyt Foundry</h3><p data-i18n="orchestrationDesc">SequentialBuilder: Data Architect → Data Engineer → Verification Engineer. Narzędzia ograniczone rolą i uprawnieniami.</p><code>agentic/run.py</code></article>
+   <article><span>04 / ASSURANCE</span><h3 data-i18n="assuranceTitle">Walidacja i ślad audytowy</h3><p data-i18n="assuranceDesc">Kontrole źródła, niezależne przeliczenie Decimal, Pydantic, SHA-256, CI oraz ledger propozycji wymagających akceptacji.</p><code>agentic/verify.py</code></article>
+  </div>
+  <div class="technical-head">
+   <div><span class="section-no">EXECUTION CONTROL</span><h3 data-i18n="launchHeading">Uruchomienie workflow Microsoft Foundry</h3><p data-i18n="launchLead">Zlecenie nowego przebiegu przez GitHub Actions. Status jobów i zdarzenia są pobierane z rzeczywistego wykonania; brak dostępu do sekretów i możliwości zmian w repozytorium.</p></div>
+   <a class="technical-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Oryginalny przebieg ↗</a>
+  </div>
+  <div class="technical-console">
+    <div class="console-status"><div><span class="console-label" data-i18n="execStatusLabel">STAN USŁUGI</span><strong id="technical-availability" data-i18n="execChecking">Weryfikacja możliwości uruchomienia</strong><p id="technical-availability-note"></p></div><span class="console-indicator" id="technical-indicator" aria-hidden="true"></span></div>
+    <form id="technical-start-form" class="technical-start-form" autocomplete="off">
+      <label for="technical-access" data-i18n="accessLabel">Kod dostępu do wykonania</label>
+      <div class="technical-controls"><input id="technical-access" type="password" minlength="20" maxlength="128" spellcheck="false" autocomplete="off" placeholder="Execution access code"><button type="submit" id="technical-start" disabled data-i18n="startRun">Uruchom w Foundry</button></div>
+      <p data-i18n="executionLimits">Uruchomienie wymaga autoryzacji. Limit kosztowy: maksymalnie 2 przebiegi dziennie i jeden aktywny proces. Kod oraz tokeny Azure nie są publikowane.</p>
+    </form>
+    <div id="technical-run" hidden><div class="technical-run-header"><strong id="technical-run-title"></strong><a id="technical-run-link" hidden target="_blank" rel="noopener noreferrer" data-i18n="openJob">Otwórz wykonanie w GitHub Actions ↗</a></div><div id="technical-job-steps" class="technical-job-steps"></div><div id="technical-live-events" class="technical-live-events" aria-live="polite"></div></div>
+    <p id="technical-error" role="status" aria-live="polite"></p>
+  </div>
+  <details class="technical-details"><summary><span data-i18n="implementationDetails">Moduły, uprawnienia i kontrakty wykonawcze</span><span aria-hidden="true">+</span></summary>
+    <div class="technical-modules" id="technical-modules"></div>
+    <p class="technical-footnote" data-i18n="technicalFootnote">Odrębny workflow generowania testów tworzy jedynie draft PR wymagający przeglądu. Dane modelu nie są podstawą do automatycznego zatwierdzania polityki ani scalania zmian.</p>
+  </details>
+ </div>
+</section>
 <section class="section gray-area" id="status" data-section="status"><div class="container">
- <div class="section-heading"><div><span class="section-no">06 / <span data-i18n="statusEyebrow">OGRANICZENIA</span></span><h2 data-i18n="statusHeading">Co działa, a czego jeszcze nie wdrożyliśmy?</h2></div><p data-i18n="statusLead">Precyzyjny stan technologii. Nie udajemy autonomicznego coding agenta ani monitoringu, którego nie skonfigurowaliśmy.</p></div>
+ <div class="section-heading"><div><span class="section-no">07 / <span data-i18n="statusEyebrow">OGRANICZENIA</span></span><h2 data-i18n="statusHeading">Co działa, a czego jeszcze nie wdrożyliśmy?</h2></div><p data-i18n="statusLead">Stan implementacji z rozróżnieniem kodu wdrożonego, wyników historycznych i integracji wymagających konfiguracji lub walidacji operacyjnej.</p></div>
  <div class="status-lists"><div><div class="list-heading"><span class="checkdot">●</span><strong data-i18n="doneHeading">WDROŻONE</strong></div><ul id="implemented"></ul></div><div><div class="list-heading incomplete"><span>○</span><strong data-i18n="pendingHeading">JESZCZE NIE WDROŻONE</strong></div><ul id="pending"></ul></div></div>
 </div></section>
 <section class="section container" id="evidence" data-section="evidence">
- <div class="section-heading"><div><span class="section-no">07 / <span data-i18n="evidenceEyebrow">DOWODY</span></span><h2 data-i18n="evidenceHeading">Możesz sprawdzić to samodzielnie.</h2></div><p data-i18n="evidenceLead">Główna prezentacja pokazuje pracę; tutaj są oryginalne artefakty i kod, które ją potwierdzają.</p></div>
+ <div class="section-heading"><div><span class="section-no">08 / <span data-i18n="evidenceEyebrow">DOWODY</span></span><h2 data-i18n="evidenceHeading">Możesz sprawdzić to samodzielnie.</h2></div><p data-i18n="evidenceLead">Główna prezentacja pokazuje pracę; tutaj są oryginalne artefakty i kod, które ją potwierdzają.</p></div>
  <div class="evidence-list">
   <a href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568" target="_blank" rel="noopener noreferrer"><span>01</span><div><b data-i18n="eFoundry">Prawdziwy przebieg trzech agentów</b><small data-i18n="eFoundryNote">Azure OIDC · Foundry · raporty JSON · 16 narzędzi</small></div><span>↗</span></a>
   <a href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275374" target="_blank" rel="noopener noreferrer"><span>02</span><div><b data-i18n="eTests">Wynik CI i testów</b><small data-i18n="eTestsNote">79 testów · Windows i Ubuntu · rekonsyliacja</small></div><span>↗</span></a>
