@@ -39,12 +39,26 @@ class Finding(BaseModel):
         return value
 
 
+class DecisionProposal(BaseModel):
+    """Agent suggestion requiring an external human approval event."""
+
+    model_config = ConfigDict(extra="forbid")
+    target: Literal[
+        "duplicates", "negative_quantities", "missing_prices", "regions",
+        "source_controls", "quality_gate", "other",
+    ]
+    proposal: str = Field(min_length=15, max_length=500)
+    evidence: str = Field(min_length=12, max_length=1000)
+    risk: str = Field(min_length=10, max_length=500)
+
+
 class ReviewReport(BaseModel):
     model_config = ConfigDict(extra="forbid")
     role: Literal["data_architect", "data_engineer", "verification_engineer"]
     summary: str = Field(min_length=10, max_length=1000)
     findings: list[Finding] = Field(default_factory=list, max_length=12)
     recommended_next_action: str = Field(min_length=5, max_length=600)
+    decision_proposals: list[DecisionProposal] = Field(default_factory=list, max_length=3)
 
 
 def parse_report(text: str) -> ReviewReport:
