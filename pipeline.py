@@ -50,6 +50,10 @@ def clean_sales(raw: pd.DataFrame, policy: DataPolicy | None = None) -> tuple[pd
     if set(raw.columns) != set(FIELDS) or len(raw.columns) != len(FIELDS):
         raise DataQualityError("Unexpected source schema")
     rows = raw.rename(columns=FIELDS).copy(deep=True)
+    # Detect exact duplicates in source values, before trimming or parsing can
+    # make two distinct raw order lines look identical.
+    source_lines = rows.loc[~rows.order_id.isin(["Order ID", "TOTAL"])]
+    raw_duplicate_indices = source_lines.index[source_lines.duplicated(keep="first")]
     raw_region_deviations = int((
         rows.loc[~rows.order_id.isin(["Order ID", "TOTAL"]), "region"]
         != rows.loc[~rows.order_id.isin(["Order ID", "TOTAL"]), "region"].str.strip().str.title()
@@ -61,6 +65,13 @@ def clean_sales(raw: pd.DataFrame, policy: DataPolicy | None = None) -> tuple[pd
     totals = rows[rows.order_id == "TOTAL"]
     if len(totals) != 1:
         raise DataQualityError("Expected exactly one TOTAL control row")
+    expected_header = {normalized: original.strip() for original, normalized in FIELDS.items()}
+    for _, record in headers.iterrows():
+        if any(record[column] != expected for column, expected in expected_header.items()):
+            raise DataQualityError("Malformed repeated header row")
+    control = totals.iloc[0]
+    if any(control[column] != "" for column in ("region", "product", "unit_price", "order_date")):
+        raise DataQualityError("Malformed TOTAL control row metadata")
     transactions = rows[~rows.order_id.isin(["Order ID", "TOTAL"])].copy()
     if not transactions.order_id.map(lambda x: bool(ID_PATTERN.fullmatch(x))).all():
         raise DataQualityError("Malformed order ID; manual investigation required")
@@ -80,12 +91,15 @@ def clean_sales(raw: pd.DataFrame, policy: DataPolicy | None = None) -> tuple[pd
     if raw_total_quantity != control_quantity or raw_total_discount != control_discount:
         raise DataQualityError("Raw source TOTAL mismatch; stop before cleaning")
 
-    # Drop exact raw duplicates (with quantity normalized); never dedupe solely by ID.
+    # Preserve source-row identity: normalization-equivalent lines are NOT
+    # evidence of duplicated source transactions.
     before_dedup = len(transactions)
     if policy.duplicates == "remove_exact_duplicates":
-        transactions = transactions.drop_duplicates().copy()
+        transactions = transactions.drop(index=raw_duplicate_indices).copy()
     duplicates = before_dedup - len(transactions)
 
+    if policy.region == "strict" and not raw.loc[transactions.index, "Region"].isin(REGIONS).all():
+        raise DataQualityError("Unknown region: noncanonical raw value rejected under strict policy")
     if policy.region == "strip_and_title_case":
         transactions["region"] = transactions.region.str.strip().str.title()
     if not transactions.region.isin(REGIONS).all():
