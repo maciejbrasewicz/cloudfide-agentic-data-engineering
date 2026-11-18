@@ -14,7 +14,7 @@
 **Gate 2 — Engineering verification (prepared; remote CI not yet run)**
 
 - `ci.yml` performs lint, unit/integration/property tests, pipeline rerun, and Git diff of committed result.
-- Generate and commit `uv.lock` in a clean network-enabled machine, verify all resolved dependency versions and their provenance.
+- Resolved `uv.lock` is committed; CI verifies dependency installation with `--locked` on both Windows and Linux.
 - Activate branch protection for CI on the GitHub repository.
 - Acceptance: successful GitHub Actions build from a fresh checkout.
 
