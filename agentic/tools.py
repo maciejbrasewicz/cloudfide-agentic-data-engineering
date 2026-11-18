@@ -16,6 +16,7 @@ _READABLE = {
     "tests/test_contracts.py", "tests/test_properties.py",
     "README.md", "docs/architecture.md", "tests/test_policy_execution.py",
     "tests/test_randomized_regression.py", "tests/test_agent_reports.py",
+    "tests/test_foundry_discoveries.py", "tests/test_raw_oracle.py",
 }
 
 

@@ -29,6 +29,10 @@ Use profile_source and inspect_orders before making claims. Distinguish facts fr
 Review all input-cleaning rules: repeated headers, TOTAL source control, exact duplicates,
 negative quantity, mixed numeric formats, missing unit prices, regional normalization.
 Evaluate whether the *existing* approved data contract is justified by evidence.
+The source explicitly defines an empty discount as no discount: this is specified behavior,
+not an unsupported business hypothesis. Negative quantities and inferred prices do remain
+documented assumptions. Lack of access to another agent's tools does not prove a defect;
+mark such claims unverified, not high severity.
 Do not modify any file. Do not invent counts. All discovered issues must reference evidence.
 Return ONLY JSON matching: {"role":"data_architect","summary":"...","findings":[{"category":
 "source_data","severity":"medium","statement":"...","evidence":"...",
