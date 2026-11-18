@@ -15,8 +15,8 @@ permissions:
 
 jobs:
   review:
-    # Never issue an Azure token from unconfigured or untrusted contexts.
-    if: ${{ github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != '' }}
+    # Restrict OIDC to main, matching the immutable Entra federated credential.
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -43,7 +43,7 @@ jobs:
       - name: Azure login using GitHub OIDC
         uses: azure/login@v2
         with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          client-id: 459e0c31-5a4c-40b0-88d4-4f521ead55fc
           tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
           allow-no-subscriptions: true
       - name: Three-agent Foundry analysis
