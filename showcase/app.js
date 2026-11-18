@@ -216,6 +216,8 @@
     const ul=elt("ul","");
     report.selectedFindings.forEach(item=>ul.append(elt("li","",item)));
     details.append(ul);
+    details.append(elt("h5","",pl("Oryginalne zalecenie agenta:","Original agent's recommended next action:")));
+    details.append(elt("p","original-next-step",report.originalRecommendedNextAction));
     const link=elt("a","report-link",pl("Pełny raport i oryginalny artefakt GitHub Actions ↗","Full report / original GitHub Actions artifact ↗"));
     link.href=safeUrl(reviews.runUrl);link.target="_blank";link.rel="noopener noreferrer";
     details.append(link);
