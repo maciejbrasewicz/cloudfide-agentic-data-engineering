@@ -231,3 +231,5 @@ code{font:11px var(--mono);color:#485b50}
 .original-report li::marker{color:#5b8765}
 .report-link{display:inline-block;margin-top:17px;font:11px var(--mono);color:#315e42;border-bottom:1px solid #cbdaca;padding-bottom:5px}
 @media(max-width:760px){.original-report blockquote{padding:15px}.original-report li{font-size:12px}}
+
+.original-next-step{font-size:13px;line-height:1.85;color:#3f5647;background:#edf4ee;padding:16px 20px;border:1px solid #d6e4d8}
