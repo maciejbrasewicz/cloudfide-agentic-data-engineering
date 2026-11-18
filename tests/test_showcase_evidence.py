@@ -59,8 +59,11 @@ def test_public_claims_do_not_invent_telemetry():
     evidence = _read()
     telemetry = evidence["observability"]
     assert telemetry["mode"] == "recorded_evidence"
-    assert telemetry["traceStatus"] == "not_configured"
-    for field in ("traceId", "tokenUsage", "estimatedCost", "toolSpanCount"):
+    assert telemetry["traceStatus"] == "measured_tool_calls"
+    assert telemetry["toolSpanCount"] == 16
+    assert telemetry["wallDurationMs"] == 90802.312
+    assert telemetry["otelExporterConfigured"] is False
+    for field in ("traceId", "tokenUsage", "estimatedCost"):
         assert telemetry[field] is None
     assert len(evidence["agents"]) == 3
     assert [a["role"] for a in evidence["agents"]] == [
@@ -77,3 +80,34 @@ def test_showcase_has_six_sections_and_only_local_js():
     assert '<script src="./app.js" defer>' in html
     assert len(_read()["decisions"]) >= 5
     assert len(_read()["cases"]) == 3
+
+
+def test_public_recorded_trace_is_same_review_and_has_only_allowlisted_metadata():
+    evidence = _read()
+    trace = json.loads((SHOWCASE / "data/agent_trace.json").read_text(encoding="utf-8"))
+    assert trace["schemaVersion"] == 1
+    assert trace["kind"] == "recorded_tool_activity"
+    assert trace["measurementSource"] == "real_foundry_run"
+    assert trace["reviewedCommit"] == evidence["provenance"]["reviewedCommit"]
+    assert trace["sourceSha256"] == evidence["provenance"]["sourceSha256"]
+    assert trace["toolCallCount"] == evidence["observability"]["toolSpanCount"]
+    assert trace["toolCallCount"] == len(trace["events"]) == 16
+    assert trace["wallDurationMs"] == evidence["observability"]["wallDurationMs"]
+    assert trace["otelTraceId"] is None
+    assert trace["tokenUsage"] is None
+    assert trace["estimatedCost"] is None
+    assert trace["agentDurations"] is None
+    assert trace["otelExporterConfigured"] is False
+    assert sum(trace["toolCounts"].values()) == 16
+    valid = {
+        "profile_source", "inspect_approved_policy", "inspect_orders",
+        "inspect_reconciliation", "check_quality", "read_project_file",
+    }
+    for index, event in enumerate(trace["events"], start=1):
+        assert event["seq"] == index
+        assert event["name"] in valid
+        assert event["status"] in {"ok", "error"}
+        assert 0 <= event["startSeconds"] <= trace["wallDurationMs"] / 1000
+        assert event["durationMs"] >= 0
+        assert set(event) == {"seq", "startSeconds", "name", "durationMs", "status"}
+    assert "prompt" not in json.dumps(trace).lower()
