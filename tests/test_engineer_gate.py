@@ -112,8 +112,9 @@ def test_missing_read_of_employer_original_tests_is_incomplete(tmp_path: Path):
 
 def test_missing_validation_request_is_not_a_pass(tmp_path: Path):
     ws = ready_workspace(tmp_path)
+    report = actual_report(ws)
     ws.validation_requests.clear()
-    gate = evaluate_engineer(actual_report(ws), ws, complete_ledger(), DIGEST)
+    gate = evaluate_engineer(report, ws, complete_ledger(), DIGEST)
     assert gate.status == "INCOMPLETE"
 
 
