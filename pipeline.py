@@ -168,6 +168,15 @@ def clean_sales(raw: pd.DataFrame, policy: DataPolicy | None = None) -> tuple[pd
 
 
 def run_pipeline(source: Path, output: Path, report_path: Path | None, policy: Path) -> dict:
+    # Reject path aliases before the first write: input and policy files are
+    # immutable, and output/report files cannot overwrite each other.
+    paths = [source.resolve(), output.resolve(), policy.resolve()]
+    if report_path is not None:
+        paths.append(report_path.resolve())
+    if len(paths) != len(set(paths)):
+        raise DataQualityError("Source, policy, output and report paths must be distinct")
+    source_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+    policy_hash = hashlib.sha256(policy.read_bytes()).hexdigest()
     approved_policy = read_policy(policy)
     raw = pd.read_csv(source, dtype=str, keep_default_na=False)
     cleaned, report = clean_sales(raw, approved_policy)
@@ -184,9 +193,9 @@ def run_pipeline(source: Path, output: Path, report_path: Path | None, policy: P
     report.update({
         "region_count": len(result),
         "net_revenue": f"{result_total:.2f}",
-        "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        "source_sha256": source_hash,
         "output_sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
-        "policy_sha256": hashlib.sha256(policy.read_bytes()).hexdigest(),
+        "policy_sha256": policy_hash,
     })
     if report_path is not None:
         report_path.parent.mkdir(parents=True, exist_ok=True)
