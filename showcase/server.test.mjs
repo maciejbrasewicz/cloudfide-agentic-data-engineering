@@ -29,7 +29,10 @@ test("recorded evidence is available and cannot be cached as live state",async()
   const data=await r.json();
   assert.equal(data.schemaVersion,1);
   assert.equal(data.agents.length,3);
-  assert.equal(data.observability.traceStatus,"not_configured");
+  assert.equal(data.observability.traceStatus,"measured_tool_calls");
+  const trace=await fetch(origin+"/data/agent_trace.json");
+  assert.equal(trace.status,200);
+  assert.equal((await trace.json()).toolCallCount,16);
 });
 
 test("client assets are served without requiring any dependency",async()=>{
