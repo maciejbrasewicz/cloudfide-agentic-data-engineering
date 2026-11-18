@@ -52,6 +52,40 @@ jobs:
         run: uv run --no-sync python -m agentic.run --output agentic_review_runtime.json
       - name: Validate evidence provenance against the checked-out source
         run: uv run --no-sync python -m agentic.verify --input agentic_review_runtime.json
+      - name: Publish verified run summary
+        shell: bash
+        run: |
+          uv run --no-sync python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          document = json.loads(Path("agentic_review_runtime.json").read_text(encoding="utf-8"))
+          attestation = document["deterministic_attestation"]
+          assert all(attestation[key] for key in (
+              "provenance_matched",
+              "three_structured_agent_reports",
+              "deterministic_reconciliation_confirmed",
+          ))
+          lines = [
+              "## Foundry multiagent review",
+              "",
+              f"**Commit:** `{os.environ['GITHUB_SHA'][:12]}`",
+              f"**Deployment:** `{document['model_deployment']}`",
+              "**Source integrity:** verified against the reviewed commit",
+              "**ETL reconciliation:** passed",
+              "",
+              "| Independent review role | Findings | High severity |",
+              "| --- | ---: | ---: |",
+          ]
+          for review in document["agent_reviews"]:
+              findings = review["findings"]
+              high = sum(1 for item in findings if item["severity"] == "high")
+              lines.append(f"| {review['role']} | {len(findings)} | {high} |")
+          lines.extend(["", "Model-generated findings are suggestions, not certified facts."])
+          with Path(os.environ["GITHUB_STEP_SUMMARY"]).open("a", encoding="utf-8") as out:
+              out.write("\n".join(lines) + "\n")
+          PY
       - name: Upload actual agent outputs for audit
         if: always()
         uses: actions/upload-artifact@v4
