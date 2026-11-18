@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "099cd481e9ef2c69cc1bef1773eaf709cca1452f",
+  "generated_at_utc": "2026-11-18T21:51:42.938468+00:00",
+  "source_manifest_sha256": "a182493d90ee64feb0a552b692d5292c9f13af6f87067db25ecc7bcd12c46015",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Make successful pre-deduplication reconciliation to quantity 37,150 and discount 65,924.67 a mandatory quality gate before the TOTAL row is excluded.",
+      "evidence": "The source contains one TOTAL row with those values, and the approved contract requires verification before deduplication.",
+      "risk": "The required rounding precision and aggregation interpretation must be confirmed to avoid false failures.",
+      "status": "pending_human_review",
+      "source_report_sha256": "da8db8f0b8fac07bf3e7fc483995f59d99851b3d412e6795e171c046a4aa0c6d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "duplicates",
+      "proposal": "Retain exact-duplicate removal only with an audit report containing the five removed rows and their occurrence counts.",
+      "evidence": "Profiling identified five exact-duplicate rows, while source evidence alone does not prove they are accidental.",
+      "risk": "Legitimate repeated transactions could otherwise be removed.",
+      "status": "pending_human_review",
+      "source_report_sha256": "da8db8f0b8fac07bf3e7fc483995f59d99851b3d412e6795e171c046a4aa0c6d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Impute each of the four missing prices only when the normalized product has exactly one distinct valid observed price, and record the donor rule and value in audit output.",
+      "evidence": "Four unit prices are missing and the approved contract permits unique-price-per-product inference or failure.",
+      "risk": "A unique historical price may still be inappropriate for the affected order date or commercial context.",
+      "status": "pending_human_review",
+      "source_report_sha256": "da8db8f0b8fac07bf3e7fc483995f59d99851b3d412e6795e171c046a4aa0c6d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "quality_gate",
+      "proposal": "Add strict lexical validation for unit prices, discounts, and TOTAL.discount before Decimal construction.",
+      "evidence": "The approved policy names dot and comma decimal separators, while direct Decimal construction accepts additional representations not explicitly approved.",
+      "risk": "The exact treatment of optional leading signs and values such as .50 must be agreed before selecting the regex.",
+      "status": "pending_human_review",
+      "source_report_sha256": "e3a764d69c53415a9e7be02a83b2dc50f9b1d0aeeebf751eb5dfed79fa483757",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Retain pre-deduplication reconciliation as a mandatory blocking gate and preserve its stage-specific metrics in the audit report.",
+      "evidence": "The source TOTAL reconciles the 1,505 raw transactions, while deduplication produces 1,500 cleaned rows; pipeline.py and tests enforce this ordering.",
+      "risk": "Changing metric stages without updating documentation could make otherwise correct counts appear inconsistent.",
+      "status": "pending_human_review",
+      "source_report_sha256": "e3a764d69c53415a9e7be02a83b2dc50f9b1d0aeeebf751eb5dfed79fa483757",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Require source-system uniqueness evidence or owner confirmation before promoting exact-duplicate removal from a documented assumption to an approved business rule.",
+      "evidence": "Five source rows are exact duplicates, but neither the pipeline nor the independent oracle can determine whether repetition is accidental.",
+      "risk": "Legitimate identical transactions may be removed from regional revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "541a6e1050954158bdff2ac6faf3bc7f49e834aa8e72bb7be2c7fee4d8c1dd25",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six signed rows provisionally, but require return or credit-note evidence and expose their contribution separately in audit output.",
+      "evidence": "The CSV contains six negative quantities and both implementations retain them, while no inspected field proves return semantics.",
+      "risk": "Negative values could encode corrections or data-entry errors rather than returns.",
+      "status": "pending_human_review",
+      "source_report_sha256": "541a6e1050954158bdff2ac6faf3bc7f49e834aa8e72bb7be2c7fee4d8c1dd25",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Continue fail-closed singleton-price inference only with per-row lineage, and validate the four affected rows against dated authoritative pricing data.",
+      "evidence": "All observed same-product prices provide a unique candidate for the four missing values, but export consistency does not prove temporal or contractual applicability.",
+      "risk": "A deterministic imputation can still assign the wrong historical price.",
+      "status": "pending_human_review",
+      "source_report_sha256": "541a6e1050954158bdff2ac6faf3bc7f49e834aa8e72bb7be2c7fee4d8c1dd25",
+      "approved_by": null
+    }
+  ]
+}
