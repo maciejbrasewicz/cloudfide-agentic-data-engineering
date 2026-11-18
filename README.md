@@ -7,7 +7,7 @@ A small, deterministic **pandas** solution to the virtual-column recruitment tas
 Requires Python 3.11+.
 
 ```bash
-uv sync --extra quality
+uv sync --locked --extra quality
 uv run --no-sync python pipeline.py
 uv run --no-sync python -m pytest
 ```
@@ -71,7 +71,7 @@ The checks do not simply compare the program against its own calculated output: 
 This repository also contains a *read-only*, three-role Microsoft Foundry review of this same deliverable: **Data Architect → Data Engineer → Verification Engineer**. It is not a second application and is not called by the production ETL. Agents have narrow function tools to inspect source data, inspect named files, check the approved contract, run tests, and read reconciliation evidence. Their findings are structured with Pydantic and remain **untrusted suggestions** until reviewed against executable tests. A separate `agentic.verify` provenance gate checks the report against the exact source, policy, code, test-suite and output hashes. See [architecture](docs/architecture.md).
 
 ```bash
-uv sync --extra quality --extra foundry
+uv sync --locked --extra quality --extra foundry
 az login
 cp .env.example .env  # set FOUNDRY_PROJECT_ENDPOINT and FOUNDRY_MODEL
 uv run --no-sync python -m agentic.run --task-file /path/outside/repo/taskvirtualcolumn.md
@@ -83,7 +83,7 @@ After a successful local agent run, validate evidence with `uv run --no-sync pyt
 
 GitHub Actions has separate workflows: `ci.yml` (no Azure secrets or model calls) and `agent-review.yml` (manual trigger, Azure OIDC, read-only tokens and short artifact retention). Set GitHub repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, `FOUNDRY_PROJECT_ENDPOINT`, `FOUNDRY_MODEL`. The Azure identity must have least-privilege access to the Foundry project and an OIDC federated credential scoped to this repository's workflow.
 
-**Security note, 18 Nov 2026:** Versions `agent-framework` 1.26.1 and 1.26.2 were reported as malicious on PyPI on 17 Nov. This project does **not** directly depend on the `agent-framework` metapackage and explicitly pins `agent-framework-core==1.26.0` and audited component versions. Before installing Foundry extras in an Azure-authenticated environment, verify resolved dependencies and generate/commit `uv.lock` in a network-enabled, clean environment. CI currently resolves dependencies using declared constraints; commit a reviewed `uv.lock` for reproducible dependency resolution before final submission.
+**Security note, 18 Nov 2026:** Versions `agent-framework` 1.26.1 and 1.26.2 were reported as malicious on PyPI on 17 Nov. This project does **not** directly depend on the `agent-framework` metapackage and explicitly pins `agent-framework-core==1.26.0` and audited component versions. Before installing Foundry extras in an Azure-authenticated environment, verify resolved dependencies and generate/commit `uv.lock` in a network-enabled, clean environment. The repository commits a resolved `uv.lock`; CI installs with `uv sync --locked` for reproducibility.
 
 ## Implementation footprint
 
