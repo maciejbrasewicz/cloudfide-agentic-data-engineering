@@ -3,9 +3,9 @@
 *.toml text eol=lf
 *.yml text eol=lf
 *.md text eol=lf
+*.json text eol=lf
 revenue_by_region.csv text eol=lf
-reports/*.json text eol=lf
 
-# Original CloudFide fixtures remain byte-for-byte unchanged.
+# Original recruitment fixtures remain byte-for-byte unchanged.
 sales.csv -text
 test_virtual_column.py -text
