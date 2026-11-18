@@ -17,6 +17,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from .models import parse_report
+from .live_events import emit
 from .telemetry import ToolRecorder, active_recorder
 from .verify import collect_provenance, verify_manifest
 from .tools import (
@@ -69,6 +70,10 @@ Use pipeline (not implementation/output), testing (not tests), spec (not policy)
 Every finding.severity MUST be exactly low, medium, or high.
 Return no markdown, no additional fields, and no more than 12 findings.
 Findings are hypotheses until independently validated by executable checks.
+For each agent, optionally include "decision_proposals": [] (0 to 3 objects) with EXACT keys:
+target (duplicates|negative_quantities|missing_prices|regions|source_controls|quality_gate|other),
+proposal (specific action), evidence (source-grounded), risk (unresolved uncertainty).
+These are proposals ONLY; never claim to have approved or applied a decision.
 """
 
 
@@ -117,6 +122,7 @@ async def perform(task_file: Path | None) -> dict:
         "Original task source (provided privately, do not commit it):\n" + task_context
     )
     recorder = ToolRecorder()
+    emit("workflow.started")
     started_ns = time.perf_counter_ns()
     with active_recorder(recorder):
         response = await workflow.run(prompt)
@@ -161,6 +167,18 @@ async def perform(task_file: Path | None) -> dict:
         },
     }
     manifest["deterministic_attestation"] = verify_manifest(manifest)
+    for report in reports:
+        emit(
+            "agent.completed",
+            role=report.role,
+            summary=report.summary,
+            findings=len(report.findings),
+        )
+    emit(
+        "workflow.completed",
+        total_ms=measured_wall_ms,
+        tool_count=len(recorder.snapshot()),
+    )
     return manifest
 
 
@@ -184,7 +202,13 @@ def main() -> None:
             f"{context.trace_id:032x}" if context.is_valid and span.is_recording() else None
         )
     args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    from .decision_ledger import create_ledger, write_ledger_atomic
+
+    ledger_path = args.output.parent / "agentic_decision_ledger_runtime.json"
+    ledger = create_ledger(result)
+    write_ledger_atomic(ledger, ledger_path)
     print(f"Three Foundry agent reviews completed: {args.output}")
+    print(f"Human-gated decision proposals recorded: {len(ledger.decisions)}")
 
 
 if __name__ == "__main__":
