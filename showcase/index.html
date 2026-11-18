@@ -14,6 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="./styles.css"/>
   <script src="./app.js" defer></script>
+  <script src="./trace.js" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -124,7 +125,8 @@
             <div class="execution-main"><div class="panel-head"><span>EXECUTION CHECKPOINTS</span><a id="execution-source-link" href="#" target="_blank" rel="noopener noreferrer">Open authentic run ↗</a></div><div id="checkpoints" class="checkpoints"></div></div>
             <div class="execution-side"><div class="panel-head"><span>AGENT INSPECTOR</span><span>3 / REVIEWERS</span></div><div id="agent-switcher" class="agent-switcher"></div><div id="agent-inspector" class="agent-inspector"></div></div>
           </div>
-          <div class="observability-panel"><div class="obs-icon">◎</div><div><span class="label-mono">OBSERVABILITY / HONEST STATUS</span><h3>Recorded evidence, not a live trace waterfall.</h3><p>Full OTel spans, token usage and model-cost attribution were not captured in this historical run. Instrumentation must be enabled and validated before this interface labels those metrics as measured.</p></div><span class="status-pill status-pending">NOT YET INSTRUMENTED</span></div>
+          <div class="observability-panel"><div class="obs-icon">◎</div><div><span class="label-mono">OBSERVABILITY / VERIFIED MEASUREMENTS</span><h3>Measured tool activity. No invented model timings.</h3><p id="observability-description">The recorded runtime captures real tool-call timings and outcomes. Model token usage, per-agent latency and exported OTel trace IDs remain unavailable until telemetry exporters are configured.</p></div><span class="status-pill status-recorded">MEASURED TOOLS</span></div>
+          <section class="tool-trace-panel" aria-label="Measured tool execution waterfall"><div class="panel-head"><span>RECORDED TOOL ACTIVITY / RELATIVE TIME</span><span>FOUNDRY RUN · REAL MEASUREMENTS</span></div><div class="trace-metrics" id="trace-metrics"></div><div class="trace-toolbar"><span class="label-mono">TOOL CALLS / TIME AXIS</span><div class="trace-scale"><button type="button" data-zoom="full" aria-pressed="true">FULL RUN</button><button type="button" data-zoom="tools" aria-pressed="false">TOOL WINDOW</button></div></div><div id="tool-timeline" class="tool-timeline" aria-label="Tool calls plotted against measured start time"></div><div id="trace-selected" class="trace-selected" aria-live="polite"></div><div class="trace-footnote">All positions derive from recorded UTC timestamps. Bars have a minimum visible width for accessibility; they are not drawn to scale below that width. Empty time regions are unclassified—not assumed to be model computation.</div></section>
         </section>
 
         <section id="view-data" data-section="data" class="view" aria-labelledby="data-heading">
@@ -139,7 +141,7 @@
           <div class="section-meta"><span class="eyebrow">06 / THE EVIDENCE ROOM</span><span class="small-rule"></span><span class="eyebrow muted">TRACEABILITY / AUDIT / LIMITATIONS</span></div>
           <div class="page-heading"><h1 id="evidence-heading">Every claim<br/><em>has a trail.</em></h1><p>Browse explicit engineering decisions, their unresolved assumptions, verification methods and immutable run references. Evidence is separate from inference.</p></div>
           <div class="evidence-layout"><div><div class="panel-head evidence-title"><span>DECISION LEDGER</span><span>5 TRACEABLE DECISIONS</span></div><div id="decision-ledger" class="decision-ledger"></div></div><aside class="manifest-panel"><div class="panel-head"><span>EXECUTION MANIFEST</span><span>SHA-256</span></div><div id="manifest-content"></div></aside></div>
-          <div class="evidence-footer"><div class="label-mono">INDEPENDENTLY VERIFIABLE</div><h2>Trust the evidence.<br/><span class="subtle-headline">Challenge the interpretation.</span></h2><p>All source links point to the actual repository, workflow runs and merged pull requests. Model-written findings remain untrusted until checked against executable proof.</p><a class="btn btn-primary" target="_blank" rel="noopener noreferrer" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318354937">Inspect the verified run <span>↗</span></a></div>
+          <div class="evidence-footer"><div class="label-mono">INDEPENDENTLY VERIFIABLE</div><h2>Trust the evidence.<br/><span class="subtle-headline">Challenge the interpretation.</span></h2><p>All source links point to the actual repository, workflow runs and merged pull requests. Model-written findings remain untrusted until checked against executable proof.</p><a class="btn btn-primary" target="_blank" rel="noopener noreferrer" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568">Inspect the verified run <span>↗</span></a></div>
         </section>
       </main>
       <footer class="page-footer"><span>ENGINEERING INTELLIGENCE <span class="footer-dot">●</span> EVIDENCE OVER HYPE</span><span>MICROSOFT FOUNDRY / DATA CONTRACTS / GITHUB ACTIONS</span><span>FIELD REPORT 001</span></footer>

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "kind": "recorded_tool_activity",
+  "measurementSource": "real_foundry_run",
+  "capturedAt": "2026-11-18T15:05:53.538313+00:00",
+  "firstEventAt": "2026-11-18T15:04:27.430251+00:00",
+  "githubRunId": "44331275568",
+  "githubRunUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568",
+  "reviewedCommit": "aa01b168deeee9b4339bda337e949ecc13b0e914",
+  "modelDeployment": "gpt-5.6-sol",
+  "sourceSha256": "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4",
+  "wallDurationMs": 90802.312,
+  "toolCallCount": 16,
+  "toolCounts": {
+    "check_quality": 1,
+    "inspect_approved_policy": 1,
+    "inspect_orders": 1,
+    "inspect_reconciliation": 1,
+    "profile_source": 1,
+    "read_project_file": 11
+  },
+  "otelTraceId": null,
+  "otelExporterConfigured": false,
+  "tokenUsage": null,
+  "estimatedCost": null,
+  "agentDurations": null,
+  "fidelity": "Relative start offsets rounded to 1 ms from real UTC timestamps; tool durations measured via perf_counter_ns. Empty portions of timeline are unclassified (no model-span capture).",
+  "events": [
+    {
+      "seq": 1,
+      "startSeconds": 0,
+      "name": "profile_source",
+      "durationMs": 13.29,
+      "status": "ok"
+    },
+    {
+      "seq": 2,
+      "startSeconds": 0,
+      "name": "inspect_approved_policy",
+      "durationMs": 0.755,
+      "status": "ok"
+    },
+    {
+      "seq": 3,
+      "startSeconds": 4.731,
+      "name": "inspect_orders",
+      "durationMs": 0.064,
+      "status": "ok"
+    },
+    {
+      "seq": 4,
+      "startSeconds": 48.536,
+      "name": "inspect_reconciliation",
+      "durationMs": 0.772,
+      "status": "ok"
+    },
+    {
+      "seq": 5,
+      "startSeconds": 48.536,
+      "name": "check_quality",
+      "durationMs": 1893.762,
+      "status": "ok"
+    },
+    {
+      "seq": 6,
+      "startSeconds": 48.536,
+      "name": "read_project_file",
+      "durationMs": 0.937,
+      "status": "ok"
+    },
+    {
+      "seq": 7,
+      "startSeconds": 48.537,
+      "name": "read_project_file",
+      "durationMs": 1.562,
+      "status": "ok"
+    },
+    {
+      "seq": 8,
+      "startSeconds": 48.537,
+      "name": "read_project_file",
+      "durationMs": 0.937,
+      "status": "ok"
+    },
+    {
+      "seq": 9,
+      "startSeconds": 48.538,
+      "name": "read_project_file",
+      "durationMs": 0.73,
+      "status": "ok"
+    },
+    {
+      "seq": 10,
+      "startSeconds": 53.605,
+      "name": "read_project_file",
+      "durationMs": 0.361,
+      "status": "ok"
+    },
+    {
+      "seq": 11,
+      "startSeconds": 53.605,
+      "name": "read_project_file",
+      "durationMs": 1.023,
+      "status": "ok"
+    },
+    {
+      "seq": 12,
+      "startSeconds": 53.606,
+      "name": "read_project_file",
+      "durationMs": 1.381,
+      "status": "ok"
+    },
+    {
+      "seq": 13,
+      "startSeconds": 53.606,
+      "name": "read_project_file",
+      "durationMs": 0.89,
+      "status": "ok"
+    },
+    {
+      "seq": 14,
+      "startSeconds": 53.606,
+      "name": "read_project_file",
+      "durationMs": 0.919,
+      "status": "ok"
+    },
+    {
+      "seq": 15,
+      "startSeconds": 53.607,
+      "name": "read_project_file",
+      "durationMs": 0.028,
+      "status": "ok"
+    },
+    {
+      "seq": 16,
+      "startSeconds": 53.607,
+      "name": "read_project_file",
+      "durationMs": 0.021,
+      "status": "ok"
+    }
+  ]
+}

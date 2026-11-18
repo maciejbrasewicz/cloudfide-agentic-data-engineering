@@ -4,22 +4,22 @@
     "kind": "recorded_verified_snapshot",
     "label": "Verified execution",
     "observedAt": "2026-11-18",
-    "reviewedCommit": "3cb2186dbaf3ae0a9cc80e463ebf170af3e93adc",
-    "publishedCommit": "1519291046d02b7a542426b8a55d6855f39a96cc",
+    "reviewedCommit": "aa01b168deeee9b4339bda337e949ecc13b0e914",
+    "publishedCommit": "aa01b168deeee9b4339bda337e949ecc13b0e914",
     "sourceSha256": "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4",
     "outputSha256": "b3e59f4f4ec0ef3d0f172c69d3751eaf2fcbf0224266f0695ea2fb61b56fb29f",
     "policySha256": "254a87cf9fd20af7e3400c7f0a62e1655a5c95da63ffff96204db77b753936f4",
-    "reviewUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318354937",
-    "ciUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318536294",
+    "reviewUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568",
+    "ciUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275374",
     "repoUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering",
-    "artifactUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318354937#artifacts",
+    "artifactUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568#artifacts",
     "modelDeployment": "gpt-5.6-sol",
     "framework": "Microsoft Agent Framework",
     "cloud": "Microsoft Foundry",
-    "notes": "This is a static snapshot of an actual GitHub Actions/Foundry run. It is not a live telemetry feed."
+    "notes": "Recorded, verified Foundry execution at aa01b168. The tool activity timeline is measured, but this is not a live Azure Monitor feed."
   },
   "quality": {
-    "testCount": 64,
+    "testCount": 79,
     "ciPlatforms": [
       "ubuntu-latest",
       "windows-latest"
@@ -69,7 +69,7 @@
       "name": "Data Architect",
       "role": "data_architect",
       "index": "01",
-      "findings": 12,
+      "findings": 11,
       "summary": "Audits source anomalies, control-row semantics, data assumptions and proposed policy decisions.",
       "tools": [
         "profile_source",
@@ -89,7 +89,7 @@
       "name": "Data Engineer",
       "role": "data_engineer",
       "index": "02",
-      "findings": 9,
+      "findings": 11,
       "summary": "Checks the actual Python implementation against the task, contract and tests.",
       "tools": [
         "read_project_file",
@@ -109,7 +109,7 @@
       "name": "Verification Engineer",
       "role": "verification_engineer",
       "index": "03",
-      "findings": 12,
+      "findings": 11,
       "summary": "Attempts to falsify correctness using independent arithmetic, test outputs and provenance.",
       "tools": [
         "read_project_file",
@@ -155,7 +155,7 @@
       "title": "Independent verification",
       "description": "Supplied tests, Hypothesis, regression tests and a raw-CSV Decimal oracle execute in CI.",
       "status": "verified",
-      "detail": "64 passed · Windows + Linux",
+      "detail": "79 passed · Windows + Linux",
       "source": "tests/test_raw_oracle.py"
     },
     {
@@ -171,7 +171,7 @@
       "title": "Three-agent review",
       "description": "Three role-specific LLM reports are parsed using strict Pydantic schemas.",
       "status": "verified",
-      "detail": "3 validated reports · 33 findings",
+      "detail": "3 validated reports · 33 findings · 16 measured tool calls",
       "source": "agentic/models.py"
     },
     {
@@ -301,12 +301,15 @@
     }
   ],
   "observability": {
-    "traceStatus": "not_configured",
+    "traceStatus": "measured_tool_calls",
     "mode": "recorded_evidence",
     "traceId": null,
     "tokenUsage": null,
     "estimatedCost": null,
-    "toolSpanCount": null,
-    "message": "Per-agent token usage, wall-clock spans and distributed trace IDs were not captured in this recorded run. Do not interpret the workflow outline as a measured span waterfall."
+    "toolSpanCount": 16,
+    "wallDurationMs": 90802.312,
+    "sourceRunUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568",
+    "otelExporterConfigured": false,
+    "message": "This verified run measured 16 real read-only tool calls and 90.8 seconds end-to-end. Model token usage, per-agent latency and exported OTel trace IDs are not available; they are never estimated."
   }
 }

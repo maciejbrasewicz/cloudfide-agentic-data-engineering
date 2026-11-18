@@ -29,6 +29,7 @@ jobs:
       - name: Validate client JavaScript syntax
         run: |
           node --check showcase/app.js
+          node --check showcase/trace.js
           node --check showcase/server.mjs
           node --test showcase/server.test.mjs
       - uses: astral-sh/setup-uv@v6
@@ -55,8 +56,12 @@ jobs:
           fi
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=1600,1000 --screenshot="$PWD/engineering-desktop.png" http://127.0.0.1:4173/
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=430,900 --screenshot="$PWD/engineering-mobile.png" http://127.0.0.1:4173/
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=1600,1100 --screenshot="$PWD/engineering-execution.png" 'http://127.0.0.1:4173/#execution'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=430,900 --screenshot="$PWD/engineering-execution-mobile.png" 'http://127.0.0.1:4173/#execution'
           test -s engineering-desktop.png
           test -s engineering-mobile.png
+          test -s engineering-execution.png
+          test -s engineering-execution-mobile.png
       - name: Upload visual QA evidence
         uses: actions/upload-artifact@v4
         with:
@@ -64,6 +69,8 @@ jobs:
           path: |
             engineering-desktop.png
             engineering-mobile.png
+            engineering-execution.png
+            engineering-execution-mobile.png
           retention-days: 7
       - name: Verify ETL source files have not been touched
         run: git status --short
