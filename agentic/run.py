@@ -122,7 +122,7 @@ async def perform(task_file: Path | None) -> dict:
             started = time.perf_counter_ns()
             status = "ok"
             try:
-                await call_next(context)
+                await call_next()
             except Exception:
                 status = "error"
                 raise
