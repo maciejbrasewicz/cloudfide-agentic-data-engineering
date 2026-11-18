@@ -1,6 +1,7 @@
 name: Foundry - evidence-bound multiagent review
 
-# A workflow edit starts the run automatically. workflow_dispatch remains for replay.
+# Changes to the audited engineering deliverable trigger bounded read-only AI review.
+# workflow_dispatch stays available for deliberate replay.
 # Only main can exchange an OIDC token (matching the project-scoped Entra credential).
 on:
   workflow_dispatch:
@@ -8,6 +9,13 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/agent-review.yml"
+      - "agentic/**"
+      - "contracts/**"
+      - "solution.py"
+      - "pipeline.py"
+      - "tests/**"
+      - "pyproject.toml"
+      - "uv.lock"
 
 permissions:
   contents: read
