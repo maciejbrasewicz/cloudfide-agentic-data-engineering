@@ -139,7 +139,9 @@ def test_public_original_foundry_report_excerpts_are_from_same_attested_run():
         assert len(role["originalSummary"]) > 300
     assert "unverified" in reports["roles"][1]["originalSummary"]
     assert "79 tests" in reports["roles"][2]["originalSummary"]
-    assert reports["disclosure"].startswith("The English summaries")
+    assert "Verbatim English agent summaries" in reports["disclosure"]
+    assert reports["originalManifestSha256"] == "d66c9c275581d56bbef286fa80d9d85858087899276918426a8e037516955ba5"
+    assert all(len(r["originalRecommendedNextAction"]) > 100 for r in reports["roles"])
 
 
 def test_polish_and_english_have_complete_static_translation_coverage():
