@@ -1,0 +1,31 @@
+name: Bootstrap pinned dependency lockfile
+on:
+  push:
+    paths:
+      - .github/workflows/bootstrap-lock.yml
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generate fully resolved lock
+        run: uv lock
+      - name: Commit lockfile to the repository
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add uv.lock
+          if ! git diff --cached --quiet; then
+            git commit -m "build: lock reproducible dependencies"
+            git push origin HEAD:main
+          fi
