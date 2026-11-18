@@ -25,7 +25,7 @@ def test_engineer_sdk_exposes_scoped_tools_without_running_candidate(tmp_path):
     workspace = CandidateWorkspace(
         root=tmp_path, mode="rebuild", protected_hashes={},
     )
-    tools = engineer_tools(spec, None, workspace, ledger)
+    tools = engineer_tools(spec, None, workspace, ledger, "f" * 64)
     assert {item.name for item in tools} == REQUIRED_CALLS
     assert len(tools) == 7
     assert ledger.calls == []
