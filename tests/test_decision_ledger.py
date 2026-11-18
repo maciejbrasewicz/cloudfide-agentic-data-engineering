@@ -1,6 +1,4 @@
 """Human approval is a security boundary, not an attribute an LLM may set."""
-import json
-
 import pytest
 from pydantic import ValidationError
 
