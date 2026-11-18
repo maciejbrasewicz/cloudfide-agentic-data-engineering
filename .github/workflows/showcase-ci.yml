@@ -29,8 +29,10 @@ jobs:
       - name: Validate client syntax and real HTTP response
         run: |
           node --check showcase/app.js
+          node --check showcase/engineering.js
+          node --check showcase/live_gateway.mjs
           node --check showcase/server.mjs
-          node --test showcase/server.test.mjs
+          node --test showcase/server.test.mjs showcase/live_gateway.test.mjs
       - uses: astral-sh/setup-uv@v6
       - uses: actions/setup-python@v5
         with:
@@ -72,6 +74,15 @@ jobs:
           test -s case-study-desktop-pl.png
           test -s case-study-desktop-en.png
           test -s case-study-mobile-pl.png
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --virtual-time-budget=6000 --dump-dom 'http://127.0.0.1:4173/engineering.html?lang=pl' > engineering-pl.html
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --virtual-time-budget=6000 --dump-dom 'http://127.0.0.1:4173/engineering.html?lang=en' > engineering-en.html
+          grep -q 'Ty: zakres zadania' engineering-pl.html
+          grep -q 'You: assignment requirements' engineering-en.html
+          grep -q 'Microsoft Foundry' engineering-en.html
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1600,1100 --screenshot="$PWD/engineering-lab-desktop-pl.png" 'http://127.0.0.1:4173/engineering.html?lang=pl'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=430,930 --screenshot="$PWD/engineering-lab-mobile-en.png" 'http://127.0.0.1:4173/engineering.html?lang=en'
+          test -s engineering-lab-desktop-pl.png
+          test -s engineering-lab-mobile-en.png
           test -s case-study-mobile-en.png
       - name: Upload desktop and mobile visual evidence
         uses: actions/upload-artifact@v4
@@ -82,6 +93,8 @@ jobs:
             case-study-desktop-en.png
             case-study-mobile-pl.png
             case-study-mobile-en.png
+            engineering-lab-desktop-pl.png
+            engineering-lab-mobile-en.png
             case-study-real-agents-en.png
             case-study-results-pl.png
           retention-days: 7
