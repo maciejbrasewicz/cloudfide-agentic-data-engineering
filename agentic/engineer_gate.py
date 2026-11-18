@@ -60,7 +60,16 @@ def evaluate_engineer(
     problems: list[str] = []
     workspace.verify_protected()
     all_files = workspace.list_files()
-    actual_files = [name for name in all_files if is_candidate_path(name)]
+    # In improve mode pre-existing unchanged files are present but are NOT
+    # represented as model-written patches. Only changed files enter the gate.
+    actual_files = [
+        name for name in all_files
+        if is_candidate_path(name) and (
+            name not in workspace.baseline
+            or _sha(_safe(workspace.root, name).read_bytes())
+            != _sha(workspace.baseline[name])
+        )
+    ]
     if report.architect_report_sha256 != expected_architect_digest:
         problems.append("Report references a different Architect run")
     if report.mode != workspace.mode:
