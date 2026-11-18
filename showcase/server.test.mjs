@@ -50,3 +50,15 @@ test("only read methods and published files are accessible",async()=>{
   assert.equal((await fetch(origin+"/app.js",{method:"POST"})).status,405);
   assert.equal((await fetch(origin+"/data/evidence.json",{method:"HEAD"})).status,200);
 });
+
+
+test("fault evaluation is public only as a verified static, non-agent-eval snapshot",async()=>{
+  const r=await fetch(origin+"/data/fault_evaluation.json");
+  assert.equal(r.status,200);
+  assert.equal(r.headers.get("cache-control"),"no-store");
+  const result=await r.json();
+  assert.equal(result.scope,"deterministic_gate_sensitivity_only");
+  assert.equal(result.mutantCaught,4);
+  assert.equal(result.sourceAnomaliesRejected,1);
+  assert.equal(result.originalDataIntact,true);
+});
