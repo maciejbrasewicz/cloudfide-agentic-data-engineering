@@ -29,6 +29,7 @@ jobs:
       - name: Validate client JavaScript syntax
         run: |
           node --check showcase/app.js
+          node --check showcase/trace.js
           node --check showcase/server.mjs
           node --test showcase/server.test.mjs
       - uses: astral-sh/setup-uv@v6
