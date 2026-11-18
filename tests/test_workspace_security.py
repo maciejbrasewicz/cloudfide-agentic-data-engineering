@@ -90,7 +90,7 @@ def test_symlink_to_secret_cannot_be_overwritten(tmp_path: Path):
         (ws.root / "solution.py").symlink_to(secret)
     except (OSError, NotImplementedError):
         pytest.skip("Symlink creation not available on this runner")
-    with pytest.raises(CandidatePolicyError, match="Symlink"):
+    with pytest.raises(CandidatePolicyError, match="(?i)symlink"):
         ws.write_file("solution.py", "def f():\n    return 1\n")
     assert secret.read_text() == "secret"
 
@@ -101,7 +101,7 @@ def test_symlink_parent_cannot_redirect_test_write(tmp_path: Path):
         (ws.root / "tests").symlink_to(tmp_path, target_is_directory=True)
     except (OSError, NotImplementedError):
         pytest.skip("Symlink creation not available on this runner")
-    with pytest.raises(CandidatePolicyError, match="Symlink"):
+    with pytest.raises(CandidatePolicyError, match="(?i)symlink"):
         ws.write_file("tests/test_redirect.py", "def test_yes():\n    assert True\n")
 
 
