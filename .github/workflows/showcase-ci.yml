@@ -59,10 +59,12 @@ jobs:
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=4500 --window-size=430,900 --screenshot="$PWD/engineering-mobile.png" http://127.0.0.1:4173/
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=1600,1100 --screenshot="$PWD/engineering-execution.png" 'http://127.0.0.1:4173/#execution'
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5000 --window-size=430,900 --screenshot="$PWD/engineering-execution-mobile.png" 'http://127.0.0.1:4173/#execution'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=1600,2600 --screenshot="$PWD/engineering-fault-lab.png" 'http://127.0.0.1:4173/#data'
           test -s engineering-desktop.png
           test -s engineering-mobile.png
           test -s engineering-execution.png
           test -s engineering-execution-mobile.png
+          test -s engineering-fault-lab.png
       - name: Upload visual QA evidence
         uses: actions/upload-artifact@v4
         with:
@@ -72,6 +74,7 @@ jobs:
             engineering-mobile.png
             engineering-execution.png
             engineering-execution-mobile.png
+            engineering-fault-lab.png
           retention-days: 7
       - name: Verify ETL source files have not been touched
         run: git status --short
