@@ -3,6 +3,7 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createLiveGateway } from "./live_gateway.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const MEDIA = new Map([
@@ -35,8 +36,10 @@ const HEADERS = Object.freeze({
   "Cross-Origin-Resource-Policy": "same-origin"
 });
 
-export function createAppServer(){
+export function createAppServer({gateway=createLiveGateway()}={}){
   return createServer(async(req,res)=>{
+    const target=new URL(req.url||"/","http://localhost");
+    if(await gateway.handle(req,res,target))return;
     const method = req.method;
     if(method!=="GET" && method!=="HEAD"){
       res.writeHead(405,{"Allow":"GET, HEAD",...HEADERS}); res.end(); return;
@@ -52,7 +55,7 @@ export function createAppServer(){
       res.writeHead(400,HEADERS);res.end();return;
     }
     // Only explicit public assets; block dotfiles, source files and directory traversal.
-    const allowed = new Set(["/index.html","/styles.css","/app.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
+    const allowed = new Set(["/index.html","/engineering.html","/styles.css","/engineering.css","/app.js","/engineering.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
     if(!allowed.has(location)){
       res.writeHead(404,HEADERS);res.end();return;
     }
