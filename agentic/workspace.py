@@ -130,7 +130,7 @@ class CandidateWorkspace:
         path = _safe(self.root, name)
         if not path.is_file():
             raise CandidatePolicyError("No candidate file to diff")
-        previous = self.baseline.get(name, b"").decode("utf-8").splitlines(keepends=True)
+        previous = self.baseline.get(name, b"").decode("utf-8").replace("\r\n", "\n").splitlines(keepends=True)
         current = path.read_text(encoding="utf-8").splitlines(keepends=True)
         return "".join(difflib.unified_diff(
             previous, current, fromfile="base/" + name, tofile="candidate/" + name,
