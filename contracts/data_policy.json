@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "source_control": "verify_before_deduplication",
+  "header_rows": "remove_repeated_header",
+  "summary_rows": "exclude_after_reconciliation",
+  "duplicates": "remove_exact_duplicates",
+  "region": "strip_and_title_case",
+  "decimal_separator": "accept_dot_or_comma",
+  "quantity_separator": "strip_spaces",
+  "missing_discount": "zero",
+  "missing_unit_price": "unique_price_per_product_or_fail",
+  "negative_quantity": "retain_as_returns",
+  "ambiguous_data": "fail_closed"
+}
