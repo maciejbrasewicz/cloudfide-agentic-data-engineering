@@ -1,0 +1,40 @@
+name: Showcase - evidence integrity and syntax
+
+on:
+  push:
+    paths:
+      - "showcase/**"
+      - "tests/test_showcase_evidence.py"
+      - ".github/workflows/showcase-ci.yml"
+  pull_request:
+    paths:
+      - "showcase/**"
+      - "tests/test_showcase_evidence.py"
+      - ".github/workflows/showcase-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate client JavaScript syntax
+        run: node --check showcase/app.js
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install locked deterministic dependencies
+        run: uv sync --locked --extra quality
+      - name: Verify every published claim against committed evidence
+        run: uv run --no-sync python -m pytest tests/test_showcase_evidence.py
+      - name: Verify ETL source files have not been touched
+        run: git status --short

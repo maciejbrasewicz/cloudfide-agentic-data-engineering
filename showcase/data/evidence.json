@@ -1,0 +1,312 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "kind": "recorded_verified_snapshot",
+    "label": "Verified execution",
+    "observedAt": "2026-11-18",
+    "reviewedCommit": "3cb2186dbaf3ae0a9cc80e463ebf170af3e93adc",
+    "publishedCommit": "1519291046d02b7a542426b8a55d6855f39a96cc",
+    "sourceSha256": "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4",
+    "outputSha256": "b3e59f4f4ec0ef3d0f172c69d3751eaf2fcbf0224266f0695ea2fb61b56fb29f",
+    "policySha256": "254a87cf9fd20af7e3400c7f0a62e1655a5c95da63ffff96204db77b753936f4",
+    "reviewUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318354937",
+    "ciUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318536294",
+    "repoUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering",
+    "artifactUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44318354937#artifacts",
+    "modelDeployment": "gpt-5.6-sol",
+    "framework": "Microsoft Agent Framework",
+    "cloud": "Microsoft Foundry",
+    "notes": "This is a static snapshot of an actual GitHub Actions/Foundry run. It is not a live telemetry feed."
+  },
+  "quality": {
+    "testCount": 64,
+    "ciPlatforms": [
+      "ubuntu-latest",
+      "windows-latest"
+    ],
+    "reconciliation": "passed",
+    "sourceRows": 1507,
+    "transactionRows": 1505,
+    "cleanRows": 1500,
+    "repeatedHeaders": 1,
+    "summaryRows": 1,
+    "exactDuplicates": 5,
+    "normalizedRegions": 15,
+    "commaPrices": 7,
+    "spacedQuantities": 4,
+    "recoveredPrices": 4,
+    "blankDiscountsZeroed": 959,
+    "negativeQuantities": 6,
+    "controlQuantity": 37150,
+    "controlDiscount": "65924.67",
+    "netRevenue": "2570247.03",
+    "regions": [
+      {
+        "name": "North",
+        "value": 665897.52
+      },
+      {
+        "name": "Central",
+        "value": 515824.67
+      },
+      {
+        "name": "South",
+        "value": 504036.04
+      },
+      {
+        "name": "West",
+        "value": 442268.89
+      },
+      {
+        "name": "East",
+        "value": 442219.91
+      }
+    ]
+  },
+  "agents": [
+    {
+      "id": "architect",
+      "name": "Data Architect",
+      "role": "data_architect",
+      "index": "01",
+      "findings": 12,
+      "summary": "Audits source anomalies, control-row semantics, data assumptions and proposed policy decisions.",
+      "tools": [
+        "profile_source",
+        "inspect_orders",
+        "inspect_approved_policy"
+      ],
+      "permissions": [
+        "Read source profile",
+        "Inspect source rows",
+        "Read approved policy"
+      ],
+      "boundary": "No source changes. Findings must cite evidence.",
+      "color": "amber"
+    },
+    {
+      "id": "engineer",
+      "name": "Data Engineer",
+      "role": "data_engineer",
+      "index": "02",
+      "findings": 9,
+      "summary": "Checks the actual Python implementation against the task, contract and tests.",
+      "tools": [
+        "read_project_file",
+        "check_quality",
+        "inspect_approved_policy"
+      ],
+      "permissions": [
+        "Read approved project files",
+        "Run fixed test command",
+        "Inspect policy"
+      ],
+      "boundary": "Read-only reviewer, not an autonomous code author.",
+      "color": "cyan"
+    },
+    {
+      "id": "verifier",
+      "name": "Verification Engineer",
+      "role": "verification_engineer",
+      "index": "03",
+      "findings": 12,
+      "summary": "Attempts to falsify correctness using independent arithmetic, test outputs and provenance.",
+      "tools": [
+        "read_project_file",
+        "inspect_reconciliation",
+        "check_quality"
+      ],
+      "permissions": [
+        "Read approved project files",
+        "Inspect reconciliation",
+        "Run fixed test command"
+      ],
+      "boundary": "Cannot alter the code under review or approve it by assertion.",
+      "color": "violet"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "source",
+      "title": "Source integrity",
+      "description": "Raw CSV and control row are read before cleaning; source quantity and discount totals reconcile.",
+      "status": "verified",
+      "detail": "37,150 quantity · 65,924.67 discount",
+      "source": "reports/data_quality.json"
+    },
+    {
+      "id": "contract",
+      "title": "Policy boundary",
+      "description": "Versioned, allowlisted DataPolicy rejects unknown repair strategies before output is written.",
+      "status": "verified",
+      "detail": "Policy version 1 · fail closed",
+      "source": "contracts/data_policy.json"
+    },
+    {
+      "id": "pipeline",
+      "title": "Deterministic ETL",
+      "description": "pandas transformations and Decimal arithmetic generate the final regional revenue file.",
+      "status": "verified",
+      "detail": "1,500 clean records · 5 regions",
+      "source": "pipeline.py"
+    },
+    {
+      "id": "tests",
+      "title": "Independent verification",
+      "description": "Supplied tests, Hypothesis, regression tests and a raw-CSV Decimal oracle execute in CI.",
+      "status": "verified",
+      "detail": "64 passed · Windows + Linux",
+      "source": "tests/test_raw_oracle.py"
+    },
+    {
+      "id": "oidc",
+      "title": "Federated identity",
+      "description": "GitHub Actions exchanges short-lived OIDC credentials to run a scoped Foundry review.",
+      "status": "verified",
+      "detail": "Microsoft Entra · no client secret",
+      "source": ".github/workflows/agent-review.yml"
+    },
+    {
+      "id": "review",
+      "title": "Three-agent review",
+      "description": "Three role-specific LLM reports are parsed using strict Pydantic schemas.",
+      "status": "verified",
+      "detail": "3 validated reports · 33 findings",
+      "source": "agentic/models.py"
+    },
+    {
+      "id": "provenance",
+      "title": "Evidence gate",
+      "description": "Hashes of source, policy, output, code and tests must match the reviewed commit.",
+      "status": "verified",
+      "detail": "SHA-256 attestation passed",
+      "source": "agentic/verify.py"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D-001",
+      "title": "Duplicate rows are a business decision",
+      "status": "documented_assumption",
+      "category": "Data contract",
+      "severity": "medium",
+      "observation": "The raw source contains five additional identical rows; its TOTAL row agrees with the raw export including those rows.",
+      "decision": "Remove source-exact duplicate rows after validating raw controls.",
+      "risk": "The export does not independently prove that two identical lines are accidental rather than separate business events.",
+      "verification": "Independent raw-CSV oracle; raw and clean count assertions.",
+      "case": "duplicate",
+      "source": "contracts/data_policy.json"
+    },
+    {
+      "id": "D-002",
+      "title": "Recover missing unit prices conservatively",
+      "status": "approved_rule",
+      "category": "Data recovery",
+      "severity": "medium",
+      "observation": "Four rows have no unit price.",
+      "decision": "Fill a missing price only when all normalized prices for that product agree; otherwise reject the dataset.",
+      "risk": "A single observed product price does not prove historical price correctness.",
+      "verification": "Ambiguity tests and product-price uniqueness assertion.",
+      "case": "normalization",
+      "source": "pipeline.py"
+    },
+    {
+      "id": "D-003",
+      "title": "Retain negative quantities",
+      "status": "documented_assumption",
+      "category": "Semantics",
+      "severity": "medium",
+      "observation": "Six transaction rows have negative quantities.",
+      "decision": "Preserve signed quantities as returns/credits in revenue.",
+      "risk": "The source has no explicit return flag; the business meaning is not proven.",
+      "verification": "Signed Decimal revenue checks and independent oracle.",
+      "case": "normalization",
+      "source": "contracts/data_policy.json"
+    },
+    {
+      "id": "D-004",
+      "title": "Reject unapproved normalization",
+      "status": "approved_rule",
+      "category": "Policy boundary",
+      "severity": "low",
+      "observation": "Blanket trimming could silently modify identifiers, product labels or financial fields.",
+      "decision": "Normalize region labels only where the policy allows it; reject malformed non-region values.",
+      "risk": "Convenient coercions can collapse distinct source records or hide defects.",
+      "verification": "Five fail-closed whitespace tests and strict-region regressions.",
+      "case": "normalization",
+      "source": "tests/test_foundry_discoveries.py"
+    },
+    {
+      "id": "D-005",
+      "title": "Protect source and policy artifacts",
+      "status": "approved_rule",
+      "category": "Data safety",
+      "severity": "medium",
+      "observation": "An output path alias could overwrite a source CSV or approved policy file.",
+      "decision": "Reject path collisions before any writes; hash source and policy before generating output.",
+      "risk": "Incorrect runtime path configuration may destroy original evidence.",
+      "verification": "Three collision regression tests against unchanged input bytes.",
+      "case": "safety",
+      "source": "tests/test_path_safety.py"
+    }
+  ],
+  "cases": [
+    {
+      "id": "duplicate",
+      "index": "01",
+      "theme": "Data integrity",
+      "title": "When five identical rows are not a simple delete",
+      "subtitle": "An agent surfaced a bug hidden behind a green test suite.",
+      "icon": "layers",
+      "signal": "5 duplicate rows",
+      "pr": 1,
+      "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/1",
+      "discovery": "Duplicate detection was performed after normalization, so distinct raw records could collapse into the same key.",
+      "counterexample": "A row with permitted region whitespace must not be deduplicated merely because it normalizes to an existing row.",
+      "change": "Compare raw row values before cleaning; enforce strict regions; validate structural control rows.",
+      "proof": "Regression tests added; independent CSV/Decimal oracle; green CI on both operating systems.",
+      "status": "verified"
+    },
+    {
+      "id": "normalization",
+      "index": "02",
+      "theme": "Trust boundary",
+      "title": "A normalization rule should not silently rewrite the source",
+      "subtitle": "Correct arithmetic is not enough when data meaning changes.",
+      "icon": "shield",
+      "signal": "5 boundary tests",
+      "pr": 2,
+      "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/2",
+      "discovery": "A global .strip() was applied to every string field, not only the region field explicitly authorized by the policy.",
+      "counterexample": "Leading/trailing whitespace in an order ID or unit price is rejected instead of silently repaired.",
+      "change": "Field-scoped validation replaces blanket coercion, and the source TOTAL is independently recomputed.",
+      "proof": "Five additional fail-closed tests, source-control oracle, Windows + Ubuntu CI.",
+      "status": "verified"
+    },
+    {
+      "id": "safety",
+      "index": "03",
+      "theme": "Provenance",
+      "title": "The pipeline must never overwrite its own evidence",
+      "subtitle": "From a review finding to a tested I/O safety boundary.",
+      "icon": "lock",
+      "signal": "3 safety regressions",
+      "pr": 3,
+      "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/3",
+      "discovery": "Output paths were not prevented from matching the source, approved policy or report paths.",
+      "counterexample": "A pipeline with output=source must fail before the first write and leave source bytes unchanged.",
+      "change": "Resolve and compare all artifact paths, fail on collisions and hash source inputs before output publication.",
+      "proof": "Three path-collision tests, preserved source bytes and green cross-platform CI.",
+      "status": "verified"
+    }
+  ],
+  "observability": {
+    "traceStatus": "not_configured",
+    "mode": "recorded_evidence",
+    "traceId": null,
+    "tokenUsage": null,
+    "estimatedCost": null,
+    "toolSpanCount": null,
+    "message": "Per-agent token usage, wall-clock spans and distributed trace IDs were not captured in this recorded run. Do not interpret the workflow outline as a measured span waterfall."
+  }
+}
