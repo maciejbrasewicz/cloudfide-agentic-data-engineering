@@ -12,12 +12,14 @@ import os
 import subprocess
 import time
 from datetime import datetime, timezone
+from contextlib import AsyncExitStack
 from pathlib import Path
 
 from dotenv import load_dotenv
 
 from .models import parse_report
 from .live_events import emit
+from .github_mcp import config_from_environment
 from .telemetry import ToolRecorder, active_recorder
 from .verify import collect_provenance, verify_manifest
 from .tools import (
@@ -107,25 +109,50 @@ async def perform(task_file: Path | None) -> dict:
 
     credential = DefaultAzureCredential(exclude_interactive_browser_credential=True)
     client = FoundryChatClient(project_endpoint=endpoint, model=model, credential=credential)
-    architect = Agent(name="data_architect", client=client, instructions=ARCHITECT + REVIEW_TAXONOMY,
-                      tools=[profile_source, inspect_orders, inspect_approved_policy])
-    engineer = Agent(name="data_engineer", client=client, instructions=ENGINEER + REVIEW_TAXONOMY,
-                     tools=[read_project_file, check_quality, inspect_approved_policy])
-    verifier = Agent(name="verification_engineer", client=client, instructions=VERIFIER + REVIEW_TAXONOMY,
-                     tools=[read_project_file, inspect_reconciliation, check_quality])
+    mcp_config = config_from_environment()
+    # The MCP connection remains open throughout the Foundry orchestration.
+    # GitHub Actions grants the subprocess a read-only repository token.
+    async with AsyncExitStack() as stack:
+        github_mcp = None
+        if mcp_config:
+            from agent_framework import MCPStdioTool
 
-    workflow = SequentialBuilder(participants=[architect, engineer, verifier], output_from="all").build()
-    prompt = (
-        "Analyze and independently review this actual Data Engineering deliverable, from input anomalies "
-        "to final CSV, policy, implementation, documentation and tests. "
-        "Return JSON in each agent's prescribed schema. The repository is read-only. "
-        "Original task source (provided privately, do not commit it):\n" + task_context
-    )
-    recorder = ToolRecorder()
-    emit("workflow.started")
-    started_ns = time.perf_counter_ns()
-    with active_recorder(recorder):
-        response = await workflow.run(prompt)
+            github_mcp = await stack.enter_async_context(
+                MCPStdioTool(
+                    name=mcp_config.name,
+                    command=mcp_config.command,
+                    args=list(mcp_config.args),
+                )
+            )
+        engineer_tools = [read_project_file, check_quality, inspect_approved_policy]
+        if github_mcp is not None:
+            engineer_tools.append(github_mcp)
+        architect = Agent(
+            name="data_architect", client=client, instructions=ARCHITECT + REVIEW_TAXONOMY,
+            tools=[profile_source, inspect_orders, inspect_approved_policy],
+        )
+        engineer = Agent(
+            name="data_engineer", client=client, instructions=ENGINEER + REVIEW_TAXONOMY,
+            tools=engineer_tools,
+        )
+        verifier = Agent(
+            name="verification_engineer", client=client, instructions=VERIFIER + REVIEW_TAXONOMY,
+            tools=[read_project_file, inspect_reconciliation, check_quality],
+        )
+        workflow = SequentialBuilder(
+            participants=[architect, engineer, verifier], output_from="all"
+        ).build()
+        prompt = (
+            "Analyze and independently review this actual Data Engineering deliverable, from input anomalies "
+            "to final CSV, policy, implementation, documentation and tests. "
+            "Return JSON in each agent's prescribed schema. The repository is read-only. "
+            "Original task source (provided privately, do not commit it):\\n" + task_context
+        )
+        recorder = ToolRecorder()
+        emit("workflow.started")
+        started_ns = time.perf_counter_ns()
+        with active_recorder(recorder):
+            response = await workflow.run(prompt)
     measured_wall_ms = round((time.perf_counter_ns() - started_ns) / 1_000_000, 3)
     outputs = list(response.get_outputs())
     if len(outputs) != 3:
@@ -146,6 +173,7 @@ async def perform(task_file: Path | None) -> dict:
             git_revision = None
     manifest = {
         "schema_version": 2,
+        "github_mcp_enabled": bool(mcp_config),
         "git_revision": git_revision,
         "provenance": collect_provenance(),
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
