@@ -2,6 +2,17 @@ name: Foundry - evidence-bound Data Architect (P1)
 
 # Manual, trusted main-branch run. Original task is a repository Actions secret.
 on:
+  # Execute an actual Foundry acceptance run only after trusted P1 code lands
+  # on main. No PR event executes with Azure identity or the private spec.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/architect-e2e.yml"
+      - "agentic/architect.py"
+      - "agentic/source_tools.py"
+      - "agentic/policy_gate.py"
+      - "agentic/schemas/architect.py"
+      - "tests/test_architect_contract.py"
   workflow_dispatch:
     inputs:
       mode:
@@ -65,7 +76,7 @@ jobs:
       - name: Execute actual Foundry Architect and verify seven source tools
         env:
           CLOUDFIDE_TASK_SPEC_B64: ${{ secrets.CLOUDFIDE_TASK_SPEC_B64 }}
-        run: uv run --no-sync python -m agentic.architect --mode "${{ inputs.mode }}" --output-dir architect-evidence
+        run: uv run --no-sync python -m agentic.architect --mode "${{ inputs.mode || 'rebuild' }}" --output-dir architect-evidence
       - name: Publish source-grounded architecture evidence
         if: always()
         uses: actions/upload-artifact@v4
