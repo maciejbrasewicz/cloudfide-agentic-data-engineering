@@ -35,36 +35,39 @@ This repo deliberately has **no long-running cloud service**. GitHub Actions exe
 
 The project has already been published to [the GitHub repository](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering). Both `windows-latest` and `ubuntu-latest` are checked automatically on each push. The supplied fixtures are preserved byte-for-byte, and CI installs pinned dependencies from `uv.lock`. No local Git or GitHub CLI is needed to review or run it.
 
-## C. GitHub → Foundry OIDC identity (after green CI)
+## C. One-time GitHub → Microsoft Foundry authentication
 
-Use [Microsoft Entra app registrations](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade). Create an app such as `cloudfide-agent-review`, single tenant. Under **Certificates & secrets → Federated credentials → Add credential**, select **GitHub Actions deploying Azure resources**, then enter:
+Deterministic CI requires no Azure credentials and is already green on Windows and Linux.
 
-- GitHub organization/owner: `maciejbrasewicz`
-- Repository: `cloudfide-agentic-data-engineering`
-- Entity: **Branch**
-- Branch: `main`
+The optional cloud-based agent review needs a dedicated Microsoft Entra service principal.
+With Azure CLI authenticated in the tenant that owns the Foundry project, run the
+[repository bootstrap script](../scripts/setup-foundry-oidc.ps1) from PowerShell:
 
-The trust subject should correspond to `repo:maciejbrasewicz/cloudfide-agentic-data-engineering:ref:refs/heads/main`. Do not create a client secret.
+```powershell
+Invoke-WebRequest "https://raw.githubusercontent.com/maciejbrasewicz/cloudfide-agentic-data-engineering/main/scripts/setup-foundry-oidc.ps1" -OutFile "$env:TEMP\cloudfide-oidc.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File "$env:TEMP\cloudfide-oidc.ps1"
+```
 
-In Azure Portal, grant this application only the Foundry **User** role at the Foundry project and, if required for the chosen project endpoint, **Reader** on the Foundry resource. Actual available role names can reflect the ongoing Azure AI → Foundry renaming. Assign through Access Control (IAM), not by adding admin-level access. See [Foundry RBAC](https://learn.microsoft.com/en-us/azure/foundry/concepts/rbac-foundry).
+The script discovers the resource subscription, registers an OIDC app, grants Foundry
+User at the project scope, and prints **non-secret** client/tenant/subscription IDs.
+It uses GitHub's *immutable* owner/repository OIDC subject (appropriate for newly
+created repositories after July 2026), not the old name-only subject. No client secret.
 
-In GitHub repo **Settings → Secrets and variables → Actions → Variables**, add these **repository variables**:
+GitHub Actions consumes these non-secret identifiers plus the Foundry project endpoint
+and model deployment name. The assistant can update the workflow and inspect logs via
+the connected GitHub service, but it cannot operate the user's Azure CLI session
+from this chat. Entra setup must run once from an authorized Azure account.
 
-| Variable | Value |
-|---|---|
-| `AZURE_CLIENT_ID` | Client (application) ID of the new Entra application |
-| `AZURE_TENANT_ID` | `2fcd0468-9e97-4247-a52a-a7bc870ef450` |
-| `AZURE_SUBSCRIPTION_ID` | Output of `az account show --query id -o tsv` on the right subscription |
-| `FOUNDRY_PROJECT_ENDPOINT` | `https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude` |
-| `FOUNDRY_MODEL` | `gpt-5.6-sol` |
+The optional Application Insights connection string must stay a secret. Do not commit
+it or the local .env file.
 
-Optional **Actions secret**: `APPLICATIONINSIGHTS_CONNECTION_STRING` to export traces. Omit it initially if Application Insights is not configured. This is separate from GitHub OIDC authentication.
+## D. Agent review and evidence
 
-## D. First cloud agent review
-
-Go to GitHub **Actions → Foundry — evidence-bound multiagent review → Run workflow**, use the `main` branch. The workflow first runs deterministic tests, then signs in via OIDC, executes all three Foundry roles, validates the resulting artifact hashes, and uploads `foundry-agentic-review` for seven days.
-
-A green AI review without tool calls in the trace is weaker evidence; inspect Foundry tracing (if enabled) and read the agent artifact. Findings are hypotheses until independently supported. **Never claim the review passed until Actions confirms it.**
+Once OIDC is configured, execute the manual `agent-review.yml` workflow (or trigger
+it through a temporary scoped push trigger). It executes deterministic quality checks
+first, then invokes the Foundry agents using the federated Entra identity.
+The resulting provenance report links the analyzed data, code, policy, tests and
+output by SHA-256. It does *not* certify that every statement from an LLM is correct.
 
 ## E. Final checklist before submission
 
