@@ -62,10 +62,18 @@ def load_task_spec(*, repo_root: Path, path: Path | None = None, encoded: str | 
         raw = source_path.read_bytes()
         source: Literal["runtime_file", "actions_secret"] = "runtime_file"
     else:
-        try:
-            raw = base64.b64decode(encoded or "", validate=True)
-        except (binascii.Error, ValueError) as exc:
-            raise SpecInputError("Invalid encoded specification") from exc
+        # GitHub Actions secrets can safely carry either the original UTF-8
+        # assignment or its Base64 transport encoding. Never print, persist,
+        # or echo either variant. Check assignment markers below before use.
+        # This also makes legacy *_B64 secrets containing plain text usable.
+        supplied = encoded or ""
+        if all(marker in supplied for marker in _REQUIRED_MARKERS):
+            raw = supplied.encode("utf-8")
+        else:
+            try:
+                raw = base64.b64decode(supplied, validate=True)
+            except (binascii.Error, ValueError) as exc:
+                raise SpecInputError("Invalid secret specification format") from exc
         source = "actions_secret"
 
     if not raw or len(raw) > MAX_SPEC_BYTES or b"\x00" in raw:
