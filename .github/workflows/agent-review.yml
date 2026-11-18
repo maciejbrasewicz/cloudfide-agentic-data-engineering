@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install Foundry and test dependencies
-        run: uv sync --extra quality --extra foundry
+        run: uv sync --locked --extra quality --extra foundry
       - name: Verify deterministic ETL before AI review
         run: |
           uv run --no-sync python -m pytest
