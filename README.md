@@ -46,7 +46,7 @@ Counts are from the **supplied** 1507-row CSV. Two rows are not order lines: one
 | Empty discounts | 963 | Interpret as 0 per task; **959 remain after deduplication** |
 | High-quantity orders | 4 | Retain because format is valid and source totals reconcile; no arbitrary clipping |
 
-A row can belong to multiple categories. Totals and deduplication are **not** interchangeable: the `TOTAL` row reconciles with the raw 1505 transactions including duplicates, not the 1500 cleaned rows.
+A row can belong to multiple categories. **Metric stages matter:** source rows, repeated headers, region formatting and original blank-discount counts are measured on the incoming export; recovered prices, discount zeros, and retained negative quantities are measured after source-exact deduplication. Totals and deduplication are **not** interchangeable: the `TOTAL` row reconciles with the raw 1505 transactions including duplicates, not the 1500 cleaned rows.
 
 ### Explicit assumptions
 
