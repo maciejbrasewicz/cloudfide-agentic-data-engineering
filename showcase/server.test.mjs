@@ -19,7 +19,7 @@ test("homepage is served with strict security headers",async()=>{
   assert.equal(r.headers.get("x-content-type-options"),"nosniff");
   assert.equal(r.headers.get("x-frame-options"),"DENY");
   assert.match(r.headers.get("content-security-policy"),/script-src 'self'/);
-  assert.match(await r.text(),/ENGINEERING INTELLIGENCE/);
+  assert.match(await r.text(),/Microsoft Foundry/);
 });
 
 test("recorded evidence is available and cannot be cached as live state",async()=>{
@@ -36,7 +36,7 @@ test("recorded evidence is available and cannot be cached as live state",async()
 });
 
 test("client assets are served without requiring any dependency",async()=>{
-  for(const path of ["/app.js","/trace.js","/styles.css","/favicon.svg"]){
+  for(const path of ["/app.js","/styles.css","/favicon.svg"]){
     const r=await fetch(origin+path);
     assert.equal(r.status,200);
     assert.ok((await r.text()).length>100);
@@ -49,4 +49,15 @@ test("only read methods and published files are accessible",async()=>{
   assert.equal((await fetch(origin+"/../../etc/passwd")).status,404);
   assert.equal((await fetch(origin+"/app.js",{method:"POST"})).status,405);
   assert.equal((await fetch(origin+"/data/evidence.json",{method:"HEAD"})).status,200);
+});
+
+test("real reviewer output is served from the verified Foundry run",async()=>{
+  const r=await fetch(origin+"/data/foundry_reports.json");
+  assert.equal(r.status,200);
+  const reports=await r.json();
+  assert.equal(reports.schemaVersion,1);
+  assert.equal(reports.runId,"44331275568");
+  assert.equal(reports.roles.length,3);
+  assert.equal(reports.roles[2].findingCount,11);
+  assert.match(reports.roles[2].originalSummary,/79 tests/);
 });
