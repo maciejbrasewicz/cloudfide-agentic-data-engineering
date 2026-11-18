@@ -43,6 +43,28 @@ def test_external_spec_and_secret_have_same_digest(tmp_path: Path) -> None:
     assert "SPEC_CONTENT_SENTINEL" not in repr(secret)
 
 
+
+def test_plain_utf8_actions_secret_matches_base64_and_never_logs_content(tmp_path: Path) -> None:
+    root = repo_fixture(tmp_path)
+    plain = load_task_spec(repo_root=root, encoded=TASK + " → original task")
+    b64 = load_task_spec(
+        repo_root=root,
+        encoded=base64.b64encode((TASK + " → original task").encode("utf-8")).decode("ascii"),
+    )
+    assert plain.sha256 == b64.sha256
+    assert plain.text == b64.text
+    assert plain.source == "actions_secret"
+    assert "SPEC_CONTENT_SENTINEL" not in repr(plain)
+    assert "→" not in repr(plain)
+
+
+def test_random_non_base64_plaintext_is_not_a_valid_original_task(tmp_path: Path) -> None:
+    root = repo_fixture(tmp_path)
+    with pytest.raises(SpecInputError):
+        load_task_spec(repo_root=root, encoded="private → but not the original assignment")
+
+
+
 def test_missing_or_multiple_sources_are_rejected(tmp_path: Path) -> None:
     root = repo_fixture(tmp_path)
     with pytest.raises(SpecInputError):
