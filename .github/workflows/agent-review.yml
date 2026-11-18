@@ -143,3 +143,61 @@ jobs:
             agentic_decision_ledger_runtime.json
           if-no-files-found: warn
           retention-days: 90
+
+  persist-human-gated-decisions:
+    name: Persist DataDecision proposals outside production main
+    needs: review
+    if: ${{ needs.review.result == 'success' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      id-token: none
+    steps:
+      - name: Checkout audit branch metadata
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Retrieve validated Foundry decision artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: foundry-agentic-review
+          path: /tmp/foundry-output
+      - name: Validate record does not contain an agent-approved decision
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          ledger=json.loads(Path('/tmp/foundry-output/agentic_decision_ledger_runtime.json').read_text())
+          assert ledger['schema_version']==1
+          assert ledger['approval_boundary']=='human_review_required'
+          assert all(x['status']=='pending_human_review' and x['approved_by'] is None for x in ledger['decisions'])
+          assert len(ledger['source_manifest_sha256'])==64
+          print("Human approval gate remains closed for", len(ledger['decisions']), "proposals")
+          PY
+      - name: Append immutable record to audit-only branch
+        env:
+          TARGET_BRANCH: foundry-evidence-ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin "$TARGET_BRANCH" >/dev/null; then
+            git fetch origin "$TARGET_BRANCH"
+            git switch -C "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+          else
+            git switch --orphan "$TARGET_BRANCH"
+            git rm -rf --quiet . || true
+          fi
+          mkdir -p records
+          target="records/${GITHUB_RUN_ID}.json"
+          if [[ -e "$target" ]]; then
+            echo "This run already has a permanent decision record" >&2
+            exit 1
+          fi
+          cp /tmp/foundry-output/agentic_decision_ledger_runtime.json "$target"
+          git add -- "$target"
+          git commit -m "Record human-gated Foundry proposals for run ${GITHUB_RUN_ID}"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
