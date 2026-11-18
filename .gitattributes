@@ -1,0 +1,13 @@
+# Preserve exact original recruitment tests (CRLF) and raw dataset (LF).
+test_virtual_column.py -text
+sales.csv -text
+
+# Deterministic generated artifacts use LF on every checkout, including Windows.
+revenue_by_region.csv text eol=lf
+reports/*.json text eol=lf
+
+# Keep engineering sources cross-platform.
+*.py text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
