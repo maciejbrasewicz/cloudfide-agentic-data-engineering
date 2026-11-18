@@ -19,6 +19,7 @@ foundry = [
     "python-dotenv>=1,<2",
     "microsoft-opentelemetry==1.6.0",
     "mcp>=2.2,<3",
+    "tenacity>=9,<10",
 ]
 
 [tool.uv]
