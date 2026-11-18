@@ -15,6 +15,16 @@ def test_raw_csv_oracle_matches_committed_region_totals():
         raw = list(csv.DictReader(stream))
     transactions = [line for line in raw if line["Order ID"].startswith("SO-")]
 
+    # Independently validate the export's control row before any deduplication.
+    control = next(line for line in raw if line["Order ID"] == "TOTAL")
+    original_quantity = sum(int(line["Quantity "].replace(" ", "")) for line in transactions)
+    original_discount = sum(
+        (Decimal(line["Discount"].strip() or "0.00") for line in transactions),
+        Decimal("0.00"),
+    )
+    assert original_quantity == int(control["Quantity "])
+    assert original_discount == Decimal(control["Discount"])
+
     unique = []
     seen = set()
     for line in transactions:

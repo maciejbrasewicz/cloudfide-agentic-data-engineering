@@ -14,7 +14,8 @@ def raw_sales():
 def test_only_identical_raw_lines_are_deduplicated():
     raw = raw_sales()
     duplicate = raw.index[raw.duplicated(keep="first")][0]
-    raw.loc[duplicate, "Product"] = " " + raw.loc[duplicate, "Product"]
+    # Region whitespace is explicitly permitted; it must not imply duplicate business rows.
+    raw.loc[duplicate, "Region"] = " " + raw.loc[duplicate, "Region"]
 
     cleaned, audit = clean_sales(raw)
 
@@ -39,4 +40,11 @@ def test_malformed_total_metadata_fails_closed():
     raw = raw_sales()
     raw.loc[raw["Order ID"] == "TOTAL", "Region"] = "North"
     with pytest.raises(DataQualityError, match="Malformed TOTAL"):
+        clean_sales(raw)
+
+@pytest.mark.parametrize("column", ["Order ID", "Product", "Unit Price", "Discount", "Order Date"])
+def test_unapproved_source_field_whitespace_fails_closed(column):
+    raw = raw_sales()
+    raw.loc[0, column] = " " + raw.loc[0, column]
+    with pytest.raises(DataQualityError, match="Unapproved surrounding whitespace"):
         clean_sales(raw)
