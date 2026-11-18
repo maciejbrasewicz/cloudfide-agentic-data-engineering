@@ -1,0 +1,12 @@
+{
+  "name": "cloudfide-engineering-intelligence",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test server.test.mjs",
+    "check": "node --check app.js && node --check server.mjs"
+  }
+}
