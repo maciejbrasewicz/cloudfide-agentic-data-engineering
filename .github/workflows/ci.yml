@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install project dependencies
-        run: uv sync --extra quality
+        run: uv sync --locked --extra quality
       - name: Ruff lint only first-party code
         run: uv run --no-sync python -m ruff check solution.py pipeline.py contracts.py agentic tests
       - name: Run original, property, contract and integration tests
