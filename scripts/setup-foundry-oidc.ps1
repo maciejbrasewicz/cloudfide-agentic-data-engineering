@@ -51,7 +51,6 @@ if (-not $sp -or $LASTEXITCODE -ne 0) {
 }
 
 # New GitHub repos (created after July 2026) use immutable owner/repo IDs in OIDC sub.
-$subject = "repo:$repoOwner@$ownerId/$repoName@$repoId:ref:refs/heads/main"
 # Use braces in PowerShell string expansion to avoid ambiguity around @ and ':'.
 $subject = "repo:${repoOwner}@${ownerId}/${repoName}@${repoId}:ref:refs/heads/main"
 $credentialName = "github-main-immutable"
