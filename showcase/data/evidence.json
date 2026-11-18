@@ -155,7 +155,7 @@
       "title": "Independent verification",
       "description": "Supplied tests, Hypothesis, regression tests and a raw-CSV Decimal oracle execute in CI.",
       "status": "verified",
-      "detail": "64 passed · Windows + Linux",
+      "detail": "79 passed · Windows + Linux",
       "source": "tests/test_raw_oracle.py"
     },
     {
@@ -171,7 +171,7 @@
       "title": "Three-agent review",
       "description": "Three role-specific LLM reports are parsed using strict Pydantic schemas.",
       "status": "verified",
-      "detail": "3 validated reports · 33 findings",
+      "detail": "3 validated reports · 33 findings · 16 measured tool calls",
       "source": "agentic/models.py"
     },
     {
