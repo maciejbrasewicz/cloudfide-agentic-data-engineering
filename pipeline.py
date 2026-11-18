@@ -11,6 +11,7 @@ from pathlib import Path
 import pandas as pd
 
 from contracts import DataPolicy, read_policy
+from dataframe_contracts import validate_clean_transactions
 from solution import add_virtual_column
 
 ROOT = Path(__file__).resolve().parent
@@ -145,6 +146,10 @@ def clean_sales(raw: pd.DataFrame, policy: DataPolicy | None = None) -> tuple[pd
         raise DataQualityError("Virtual-column evaluation failed")
     if cleaned.revenue.map(lambda x: not isinstance(x, Decimal)).any():
         raise DataQualityError("Non-decimal revenue")
+    try:
+        cleaned = validate_clean_transactions(cleaned)
+    except ValueError as exc:
+        raise DataQualityError("Pandera transaction contract rejected the data") from exc
 
     report = {
         "policy_version": policy.version,
