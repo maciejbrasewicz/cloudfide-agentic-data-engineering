@@ -39,7 +39,7 @@ source task (outside repo) + sales.csv + supplied tests
 | Mode | Dependencies | Purpose |
 |---|---|---|
 | `python pipeline.py` | pandas, pydantic | Normal deterministic task result |
-| `pytest` | quality extras | Independently validate ETL, parser, assumptions |
+| `python -m pytest` | quality extras | Independently validate ETL, parser, assumptions |
 | `python -m agentic.run` | Foundry extras + Azure identity | Explicit three-agent audit of this same solution |
 
 The agent workflow uses the documented `FoundryChatClient` with a project-scoped endpoint and `SequentialBuilder` from Microsoft Agent Framework. Each participant sees previous context, but its available tools differ. The workflow is bounded to three agent passes and returns structured JSON, parsed against Pydantic models. It never auto-merges or publishes changes. Optional telemetry uses Microsoft OpenTelemetry with prompt-content capture disabled.
@@ -53,8 +53,12 @@ The agent workflow uses the documented `FoundryChatClient` with a project-scoped
 5. Azure authentication via Entra ID (`az login` locally or GitHub OIDC); no secret in source control.
 6. Versions of framework components are pinned, and a resolved `uv.lock` is committed and CI uses `uv sync --locked`.
 
-## Implementation status
+## Execution evidence (18 November 2026)
 
-- **Completed and locally verified:** source normalization, independent Decimal reconciliation, published sample totals, original and custom deterministic tests.
-- **Prepared, not yet executed against Foundry:** Microsoft Agent Framework workflow, Azure identity and Application Insights integration, GitHub manual agent review job.
-- **Awaiting cloud configuration:** actual Foundry project endpoint, model deployment, OIDC federation in target Azure tenant, commit and CI run on a new GitHub repository.
+- **Data Engineering:** GitHub Actions runs Ruff, supplied tests, property tests, integration tests, source-control reconciliation and byte-for-byte regenerated artifact comparison on Windows and Ubuntu. The task itself requires no Azure connection.
+- **Identity:** GitHub Actions successfully exchanged a branch-scoped immutable OIDC token for a Microsoft Entra identity with project-scoped Foundry access. No stored client secret.
+- **Agentic review:** [successful evidence-bound Foundry run](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44314174941) returned all three validated reports using `gpt-5.6-sol`; source, policy, test, code, dependency and output hashes were attested.
+- **Feedback loop:** Data Engineer and Verification Engineer independently found that duplicate detection occurred *after* normalization, strict-region mode accepted padded source values, and control rows lacked structural checks. These findings were reproduced in new regression tests and fixed through [PR #1](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/1). An independent raw-CSV `csv` + `Decimal` oracle now tests source-to-output arithmetic without reusing production cleansing functions.
+- **Limitations:** The Architect's narrower source tools cannot independently prove all pipeline properties; model findings remain suggestions, not facts. Application Insights exporter configuration is optional and not represented as active until verified. No autonomous code execution or auto-merge by LLM is permitted.
+
+The project illustrates controlled use of probabilistic reasoning inside a deterministic software delivery process, not an LLM-dependent financial calculator.
