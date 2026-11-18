@@ -95,7 +95,7 @@ def test_model_cannot_claim_a_file_it_never_wrote(tmp_path: Path):
 def test_missing_real_tool_is_incomplete(tmp_path: Path, missing: str):
     ws = ready_workspace(tmp_path)
     ledger = complete_ledger()
-    ledger.calls.remove(missing)
+    ledger.calls = [name for name in ledger.calls if name != missing]
     receipt = evaluate_engineer(actual_report(ws), ws, ledger, DIGEST)
     assert receipt.status == "INCOMPLETE"
     assert any("missing" in x.lower() for x in receipt.failures)
