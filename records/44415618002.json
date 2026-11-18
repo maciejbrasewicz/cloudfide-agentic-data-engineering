@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "d2b32dbe24d5d0fef2c4094a83df62297f03d5ff",
+  "generated_at_utc": "2026-11-18T22:54:56.942204+00:00",
+  "source_manifest_sha256": "8402f0c55369fba54e1947e62c254b51a8c2fb6eb6cefbb572221a9d53520c87",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Require a recorded assertion that the pre-deduplication transaction population reconciles to TOTAL Quantity 37150 and Discount 65924.67 before the control row is removed.",
+      "evidence": "The source contains one TOTAL row with those values, and the approved contract requires verification before deduplication.",
+      "risk": "The applicable discount aggregation semantics and numeric tolerance were not independently established.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f94ca62c6a96c029bab2f415dbcc6a84c7e69c6f63476e026f96628aedf02ebe",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit imputation only when the affected product has exactly one applicable observed price under documented date and region scope; otherwise fail closed.",
+      "evidence": "There are 4 missing unit prices, and the approved rule currently requires a unique price per product or failure.",
+      "risk": "A globally unique observed product price may still be inappropriate for a particular transaction if pricing changes over time or by region.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f94ca62c6a96c029bab2f415dbcc6a84c7e69c6f63476e026f96628aedf02ebe",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain the 6 negative quantities only with an explicit assumption marker and signed-total tests until return semantics are confirmed by the source owner.",
+      "evidence": "The source has 6 negative-quantity rows and the approved policy interprets them as returns.",
+      "risk": "Negative values could represent corrections or data errors rather than returns.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f94ca62c6a96c029bab2f415dbcc6a84c7e69c6f63476e026f96628aedf02ebe",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Retain exact-row deduplication only as a documented conditional rule until upstream transaction evidence confirms the five rows are export duplicates.",
+      "evidence": "Independent raw parsing confirms 1,505 transaction rows and 1,500 unique raw tuples, but equality alone does not prove duplicate business events.",
+      "risk": "Legitimate identical transactions would be removed and regional revenue understated.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2fd729144ce661589d41722cd67783aa3fda4592cbdc1bece00a47c65fb39374",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Keep signed quantities in the provisional result but require source-owner or return-ledger validation for all six rows before describing them as returns.",
+      "evidence": "The report counts six negative quantities, while tests establish only signed arithmetic, not return semantics.",
+      "risk": "Corrections or data errors could be misclassified as returns, and discount treatment may be wrong.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2fd729144ce661589d41722cd67783aa3fda4592cbdc1bece00a47c65fb39374",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Mark revenue using the four inferred prices as conditional until each value is matched to an authoritative date-appropriate price source.",
+      "evidence": "Both production and the independent oracle use uniqueness among observed same-product prices; neither supplies external pricing evidence.",
+      "risk": "A uniquely observed price in this export may still be historically or regionally inapplicable.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2fd729144ce661589d41722cd67783aa3fda4592cbdc1bece00a47c65fb39374",
+      "approved_by": null
+    }
+  ]
+}
