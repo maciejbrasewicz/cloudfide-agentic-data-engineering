@@ -59,10 +59,16 @@ jobs:
           grep -q 'A Data Engineering assignment' english-dom.html
           grep -q '79 tests' english-dom.html
           grep -q 'Data Architect' english-dom.html
+          grep -q 'Source profiling confirms 1,507 rows' english-dom.html
+          grep -q '79 tests' english-dom.html
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=1600,1000 --screenshot="$PWD/case-study-desktop-pl.png" 'http://127.0.0.1:4173/?lang=pl'
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=1600,1000 --screenshot="$PWD/case-study-desktop-en.png" 'http://127.0.0.1:4173/?lang=en'
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=430,930 --screenshot="$PWD/case-study-mobile-pl.png" 'http://127.0.0.1:4173/?lang=pl'
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=5500 --window-size=430,930 --screenshot="$PWD/case-study-mobile-en.png" 'http://127.0.0.1:4173/?lang=en'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1600,1900 --screenshot="$PWD/case-study-real-agents-en.png" 'http://127.0.0.1:4173/?lang=en#execution'
+          "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --hide-scrollbars --virtual-time-budget=6000 --window-size=1600,1900 --screenshot="$PWD/case-study-results-pl.png" 'http://127.0.0.1:4173/?lang=pl#data'
+          test -s case-study-real-agents-en.png
+          test -s case-study-results-pl.png
           test -s case-study-desktop-pl.png
           test -s case-study-desktop-en.png
           test -s case-study-mobile-pl.png
@@ -76,6 +82,8 @@ jobs:
             case-study-desktop-en.png
             case-study-mobile-pl.png
             case-study-mobile-en.png
+            case-study-real-agents-en.png
+            case-study-results-pl.png
           retention-days: 7
       - name: Check working tree
         run: git status --short
