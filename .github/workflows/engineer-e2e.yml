@@ -210,6 +210,7 @@ jobs:
       - name: Independently recompute output from original CSV using stdlib Decimal
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           uv run --no-sync python -m agentic.p3_oracle \
             --source sales.csv \
@@ -321,7 +322,7 @@ jobs:
     outputs:
       candidate_status: ${{ steps.verdict.outputs.status }}
     needs: rework-r2
-    if: needs['rework-r2'].result == 'success'
+    if: ${{ always() && needs['rework-r2'].result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -383,6 +384,7 @@ jobs:
       - name: Independently recompute output from original CSV using stdlib Decimal
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           uv run --no-sync python -m agentic.p3_oracle \
             --source sales.csv \
@@ -493,7 +495,7 @@ jobs:
     outputs:
       candidate_status: ${{ steps.verdict.outputs.status }}
     needs: rework-r3
-    if: needs['rework-r3'].result == 'success'
+    if: ${{ always() && needs['rework-r3'].result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -555,6 +557,7 @@ jobs:
       - name: Independently recompute output from original CSV using stdlib Decimal
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           uv run --no-sync python -m agentic.p3_oracle \
             --source sales.csv \
@@ -748,6 +751,7 @@ jobs:
       - name: Independently recalculate original raw CSV and candidate output
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           uv run --no-sync python -m agentic.p3_oracle \
             --source sales.csv \
