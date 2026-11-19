@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "405bd186e640f361082ca57a6b9126a2542f666a",
+  "generated_at_utc": "2026-11-19T00:38:41.459647+00:00",
+  "source_manifest_sha256": "21bbf11be2143f5eb9fe78f1a070249b633ec96979767fd377c7d8ea1b0d0508",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "quality_gate",
+      "proposal": "Make successful pre-deduplication reconciliation of every populated TOTAL control field a mandatory gate, with documented formulas and tolerances.",
+      "evidence": "The source contains one TOTAL row with Quantity='37150' and Discount='65924.67', and the policy requires verification before deduplication without stating the equations.",
+      "risk": "The control values' intended measures and acceptable numeric tolerance remain unresolved.",
+      "status": "pending_human_review",
+      "source_report_sha256": "495afec80e3baf51511673993963cdf60450dc3aefe78b19e0958d62a28d62ba",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Continue preserving the six negative rows only provisionally, while recording the returns interpretation as an explicit assumption requiring data-owner confirmation.",
+      "evidence": "Six negative-quantity rows were measured and the policy labels them as returns, but no independent return indicator was available.",
+      "risk": "If negatives are corrections or source errors rather than returns, downstream quantity and revenue semantics may be wrong.",
+      "status": "pending_human_review",
+      "source_report_sha256": "495afec80e3baf51511673993963cdf60450dc3aefe78b19e0958d62a28d62ba",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit price inference only when an executable check proves exactly one parsed nonmissing price for the affected normalized product; otherwise reject the run.",
+      "evidence": "Four unit prices are missing and the approved policy already specifies unique-price-per-product-or-fail.",
+      "risk": "Product names may be insufficient pricing keys, and a historically unique observed price may not be valid for the affected order date.",
+      "status": "pending_human_review",
+      "source_report_sha256": "495afec80e3baf51511673993963cdf60450dc3aefe78b19e0958d62a28d62ba",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Validate TOTAL quantity with an explicit policy-compatible grammar before conversion, and wrap conversion failures as DataQualityError.",
+      "evidence": "Transaction quantities have a strict regex, while TOTAL quantity currently goes directly through int after space removal.",
+      "risk": "The intended TOTAL grammar may differ from transaction grammar and should be confirmed before enforcing identical sign or grouping rules.",
+      "status": "pending_human_review",
+      "source_report_sha256": "203c51cc3dbbd948a6587e807aabdbb541b3c09318eb4ca5fceab1fb4e4ecfb5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Extend path-alias rejection to existing files that reference the same inode, not only paths with equal resolved strings.",
+      "evidence": "Path.resolve comparisons do not identify distinct hard-link names for the same source or policy file.",
+      "risk": "Inode-based checks are platform-dependent and must handle nonexistent output paths and Windows behavior carefully.",
+      "status": "pending_human_review",
+      "source_report_sha256": "203c51cc3dbbd948a6587e807aabdbb541b3c09318eb4ca5fceab1fb4e4ecfb5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "data_engineer",
+      "target": "quality_gate",
+      "proposal": "Test and document recoverable publication of the CSV and audit report using temporary files and replacement rather than direct writes.",
+      "evidence": "The CSV is currently written before the report, so a later failure can leave unmatched artifacts.",
+      "risk": "True atomic replacement of two separate files is not generally available; the design must define which artifact is authoritative during recovery.",
+      "status": "pending_human_review",
+      "source_report_sha256": "203c51cc3dbbd948a6587e807aabdbb541b3c09318eb4ca5fceab1fb4e4ecfb5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Retain exact-row deduplication only as a documented conditional rule until the five duplicate groups are reconciled to upstream export lineage.",
+      "evidence": "Both production and the independent oracle remove five exact duplicates, but neither proves that identical rows cannot represent legitimate repeated transactions.",
+      "risk": "If any identical row is a real transaction, regional and net revenue are understated.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2b4b0a0da7fe447bc3bc9f4b5be768e6fe150a828bf7d6955c879556101b8b6d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Preserve signed quantities provisionally while requiring authoritative confirmation that all six rows represent returns or credits and that discounts retain the specified sign treatment.",
+      "evidence": "Six negative rows are included consistently by production and the oracle, but no independent return indicator was inspected.",
+      "risk": "Misclassified corrections or data-entry errors could materially distort net revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2b4b0a0da7fe447bc3bc9f4b5be768e6fe150a828bf7d6955c879556101b8b6d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0009",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Require row-level evidence from authoritative price history before treating the four unique-product inferred prices as business-validated.",
+      "evidence": "The oracle proves a unique observed price per affected product within this extract, but not temporal or contractual applicability.",
+      "risk": "Product-only inference may select an incorrect historical, regional, or customer-specific price.",
+      "status": "pending_human_review",
+      "source_report_sha256": "2b4b0a0da7fe447bc3bc9f4b5be768e6fe150a828bf7d6955c879556101b8b6d",
+      "approved_by": null
+    }
+  ]
+}
