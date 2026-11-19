@@ -148,3 +148,27 @@ def test_source_run_id_mismatch_is_rejected(tmp_path: Path):
             branch=BRANCH, commit_sha=head, base_sha=base,
             source_run_id="99999",
         )
+
+
+def test_deliverable_cannot_replace_production_pipeline_root(tmp_path: Path):
+    root, base, _ = stage_repo(tmp_path)
+    (root / "pipeline.py").write_text("def main(): pass\n", encoding="utf-8")
+    git(root, "add", ".")
+    git(root, "commit", "--amend", "--no-edit")
+    head = git(root, "rev-parse", "HEAD")
+    git(root, "update-ref", "refs/remotes/origin/" + BRANCH, head)
+    with pytest.raises(CandidateCIError, match="protected baseline"):
+        verify(root, base, head, tmp_path / "stage")
+
+
+def test_foreign_run_directory_is_not_allowed(tmp_path: Path):
+    root, base, _ = stage_repo(tmp_path)
+    foreign = root / "deliveries/run-99999/README.md"
+    foreign.parent.mkdir(parents=True)
+    foreign.write_text("Unrelated candidate injection\n", encoding="utf-8")
+    git(root, "add", ".")
+    git(root, "commit", "--amend", "--no-edit")
+    head = git(root, "rev-parse", "HEAD")
+    git(root, "update-ref", "refs/remotes/origin/" + BRANCH, head)
+    with pytest.raises(CandidateCIError, match="protected baseline"):
+        verify(root, base, head, tmp_path / "stage")
