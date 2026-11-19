@@ -53,6 +53,7 @@ def stage_repo(tmp_path: Path):
     git(root, "add", ".")
     git(root, "commit", "-m", "original trusted base")
     base = git(root, "rev-parse", "HEAD")
+    delivery = root / "deliveries" / ("run-" + RUN)
     generated = {
         "solution.py": b"def add_virtual_column(df, role, name):\n    return df\n",
         "pipeline.py": b"def main():\n    return 1\n",
@@ -62,10 +63,10 @@ def stage_repo(tmp_path: Path):
         TEST_PATH: TEST.encode(),
     }
     for name, content in generated.items():
-        path = root / name
+        path = delivery / name
         path.parent.mkdir(exist_ok=True)
         path.write_bytes(content)
-    report = root / "reports/agentic_delivery_manifest.json"
+    report = delivery / "reports/agentic_delivery_manifest.json"
     report.parent.mkdir(exist_ok=True)
     report.write_text(json.dumps({
         "status": "HUMAN_REVIEW_REQUIRED",
@@ -127,7 +128,7 @@ def test_untrusted_additional_path_outside_allowlist_fails(tmp_path: Path):
 
 def test_forged_file_hash_is_detected(tmp_path: Path):
     root, base, _ = stage_repo(tmp_path)
-    manifest = root / "reports/agentic_delivery_manifest.json"
+    manifest = root / "deliveries" / ("run-" + RUN) / "reports/agentic_delivery_manifest.json"
     data = json.loads(manifest.read_text())
     data["published_files"]["solution.py"] = "0" * 64
     manifest.write_text(json.dumps(data), encoding="utf-8")
