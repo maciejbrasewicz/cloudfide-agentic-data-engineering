@@ -5,8 +5,8 @@
 */
 const API="https://api.github.com/repos/maciejbrasewicz/cloudfide-agentic-data-engineering";
 const WORKFLOW="engineer-e2e.yml";
-const TTL_MS=60_000;
-const MAX_STALE_MS=300_000;
+const TTL_MS=180_000;
+const MAX_STALE_MS=900_000;
 const HEADER={
   "Cache-Control":"no-store",
   "Content-Type":"application/json; charset=utf-8",
