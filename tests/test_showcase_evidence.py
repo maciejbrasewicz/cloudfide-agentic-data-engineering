@@ -80,6 +80,8 @@ def test_showcase_is_bilingual_and_explains_the_real_delivery():
     assert '<script src="./app.js" defer>' in html
     assert '<script src="./technical.js" defer>' in html
     assert '<script src="./delivery_status.js" defer>' in html
+    assert 'https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/28' in html
+    assert 'https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44478568225' in html
     assert 'id="delivery-evidence"' in html
     assert 'engineer-e2e.yml' in html
     assert '<link rel="stylesheet" href="./technical.css">' in html
