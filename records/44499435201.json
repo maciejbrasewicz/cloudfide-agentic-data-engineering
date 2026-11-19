@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "e5244265e1567630fe6c64b9e14f505fc8cab8ea",
+  "generated_at_utc": "2026-11-19T09:49:01.761917+00:00",
+  "source_manifest_sha256": "ad514daf4ea5d5e4d0d2ee17e74e08e7043a839d05d7a03f68689bd6997859fd",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Make pre-deduplication reconciliation of both TOTAL quantity and TOTAL discount a blocking quality gate, with explicit numeric tolerances and audit evidence.",
+      "evidence": "The source contains one TOTAL row with Quantity='37150' and Discount='65924.67', and the approved contract requires verification before deduplication.",
+      "risk": "The available profile does not establish whether transaction-derived totals reconcile or what rounding rules apply.",
+      "status": "pending_human_review",
+      "source_report_sha256": "26eb845b832b5b46e08a98bd77aeed5a93819f7334946a7da23adc98b1096b30",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative-quantity rows only after return semantics are confirmed or formally approved; otherwise quarantine them for review.",
+      "evidence": "Six negative-quantity rows were measured, while 'retain as returns' is an assumption rather than a source-proven classification.",
+      "risk": "Misclassified data corrections, cancellations, or input errors could be reported as genuine returns.",
+      "status": "pending_human_review",
+      "source_report_sha256": "26eb845b832b5b46e08a98bd77aeed5a93819f7334946a7da23adc98b1096b30",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit price inference only when an executable check finds exactly one context-appropriate normalized price for the product, and log each inferred order, source observations, and value.",
+      "evidence": "Four unit prices are missing, and the approved rule already requires unique-price-per-product or failure.",
+      "risk": "A globally unique historical price may still be inappropriate when prices vary by date, region, customer, or promotion.",
+      "status": "pending_human_review",
+      "source_report_sha256": "26eb845b832b5b46e08a98bd77aeed5a93819f7334946a7da23adc98b1096b30",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "duplicates",
+      "proposal": "Continue removing only source-exact duplicate rows, but seek source-system confirmation that identical records are repeated export lines rather than separate valid transactions.",
+      "evidence": "The pipeline removes five raw exact duplicates and deliberately avoids deduplication by Order ID or normalized values.",
+      "risk": "The export alone cannot prove that two identical lines do not represent distinct business events.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f03a6f01be3892a3c1643df3cc900fc0c7d367a0509161170fe8d244b2237488",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative-quantity rows under the current approved policy while requesting an authoritative return or credit indicator for future feeds.",
+      "evidence": "The policy defines negative quantities as returns, pipeline.py retains them, and the test suite confirms six retained rows.",
+      "risk": "A negative quantity could instead represent correction or input error, and no return-status field is present in the reviewed schema.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f03a6f01be3892a3c1643df3cc900fc0c7d367a0509161170fe8d244b2237488",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "data_engineer",
+      "target": "missing_prices",
+      "proposal": "Keep the unique normalized same-product price inference as a fail-closed rule and record inferred rows in audit evidence when source-level lineage is required.",
+      "evidence": "Four prices are recovered; pipeline.py raises DataQualityError unless exactly one known Decimal price exists for the product, and an ambiguity test passes.",
+      "risk": "Uniqueness within this export does not establish that the price is historically correct across date, customer, region, or promotion contexts.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f03a6f01be3892a3c1643df3cc900fc0c7d367a0509161170fe8d244b2237488",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Require source-system confirmation for the five exact duplicate removals while preserving raw full-row deduplication as the current documented proposal.",
+      "evidence": "Both the production pipeline and independent raw parser identify five removable copies, but README.md acknowledges that accidental duplication is not provable from the CSV.",
+      "risk": "Identical rows could represent distinct valid business events.",
+      "status": "pending_human_review",
+      "source_report_sha256": "0af095ce7846878f4152fd3c3b185aace35878e20d24bb158de9354d73317ce6",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Validate all six negative-quantity records against authoritative return or credit metadata before treating the return interpretation as approved business fact.",
+      "evidence": "The output consistently retains six negative quantities, but the source schema reviewed contains no explicit return indicator.",
+      "risk": "Corrections, cancellations, or data-entry errors could be misclassified as returns.",
+      "status": "pending_human_review",
+      "source_report_sha256": "0af095ce7846878f4152fd3c3b185aace35878e20d24bb158de9354d73317ce6",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0009",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Validate each of the four inferred unit prices against dated authoritative pricing data rather than relying solely on same-product uniqueness within the export.",
+      "evidence": "The executable checks prove singleton same-product candidates and fail on ambiguity, but they do not establish historical price applicability.",
+      "risk": "A unique observed price can still be wrong for a specific date, region, customer, or promotion.",
+      "status": "pending_human_review",
+      "source_report_sha256": "0af095ce7846878f4152fd3c3b185aace35878e20d24bb158de9354d73317ce6",
+      "approved_by": null
+    }
+  ]
+}
