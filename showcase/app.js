@@ -3,13 +3,14 @@
 (() => {
   "use strict";
   const en = {
-    headerLaunch:"Launch a new run",
     entryEyebrow:"LIVE EXECUTION / MICROSOFT FOUNDRY",
-    entryTitle:"Run a fresh engineering delivery",
-    entryIntro:"An authorized reviewer can start a real, new attempt at the Data Engineering assignment — from requirements analysis and new code authoring through independent tests to a pull request for human review.",
-    entryArchitect:"Profiles source data and defines the implementation contract.",
-    entryEngineer:"Writes code; the sandbox validates and drives corrections (up to 3 attempts).",
-    entryVerifier:"Independently challenges the result; passing code becomes a draft PR for human review.",
+    progressEyebrow:"LIVE RUN · GITHUB ACTIONS",
+    progressDetails:"Actual GitHub Actions jobs and execution steps",
+    entryTitle:"Launch the agents on the actual assignment",
+    entryIntro:"This is not a playback or simulation. Entering your reviewer code starts real Microsoft Foundry agents through GitHub Actions. They build a fresh Python virtual-column solution and a sales ETL pipeline, generate tests and independently verify the results. New code, evidence and outcomes are produced during this run.",
+    entryArchitect:"Reads the requirements, profiles the source and defines the implementation contract.",
+    entryEngineer:"Writes Python and tests. Docker executes the result and sends real failures back for corrections (up to 3 attempts).",
+    entryVerifier:"Creates an independent test and challenges the candidate. When P4 passes, GitHub automatically creates a draft PR; a human decides whether to merge.",
     heroStackLabel:"01 / TECHNOLOGY STACK",
     heroStackDesc:"Orchestration, implementation and independent verification.",
     heroFlowLabel:"02 / CODE DELIVERY WORKFLOW",
@@ -49,7 +50,7 @@
     execChecking:"Checking connection",
     accessLabel:"Private reviewer access code",
     startRun:"Start full delivery",
-    executionLimits:"Up to 5 launches per rolling 24 hours, with at most 1 active delivery. Each launch runs real agents in GitHub Actions. Successful verified code becomes a draft PR, never an automatic merge.",
+    executionLimits:"Launching starts Architect → Engineer → isolated Docker tests and corrections (up to 3 attempts) → Verification Engineer → P4 → automatically created draft PR and separate CI. It normally takes several minutes, often 10–30; with retries or a GitHub queue it can take longer. The current step and source run are shown live. Limit: 5 starts / 24 h, one active.",
     openJob:"Open execution in GitHub Actions ↗",
     implementationDetails:"Runtime modules, permissions and contracts",
     technicalFootnote:"Every transition is controlled by independent source, code or test evidence. A draft PR requires successful gates and a later human decision; agents cannot merge changes automatically.",
@@ -214,9 +215,9 @@
     ["Historyczny przebieg: 16 zmierzonych wywołań","Recorded run: 16 measured tool calls"]
   ];
   const pending=[
-    ["Publiczne uruchomienia: wymagają tokenu GitHub i kodu dostępu","Public dispatch requires a GitHub token and access code"],
+    ["Nowe wykonania: prywatny kod; brak automatycznego scalenia PR","Fresh execution requires a private code; PR never auto-merges"],
     ["GitHub MCP: integracja kodu; walidacja przebiegu live","GitHub MCP: integrated; live runtime verification pending"],
-    ["Agent tworzący testy: workflow draft PR; brak potwierdzonego przebiegu","Autonomous test author: draft-PR workflow; execution unverified"],
+    ["Nowy niezależny Verifier/P4: walidacja produkcyjna trwa; wyniku nie należy zakładać","New independent Verifier/P4: production acceptance is still being validated"],
     ["Application Insights: brak potwierdzonego eksportu trace","Application Insights: exporter not verified"],
     ["Koszt modelu: brak potwierdzonych stawek rozliczeniowych","Model cost: deployment billing rates not verified"],
     ["Ewaluacja skuteczności agentów: bez benchmarku","Agent effectiveness evaluation: no independent benchmark"]
