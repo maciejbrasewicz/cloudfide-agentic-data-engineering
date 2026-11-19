@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f7f8f6">
 <meta name="description" content="CloudFide: audytowalny pipeline ETL, wieloagentowa weryfikacja Microsoft Foundry, testy regresyjne, wyniki analiz i kontrolowane wykonania.">
-<title>CloudFide | Sales ETL &amp; Multi-Agent Verification</title>
+<title>CloudFide | Agentic Data Engineering Delivery</title>
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="skip">Przejdź do treści</a>
-<div class="topline"><div class="container topline-inner"><span>CF / DATA ENGINEERING DELIVERY</span><span data-i18n="topDate">Rzeczywiste wdrożenie · 18 listopada 2026</span></div></div>
+<div class="topline"><div class="container topline-inner"><span>CF / DATA ENGINEERING DELIVERY</span><span data-i18n="topDate">GitHub Actions · aktualne wykonanie i archiwalne dowody</span></div></div>
 <header class="header">
  <div class="container header-inner">
   <a class="logo" href="#intro"><b>CF<span class="slash">/</span></b><span>Agentic Data Engineering<small>MICROSOFT FOUNDRY × DATA ENGINEERING</small></span></a>
@@ -36,14 +36,14 @@
   <div class="tech-tags"><span>Microsoft Foundry</span><span>Agent Framework</span><span>Evidence gates</span><span>Python / Decimal</span><span>GitHub OIDC</span></div>
  </div>
  <aside class="hero-proof" aria-label="Verified results">
-  <div class="proof-header"><span data-i18n="resultCard">WYNIK Z PRAWDZIWEGO URUCHOMIENIA</span><span>RUN #44331275568</span></div>
+  <div class="proof-header"><span data-i18n="resultCard">ARCHIWALNY AUDYT Z WERYFIKOWANYMI DANYMI</span><span>RUN #44331275568</span></div>
   <div class="proof-revenue"><span data-i18n="revenueTag">Przychód netto / 5 regionów</span><strong>2 570 247,03</strong><small data-i18n="revenueExplanation">Wyliczone deterministycznie — nie przez AI</small></div>
   <div class="proof-grid"><div><strong>03</strong><span data-i18n="agentCount">raporty agentów</span></div><div><strong>16</strong><span data-i18n="toolCount">wywołań narzędzi</span></div><div><strong>79</strong><span data-i18n="testsCount">testów CI</span></div><div><strong>90,8 s</strong><span data-i18n="durationCount">rzeczywisty czas</span></div></div>
   <a class="proof-bottom" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568" target="_blank" rel="noopener noreferrer"><span data-i18n="sourceEvidence">Źródło: zweryfikowany przebieg GitHub Actions</span> ↗</a>
  </aside>
 </section>
 <section class="section container" id="task" data-section="task">
- <div class="section-heading"><div><span class="section-no">01 / <span data-i18n="taskEyebrow">ZADANIE</span></span><h2 data-i18n="taskHeading">Zakres dostarczonego rozwiązania</h2></div><p data-i18n="taskLead">Implementacja funkcji kolumn wirtualnych i przetwarzanie danych sprzedaży. Warstwa agentowa pełni funkcję niezależnej kontroli jakości dostarczonego kodu oraz wyników.</p></div>
+ <div class="section-heading"><div><span class="section-no">01 / <span data-i18n="taskEyebrow">ZADANIE</span></span><h2 data-i18n="taskHeading">Zakres dostarczonego rozwiązania</h2></div><p data-i18n="taskLead">Funkcja kolumn wirtualnych i pipeline sprzedażowy. W nowym procesie Data Architect projektuje kontrakt, Data Engineer tworzy kod, a Verification Engineer przeprowadza niezależną kontrolę.</p></div>
  <div class="two-cards"><article class="plain-card"><div class="card-top"><span>01 — PYTHON API</span><code>solution.py</code></div><h3 data-i18n="virtualTitle">Kolumna wirtualna</h3><p data-i18n="virtualDesc">Funkcja add_virtual_column(df, role, new_column) tworzy kolumnę na podstawie bezpiecznie ograniczonych działań arytmetycznych. AST waliduje dozwolone nazwy i operatory, bez wykonywania arbitralnego kodu.</p><div class="card-footer" data-i18n="virtualFooter">Wynik: funkcja, oryginalne testy, testy regresyjne.</div></article>
  <article class="plain-card"><div class="card-top"><span>02 — ETL</span><code>pipeline.py</code></div><h3 data-i18n="etlTitle">Przychód netto ze sprzedaży</h3><p data-i18n="etlDesc">CSV zawierał duplikaty, dodatkowy nagłówek, wiersz TOTAL, różne formaty liczb i regionów oraz brakujące ceny. Pipeline weryfikuje dane, stosuje zatwierdzoną politykę i wylicza przychód dla pięciu regionów.</p><div class="card-footer" data-i18n="etlFooter">Wynik: revenue_by_region.csv i raport jakości.</div></article></div>
  <div class="data-flow"><div><span data-i18n="rawSource">DANE ŹRÓDŁOWE</span><strong>1 507</strong><small data-i18n="rawExplain">wierszy, w tym nagłówek i TOTAL</small></div><span class="flow-arrow">→</span><div><span data-i18n="cleanSource">PO OCZYSZCZENIU</span><strong>1 500</strong><small data-i18n="cleanExplain">wierszy transakcyjnych</small></div><span class="flow-arrow">→</span><div><span data-i18n="finalSource">WYNIK</span><strong>5 <small data-i18n="regionWord">regionów</small></strong><small data-i18n="finalExplain">kwoty dokładne do grosza</small></div></div>
@@ -65,10 +65,10 @@
  <div class="truth-note"><b data-i18n="trustBoundary">Ważna granica zaufania</b><p data-i18n="trustDesc">Przychód wylicza niezależny pipeline. Wyniki agentów są propozycjami podlegającymi walidacji Pydantic, kontroli pochodzenia artefaktów i weryfikacji testami. Dostęp GitHub MCP do repozytorium jest ograniczony do odczytu.</p></div>
 </div></section>
 <section class="section container" id="execution" data-section="execution">
- <div class="section-heading"><div><span class="section-no">03 / <span data-i18n="executionEyebrow">PRAWDZIWY PRZEBIEG</span></span><h2 data-i18n="executionHeading">Przebieg audytu Microsoft Foundry</h2></div><p data-i18n="executionLead">Oryginalne raporty Data Architect, Data Engineer i Verification Engineer z uwzględnieniem zakresu weryfikacji, dowodów oraz ograniczeń dostępnych narzędzi.</p></div>
+ <div class="section-heading"><div><span class="section-no">03 / <span data-i18n="executionEyebrow">PRAWDZIWY PRZEBIEG</span></span><h2 data-i18n="executionHeading">Historyczny audyt Microsoft Foundry</h2></div><p data-i18n="executionLead">Oryginalne raporty Data Architect, Data Engineer i Verification Engineer z uwzględnieniem zakresu weryfikacji, dowodów oraz ograniczeń dostępnych narzędzi.</p></div>
  <div class="run-meta"><div><span data-i18n="runDate">DATA</span><strong>18.11.2026</strong></div><div><span>GITHUB RUN</span><strong>#44331275568</strong></div><div><span>GIT SHA</span><strong>aa01b168deee…</strong></div><div><span data-i18n="walltime">CZAS</span><strong>90,8 s</strong></div><a href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568" target="_blank" rel="noopener noreferrer" data-i18n="openEvidence">Otwórz wykonanie ↗</a></div>
  <div class="execution-explainer"><div class="label" data-i18n="whatRan">CO URUCHOMIONO</div><p data-i18n="whatRanText">GitHub Actions wykonał pipeline i testy, uwierzytelnił się przez OIDC, a następnie uruchomił SequentialBuilder z trzema agentami. Każdy korzystał z ograniczonej listy funkcji. Wyniki zostały sparsowane przez Pydantic i zestawione z hashami rzeczywistych plików.</p></div>
- <div class="inline-heading"><h3 data-i18n="reportsHeading">Raporty agentów Microsoft Foundry</h3><p data-i18n="reportsSubheading">Wyniki walidowanego wykonania, lista ustaleń i narzędzi przypisanych do roli.</p></div>
+ <div class="inline-heading"><h3 data-i18n="reportsHeading">Archiwalne raporty audytu Microsoft Foundry</h3><p data-i18n="reportsSubheading">Wyniki walidowanego wykonania, lista ustaleń i narzędzi przypisanych do roli.</p></div>
  <div class="agent-tabs" role="tablist" id="agent-tabs" aria-label="Agent reports"></div><div id="agent-detail" class="agent-detail" aria-live="polite"></div>
  <div class="tool-intro"><div><span class="label" data-i18n="measureLabel">TELEMETRIA Z WYKONANIA</span><h3 data-i18n="toolHeading">Zdarzenia narzędzi z wykonania</h3></div><p data-i18n="toolLead">Zarejestrowano 16 wywołań narzędzi i ich czas. Nie przypisujemy ich do poszczególnych agentów bez wiarygodnych identyfikatorów spanów.</p></div>
  <div class="tool-counts" id="tool-counts"></div>
@@ -107,6 +107,7 @@
    <article><span>03 / AGENT ORCHESTRATION</span><h3 data-i18n="orchestrationTitle">Trzy role dostarczania kodu</h3><p data-i18n="orchestrationDesc">Data Architect projektuje, Data Engineer tworzy pliki, Verification Engineer pisze niezależne testy. Przejścia egzekwuje kod.</p><code>agentic/architect.py · engineer.py · verifier.py</code></article>
    <article><span>04 / ASSURANCE</span><h3 data-i18n="assuranceTitle">Niezależna weryfikacja i dowody</h3><p data-i18n="assuranceDesc">Oryginalne testy, sandbox bez sieci, Decimal, SHA-256, próby naprawcze i kontrola draft PR.</p><code>agentic/delivery_status.py · verifier_verdict.py</code></article>
   </div>
+  <details class="technical-details legacy-audit"><summary><span id="legacy-audit-label">Archiwalna bramka audytu (opcjonalna)</span><span aria-hidden="true">+</span></summary>
   <div class="technical-head">
    <div><span class="section-no">EXECUTION CONTROL</span><h3 data-i18n="launchHeading">Uruchomienie workflow Microsoft Foundry</h3><p data-i18n="launchLead">Zlecenie nowego przebiegu przez GitHub Actions. Status jobów i zdarzenia są pobierane z rzeczywistego wykonania; brak dostępu do sekretów i możliwości zmian w repozytorium.</p></div>
    <a class="technical-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Zweryfikowany audyt po integracji ↗</a>
@@ -121,9 +122,10 @@
     <div id="technical-run" hidden><div class="technical-run-header"><strong id="technical-run-title"></strong><a id="technical-run-link" hidden target="_blank" rel="noopener noreferrer" data-i18n="openJob">Otwórz wykonanie w GitHub Actions ↗</a></div><div id="technical-job-steps" class="technical-job-steps"></div><div id="technical-live-events" class="technical-live-events" aria-live="polite"></div></div>
     <p id="technical-error" role="status" aria-live="polite"></p>
   </div>
+  </details>
   <details class="technical-details"><summary><span data-i18n="implementationDetails">Moduły, uprawnienia i kontrakty wykonawcze</span><span aria-hidden="true">+</span></summary>
     <div class="technical-modules" id="technical-modules"></div>
-    <p class="technical-footnote" data-i18n="technicalFootnote">Odrębny workflow generowania testów przewiduje utworzenie roboczego PR po izolowanej walidacji; jego pełne wykonanie nie zostało jeszcze potwierdzone. Agenci nie zatwierdzają polityki ani nie scalają zmian automatycznie.</p>
+    <p class="technical-footnote" data-i18n="technicalFootnote">Każde przejście między agentami podlega niezależnej kontroli danych, kodu lub testów. Draft PR wymaga pozytywnych dowodów i późniejszej decyzji człowieka. Agenci nie scalają zmian automatycznie.</p>
   </details>
  </div>
 </section>
