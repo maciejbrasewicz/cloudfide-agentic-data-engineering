@@ -6,7 +6,7 @@
   "engines": {"node": ">=22"},
   "scripts": {
     "start": "node server.mjs",
-    "test": "node --test server.test.mjs delivery_gateway.test.mjs",
-    "check": "node --check app.js && node --check delivery_status.js && node --check delivery_gateway.mjs && node --check server.mjs"
+    "test": "node --test server.test.mjs live_gateway.test.mjs delivery_gateway.test.mjs independent_oracle.test.mjs recalculation_gateway.test.mjs delivery_launch.test.mjs",
+    "check": "node --check app.js && node --check technical.js && node --check reviewer_console.js && node --check delivery_status.js && node --check delivery_gateway.mjs && node --check delivery_launch.mjs && node --check independent_oracle.mjs && node --check recalculation_gateway.mjs && node --check server.mjs"
   }
 }
