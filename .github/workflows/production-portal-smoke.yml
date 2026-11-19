@@ -55,6 +55,45 @@ jobs:
           assert "token" not in str(obj).lower()
           print("Public capability ready without exposing credentials")
           PY
+      - name: Verify deployed recruiter-first layout and actual 5-run protected gateway
+        shell: bash
+        env:
+          BASE: https://engineering-intelligence-production-a972180f.up.railway.app
+        run: |
+          set -euo pipefail
+          # The GitHub push can precede Railway's redeploy. Read LIVE HTML,
+          # never mistake the old still-running version for this release.
+          for n in $(seq 1 30); do
+            curl --fail --silent --show-error --max-time 12 "$BASE/" \
+              -o "$RUNNER_TEMP/cloudfide-http/portal.html"
+            if python - "$RUNNER_TEMP/cloudfide-http/portal.html" <<'PY'
+          from pathlib import Path
+          import sys
+          html=Path(sys.argv[1]).read_text(encoding="utf-8")
+          assert html.index('id="intro"') < html.index('id="reviewer-execution"') < html.index('class="container hero-system-section"')
+          assert 'id="technical-job-steps"' in html
+          assert 'id="technical-run-outcome"' in html
+          assert 'id="technical-run-explainer"' in html
+          assert 'header-launch-action' not in html
+          assert 'Uruchom agentów na zadaniu' in html
+          PY
+            then break; fi
+            if [ "$n" -eq 30 ]; then echo "New recruiter UI not deployed on Railway"; exit 1; fi
+            sleep 10
+          done
+          curl --fail --silent --show-error --max-time 12 \
+            "$BASE/api/delivery/launch/capabilities" \
+            -o "$RUNNER_TEMP/cloudfide-http/recruiter-capabilities.json"
+          python - "$RUNNER_TEMP/cloudfide-http/recruiter-capabilities.json" <<'PY'
+          import json,sys
+          c=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert c["liveReady"] is True
+          assert c["maxRunsPerDay"] == 5
+          assert c["maxConcurrentRuns"] == 1
+          assert c["mode"] == "protected_full_three_agent_delivery"
+          assert "token" not in str(c).lower()
+          print("Production reviewer entry and bounded protected launch verified")
+          PY
       - name: Actually rerun independent original CSV arithmetic through production API
         shell: bash
         env:
