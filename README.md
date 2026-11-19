@@ -1,6 +1,25 @@
 # Virtual columns & auditable sales pipeline
 
-A small, deterministic **pandas** solution to the virtual-column recruitment task. It reads the supplied sales export, verifies its original control totals, repairs documented data defects, computes line revenue using the required `add_virtual_column` function, and writes aggregated revenue by region. The optional Microsoft Foundry workflow reviews **this same solution**; no cloud service is required to run the task.
+**A complete Data Engineering assignment and a verified three-agent software delivery workflow.** The deterministic Python baseline solves virtual-column arithmetic and sales ETL. Independently, three REAL Microsoft Foundry roles design a task contract, **write new source files**, run independent checks, repair actual failures, and open a SHA-verified draft pull request for human review. The LLM is never used for financial calculations.
+
+**Two deliberately different layers — one project, one portal:** `solution.py` and `pipeline.py` at repo root are the stable, audited reference baseline used by the engineering platform; `deliveries/run-<ID>/` in an agent-created draft PR is a **standalone executable deliverable** authored by the real agents. Replacing the running platform with a standalone newly authored pipeline would corrupt its test/verification imports. Results are therefore reviewed and executed in isolation, not auto-merged.
+
+[**Open the unified recruiter showcase**](https://engineering-intelligence-production-a972180f.up.railway.app/?lang=pl#execution) · [**Latest full 3-agent run #44485096373**](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373) · [**Automatically published draft PR #35**](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35) · [**Exact-SHA independent CI**](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44487613707)
+
+## Run the right thing
+
+| You want to... | Run / open |
+|---|---|
+| Run the stable deterministic ETL baseline | `uv sync --locked --extra quality && uv run --no-sync python pipeline.py` |
+| Execute the baseline's complete test suite | `uv run --no-sync python -m pytest` |
+| **Run the actual agent-generated candidate** | `uv run --no-sync python scripts/replay_delivery.py --run-id 44485096373 --commit 73ab197159f8ed5a595bdd99a88b01707371d12e --base 737baf62ad7fb17f89a194a4dcb904bf0081ceea` |
+| Inspect the candidate and the third agent's pytest | [Draft PR #35](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35) → `deliveries/run-44485096373/` |
+| Observe or **start** a new complete agent delivery | [GitHub Actions — CloudFide delivery](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml) → Run workflow → `rebuild` / 3 rounds / draft |
+| Inspect without a GitHub login and verify the actual CSV now | [Live recruiter portal](https://engineering-intelligence-production-a972180f.up.railway.app/?lang=pl#execution) → agent history + independent recalculation |
+
+The candidate replay requires **Docker** and uses the identical SHA-admission gate, no-network nonroot Docker runtime and separate `decimal.Decimal` oracle as the GitHub candidate CI. It does **not** execute generated Python on your host. For an audit trail use `--evidence-dir ./reviewer-evidence`. The full agent execution is separate, incurs Foundry model usage, and is limited to authenticated operators.
+
+See [**reviewer operation and architecture**](docs/reviewer-architecture-and-operation.md) for proof boundaries, required permissions, and security controls.
 
 ## Quick start
 
@@ -66,25 +85,30 @@ A row can belong to multiple categories. **Metric stages matter:** source rows, 
 
 The checks do not simply compare the program against its own calculated output: several tests use **independent arithmetic** and fixed expected regional totals.
 
-## Optional agentic engineering workflow
+## Autonomous Foundry delivery — actual execution, not a read-only review
 
-This repository also contains a *read-only*, three-role Microsoft Foundry review of this same deliverable: **Data Architect → Data Engineer → Verification Engineer**. It is not a second application and is not called by the production ETL. Agents have narrow function tools to inspect source data, inspect named files, check the approved contract, run tests, and read reconciliation evidence. Their findings are structured with Pydantic and remain **untrusted suggestions** until reviewed against executable tests. A separate `agentic.verify` provenance gate checks the report against the exact source, policy, code, test-suite and output hashes. See [architecture](docs/architecture.md).
+The original task instructions remain outside the repo and enter trusted GitHub Actions only via `CLOUDFIDE_TASK_SPEC_B64`. GitHub Actions signs into Microsoft Foundry using Azure OIDC restricted to the trusted `main` branch; no Azure credentials are present in generated-code sandboxes or in Railway.
 
-```bash
-uv sync --locked --extra quality --extra foundry
-az login
-cp .env.example .env  # set FOUNDRY_PROJECT_ENDPOINT and FOUNDRY_MODEL
-uv run --no-sync python -m agentic.run --task-file /path/outside/repo/taskvirtualcolumn.md
-```
+1. **Data Architect** reads the original specification, employer tests, CSV and approved data policy. A deterministic gate verifies source facts and policy decisions. New policy proposals halt instead of being self-approved.
+2. **Data Engineer** writes real `solution.py`, `pipeline.py`, `tests/test_*.py` and `README.md` into a write-limited workspace; model-produced code is inert until admitted by a trusted checksum gate.
+3. **Independent P3** runs candidate Python in a Docker container without network or credentials and verifies the original CSV with a separate `Decimal` oracle.
+4. **Bounded retries** pass real failure logs back to the Data Engineer (at most 3 attempts). SHA-linked artifacts and the deterministic P5 controller record accepted/rejected source lineage.
+5. **Verification Engineer** independently reads the actual candidate, authors a new executable test, and requests validation. P4 proves it passes on the real candidate and fails against a deliberately broken arithmetic implementation.
+6. **P6** publishes exactly the verified files to `deliveries/run-<ID>/` in a **draft PR**, never auto-merges. Separate CI validates the original employer fixtures, source/commit SHA and candidate implementation.
 
-The original task instructions must stay **outside** this repository. Only the instructions are passed at runtime to the agent. The emitted `agentic_review_runtime.json` is intentionally untracked: it may contain generated text, and it must not be represented as a validated result before real execution.
+**Latest complete execution:** [run #44485096373](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373) → rejected versions 1 and 2, accepted version 3 → P4 mutation-sensitivity PASS → automatically created [draft PR #35](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35) → exact-SHA CI PASS. 18/18 candidate tests and independent five-region total **2,570,247.03** (source currency not established).
 
-After a successful local agent run, validate evidence with `uv run --no-sync python -m agentic.verify --input agentic_review_runtime.json`. Re-run the agents after code, data, policy or tests change; stale reports deliberately fail verification.
+### Two modes and reviewer permissions
 
-GitHub Actions has separate workflows: `ci.yml` validates every push/PR with no cloud credentials; `agent-review.yml` reviews changes to the engineering solution on trusted `main` (and supports manual replay). It signs in to the existing Foundry project using an **OIDC federation restricted to this repository and branch**. The Entra application client ID, tenant ID, project endpoint and deployment name are non-secret identifiers configured in the review workflow; there is no client secret or Azure API key in Git. Each agent finding is an untrusted suggestion, while the artifact provenance and ETL checks are deterministic. A Foundry run is only considered complete when its evidence-verification step passes.
+- `rebuild` hides existing reference code from the new Data Engineer: original spec, input CSV, employer tests and approved policy define the task.
+- `improve` permits only allowlisted baseline files and independently verified changes, not arbitrary repository writes.
 
-**Security note, 18 Nov 2026:** Versions `agent-framework` 1.26.1 and 1.26.2 were reported as malicious on PyPI on 17 Nov. This project does **not** directly depend on the `agent-framework` metapackage and explicitly pins `agent-framework-core==1.26.0` and audited component versions. Before installing Foundry extras in an Azure-authenticated environment, verify resolved dependencies and generate/commit `uv.lock` in a network-enabled, clean environment. The repository commits a resolved `uv.lock`; CI installs with `uv sync --locked` for reproducibility.
+Anyone may inspect evidence and independently recalculate the input in the single public portal. Full paid Foundry execution from that portal requires a Railway-side **fine-grained GitHub Actions token** and a separate **reviewer access code**, limited to two dispatches per 24 hours. Github Actions alone handles PR publishing, Azure secrets remain on trusted workers, and only a human can merge or authorize a policy change.
+
+**Measured vs unimplemented:** executed Foundry + isolated P3/P4 + bounded repair + auto draft PR + exact-SHA CI are proven. Historical read-only review, bounded full delivery and the public result calculation are different modes. Future policy approval and resume features must not be described as proven until their actual execution tests pass.
+
+**Dependency safety:** the pinned Foundry runtime avoids `agent-framework` 1.26.1/1.26.2, reported malicious on 17 Nov 2026; dependencies are installed from locked versions. Use `uv sync --locked` and verify SDK integrity when updating.
 
 ## Implementation footprint
 
-`solution.py` is a small AST evaluator without `eval()` or `exec()`. `pipeline.py` is plain pandas with Decimal arithmetic. `contracts/data_policy.json` is an allowlisted, versioned policy that controls supported repair decisions during execution; the LLM never supplies code or arbitrary values to execute. There is no Fabric workspace, Spark cluster, web dashboard, or runtime AI dependency for processing 1500 rows. For the concrete Windows/GitHub/OIDC rollout, see [deployment runbook](docs/deployment.md).
+The trusted baseline's `solution.py` is a small AST evaluator without `eval()` or `exec()`. The trusted `pipeline.py` is plain pandas with Decimal arithmetic; `contracts/data_policy.json` is allowlisted and versioned. An agent can write separate candidate files but never execute them inside Azure/OIDC jobs. The existing [single recruiter web portal](showcase/) is an evidence and controlled-execution interface, not a second ETL backend; processing 1,500 rows does not require Fabric, Spark, or an LLM. For deploy and OIDC details see [runbook](docs/deployment.md).
