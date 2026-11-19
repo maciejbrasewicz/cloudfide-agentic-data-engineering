@@ -143,7 +143,7 @@ def main() -> None:
             outcome = {
                 "schema_version": 1, "status": "INFRA_FAILURE",
                 "accepted_for_verification_iteration": None,
-                "iterations_used": 0, "max_iterations": max_rounds,
+                "iterations_used": 0, "max_iterations": args.max_rounds,
                 "history": [], "failure": str(exc),
                 "approval": "NOT_APPROVED_FOR_PR_OR_MERGE",
             }
