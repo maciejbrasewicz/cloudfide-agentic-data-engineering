@@ -61,6 +61,7 @@ def stage_exact_branch(
     parent = _git(root, "rev-parse", commit_sha + "^").decode().strip()
     if parent != base_sha:
         raise CandidateCIError("Draft commit does not descend directly from approved base")
+    prefix = "deliveries/run-" + source_run_id + "/"
     diff_lines = _git(root, "diff", "--name-status", base_sha, commit_sha).decode().splitlines()
     modified: set[str] = set()
     for line in diff_lines:
@@ -68,13 +69,16 @@ def stage_exact_branch(
         if len(fields) != 2 or fields[0] not in ("M", "A"):
             raise CandidateCIError("Unexpected removed/renamed or untrusted draft file")
         name = fields[1]
-        if not _published_path(name) and name != "reports/agentic_delivery_manifest.json":
+        if not name.startswith(prefix):
+            raise CandidateCIError("Draft changes protected baseline outside delivery package: " + name)
+        relative = name[len(prefix):]
+        if not _published_path(relative) and relative != "reports/agentic_delivery_manifest.json":
             raise CandidateCIError("Candidate draft changes non-allowlisted path: " + name)
-        modified.add(name)
+        modified.add(relative)
     if "reports/agentic_delivery_manifest.json" not in modified:
         raise CandidateCIError("Trusted publication manifest missing from candidate commit")
 
-    data = _git(root, "show", commit_sha + ":reports/agentic_delivery_manifest.json")
+    data = _git(root, "show", commit_sha + ":" + prefix + "reports/agentic_delivery_manifest.json")
     if len(data) > 100_000:
         raise CandidateCIError("Oversized publication manifest")
     manifest = json.loads(data.decode("utf-8"))
@@ -116,7 +120,7 @@ def stage_exact_branch(
     for name, expected_sha in claims.items():
         if not _published_path(name) or not isinstance(expected_sha, str) or len(expected_sha) != 64:
             raise CandidateCIError("Unapproved path or malformed file hash")
-        contents = _git(root, "show", commit_sha + ":" + name)
+        contents = _git(root, "show", commit_sha + ":" + prefix + name)
         if not contents or len(contents) > 60_000 or _sha(contents) != expected_sha:
             raise CandidateCIError("Published file bytes differ from SHA-bound source run")
         if name == TEST_PATH and validate_adversarial_test(contents.decode("utf-8")) != manifest["verifier_test_sha256"]:
@@ -128,6 +132,7 @@ def stage_exact_branch(
         "status": "ADMITTED_FOR_CANDIDATE_CI",
         "source_run_id": source_run_id, "base_sha": base_sha,
         "candidate_sha": commit_sha, "file_count": len(claims),
+        "delivery_prefix": prefix,
         "candidate_manifest_sha256": manifest["candidate_manifest_sha256"],
         "original_fixtures_unchanged": True,
     }

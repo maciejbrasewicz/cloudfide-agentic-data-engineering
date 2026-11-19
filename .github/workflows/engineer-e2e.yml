@@ -861,15 +861,20 @@ jobs:
           root = pathlib.Path(".")
           staged = pathlib.Path(os.environ["RUNNER_TEMP"]) / "approved-publication"
           manifest = json.loads((staged / "reports/agentic_delivery_manifest.json").read_text())
+          run_id = os.environ["GITHUB_RUN_ID"]
+          assert run_id.isdecimal()
+          # Packaging only: preserve exact model-authored bytes; never overwrite
+          # the verified production baseline or its original test suite.
+          delivery = root / "deliveries" / ("run-" + run_id)
           for relative in sorted(manifest["published_files"]):
-              output = root / relative
+              output = delivery / relative
               output.parent.mkdir(parents=True, exist_ok=True)
               shutil.copyfile(staged / relative, output)
-          receipt = root / "reports/agentic_delivery_manifest.json"
-          receipt.parent.mkdir(exist_ok=True)
+          receipt = delivery / "reports/agentic_delivery_manifest.json"
+          receipt.parent.mkdir(parents=True, exist_ok=True)
           shutil.copyfile(staged / "reports/agentic_delivery_manifest.json", receipt)
           PY
-          git add -- solution.py pipeline.py README.md revenue_by_region.csv tests/test_*.py reports/agentic_delivery_manifest.json
+          git add -- "deliveries/run-$GITHUB_RUN_ID"
           if git diff --cached --quiet; then
             echo "Verified candidate creates no changes; no empty draft PR" >&2
             exit 1

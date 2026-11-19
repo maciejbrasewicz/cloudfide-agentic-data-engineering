@@ -3,6 +3,10 @@ name: Candidate code - isolated exact-SHA pull-request CI
 # Runs only the explicitly selected draft candidate on the main-branch
 # TRUSTED workflow. Model-generated Python executes solely within Docker.
 on:
+  # Trusted default-branch workflow. The PR's generated code is never
+  # checked out into the host, only copied by validated git-show into Docker.
+  pull_request_target:
+    types: [opened, reopened, synchronize]
   workflow_dispatch:
     inputs:
       branch:
@@ -27,17 +31,22 @@ permissions:
 
 jobs:
   validate:
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'pull_request_target' &&
+       github.event.pull_request.base.ref == 'main' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       startsWith(github.event.pull_request.head.ref, 'agentic-delivery/run-'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
       statuses: write
     env:
-      CANDIDATE_BRANCH: ${{ inputs.branch }}
-      EXPECTED_SHA: ${{ inputs.expected_sha }}
-      BASE_SHA: ${{ inputs.base_sha }}
-      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+      CANDIDATE_BRANCH: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.ref || inputs.branch }}
+      EXPECTED_SHA: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || inputs.expected_sha }}
+      BASE_SHA: ${{ inputs.base_sha || '' }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,6 +68,16 @@ jobs:
           [[ "$BASE_SHA" =~ ^[a-f0-9]{40}$ ]] || exit 1
           [[ "$SOURCE_RUN_ID" =~ ^[0-9]{5,30}$ ]] || exit 1
           git fetch origin "refs/heads/$CANDIDATE_BRANCH:refs/remotes/origin/$CANDIDATE_BRANCH"
+          if [[ -z "$SOURCE_RUN_ID" ]]; then
+            SOURCE_RUN_ID="${CANDIDATE_BRANCH##*run-}"
+            echo "SOURCE_RUN_ID=$SOURCE_RUN_ID" >> "$GITHUB_ENV"
+          fi
+          if [[ -z "$BASE_SHA" ]]; then
+            BASE_SHA=$(git rev-parse "$EXPECTED_SHA^")
+            echo "BASE_SHA=$BASE_SHA" >> "$GITHUB_ENV"
+          fi
+          [[ "$BASE_SHA" =~ ^[a-f0-9]{40}$ ]] || exit 1
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]{5,30}$ ]] || exit 1
       - name: Verify all candidate file hashes and exact branch parent
         id: admit
         run: |
