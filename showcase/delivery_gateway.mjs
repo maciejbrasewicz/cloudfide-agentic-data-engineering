@@ -44,14 +44,14 @@ function cleanConclusion(value){
   return ["success","failure","skipped","cancelled","timed_out","action_required","neutral"].includes(value)?value:null;
 }
 
-export function createDeliveryGateway({fetchImpl=fetch,now=Date.now}={}){
+export function createDeliveryGateway({fetchImpl=fetch,now=Date.now,token=process.env.GITHUB_WORKFLOW_TOKEN||""}={}){
   let cached=null;
   let cachedAt=0;
   let pending=null;
 
   async function githubJson(path){
     const response=await fetchImpl(API+path,{
-      headers:{"Accept":"application/vnd.github+json","User-Agent":"cloudfide-public-delivery-evidence"},
+      headers:{"Accept":"application/vnd.github+json","User-Agent":"cloudfide-public-delivery-evidence",...(token?{"Authorization":"Bearer "+token}:{})},
       signal:AbortSignal.timeout(7000)
     });
     if(!response.ok)throw Error("Public GitHub evidence API returned "+response.status);
@@ -82,6 +82,32 @@ export function createDeliveryGateway({fetchImpl=fetch,now=Date.now}={}){
         conclusion:item?cleanConclusion(item.conclusion):null,
       };
     });
+    // Publication is verified only from the ACTUAL matching PR and exact-SHA
+    // commit status, never from the agent's report or the publisher job alone.
+    let publication={status:"not_yet_verified",pullRequest:null,exactCi:null};
+    const publisher=phases.find(x=>x.id==="publish-draft-pr");
+    if(run.status==="completed"&&run.conclusion==="success"&&publisher?.conclusion==="success"){
+      try{
+        const matching=await githubJson("/pulls?state=all&head=maciejbrasewicz:agentic-delivery/run-"+run.id+"&per_page=5");
+        const pr=(Array.isArray(matching)?matching:[]).find(x=>
+          Number.isSafeInteger(x.number)&&x.head?.ref==="agentic-delivery/run-"+run.id&&
+          x.base?.ref==="main"&&x.merged_at==null);
+        if(pr&&/^[a-f0-9]{40}$/.test(pr.head?.sha||"")){
+          const status=await githubJson("/commits/"+pr.head.sha+"/status");
+          const exact=(Array.isArray(status.statuses)?status.statuses:[]).find(x=>
+            x.context==="agentic-delivery/isolated-candidate-ci");
+          const ciState=["success","pending","failure","error"].includes(exact?.state)?exact.state:"not_reported";
+          publication={
+            status:pr.draft&&ciState==="success"?"verified_draft_awaiting_human":
+              "draft_ci_not_confirmed",
+            pullRequest:{number:pr.number,draft:pr.draft===true,state:safeString(pr.state,32),
+              url:"https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/"+pr.number,
+              headSha:pr.head.sha},
+            exactCi:{context:"agentic-delivery/isolated-candidate-ci",state:ciState}
+          };
+        }
+      }catch{publication={status:"evidence_unavailable",pullRequest:null,exactCi:null};}
+    }
     const commit=safeString(run.head_sha,40);
     const safeCommit=commit&&/^[a-f0-9]{40}$/.test(commit)?commit:null;
     return {
@@ -100,6 +126,7 @@ export function createDeliveryGateway({fetchImpl=fetch,now=Date.now}={}){
         commit_sha:safeCommit,
       },
       phases,
+      publication,
     };
   }
 
