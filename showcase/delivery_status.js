@@ -78,7 +78,18 @@
     const run=latest.run;
     const text=el("div","delivery-run-label");
     const headingText=choose("Ostatni przebieg","Latest run")+" #"+run.id;
-    const state=label(run.conclusion||run.status);
+    // A successful GitHub workflow is NOT automatically a verified software
+    // delivery. In real portal run #44501856719 P5 passed but P4 was skipped;
+    // GitHub still reported overall success. Never present that as accepted.
+    const publicationState=latest.publication?.status;
+    const state=run.status==="completed"&&publicationState==="verified_draft_awaiting_human"?
+      choose("ZWERYFIKOWANO: draft PR i dokładny SHA CI","VERIFIED: draft PR and exact-SHA CI"):
+      run.status==="completed"&&publicationState==="draft_ci_not_confirmed"?
+      choose("Draft PR utworzony; niezależne CI niepotwierdzone","Draft PR created; independent CI unverified"):
+      run.status==="completed"&&run.conclusion==="success"?
+      choose("Workflow zakończony; rezultat P4/PR/CI NIEPOTWIERDZONY",
+             "Workflow finished; P4/PR/CI outcome NOT VERIFIED"):
+      label(run.conclusion||run.status);
     text.append(el("strong","",headingText),el("span","",state));
     if(latest.stale){
       text.append(el("small","delivery-stale",choose(
