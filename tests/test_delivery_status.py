@@ -162,3 +162,37 @@ def test_forged_source_hash_is_rejected(tmp_path: Path):
     path.write_text(json.dumps(x), encoding="utf-8")
     with pytest.raises(ValueError, match="False P3 PASS"):
         evaluate(tmp_path, artifacts, original)
+
+
+def test_operator_bound_one_failure_is_rejected_not_incomplete(tmp_path: Path):
+    original = source_dir(tmp_path)
+    artifacts = tmp_path / "artifacts"
+    round_artifacts(artifacts, original, 1, "FAILED")
+    result = evaluate_delivery_rounds(
+        artifacts, original, tmp_path / "stages", max_rounds=1,
+    )
+    assert result["status"] == "REJECTED"
+    assert result["iterations_used"] == 1
+    assert result["max_iterations"] == 1
+
+
+def test_operator_bound_two_failures_are_rejected(tmp_path: Path):
+    original = source_dir(tmp_path)
+    artifacts = tmp_path / "artifacts"
+    old, raw = round_artifacts(artifacts, original, 1, "FAILED")
+    round_artifacts(artifacts, original, 2, "FAILED", old, raw)
+    result = evaluate_delivery_rounds(
+        artifacts, original, tmp_path / "stages", max_rounds=2,
+    )
+    assert result["status"] == "REJECTED"
+    assert result["iterations_used"] == 2
+
+
+@pytest.mark.parametrize("bad_limit", [0, 4, -1])
+def test_invalid_attempt_budget_rejected(tmp_path: Path, bad_limit: int):
+    original = source_dir(tmp_path)
+    with pytest.raises(ValueError, match="max_rounds"):
+        evaluate_delivery_rounds(
+            tmp_path / "none", original, tmp_path / "stages",
+            max_rounds=bad_limit,
+        )
