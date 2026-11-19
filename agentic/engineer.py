@@ -10,7 +10,6 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from dotenv import load_dotenv
 
 from pipeline import ROOT
 from .engineer_gate import EngineerLedger, evaluate_engineer
@@ -206,6 +205,7 @@ def main() -> None:
     parser.add_argument("--task-file", type=Path)
     parser.add_argument("--mode", choices=("rebuild", "improve"), default="rebuild")
     args = parser.parse_args()
+    from dotenv import load_dotenv
     load_dotenv(ROOT / ".env")
     spec = load_task_spec(
         repo_root=ROOT, path=args.task_file,
