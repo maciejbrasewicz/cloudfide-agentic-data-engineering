@@ -186,7 +186,8 @@ def test_system_is_one_portal_and_has_no_legacy_personal_branding():
     assert "human-in-the-loop" not in technical.lower()
     assert "cloudfide:language" in technical
     assert "data/agent_trace.json" not in technical
-    assert "api/live/start" in technical
+    assert "/api/delivery/launch" in technical
+    assert "api/live/start" not in technical
     assert 'location==="/engineering.html"' in server
 
 
