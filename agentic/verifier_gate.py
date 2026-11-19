@@ -5,7 +5,6 @@ import ast
 import hashlib
 import json
 from dataclasses import dataclass, field
-from pathlib import Path
 
 from .schemas.verifier import VerificationGate, VerificationReport
 
