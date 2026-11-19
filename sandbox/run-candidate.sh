@@ -6,6 +6,16 @@ set -u
 mkdir -p /tmp/cloudfide-candidate
 cp -R /input/. /tmp/cloudfide-candidate/
 cd /tmp/cloudfide-candidate || exit 90
+if [ "${RUN_MODE:-full}" = "verifier_only" ]; then
+    # Negative-control run: ONLY Verifier-authored tests, not employer tests,
+    # must expose the deliberately corrupted candidate implementation.
+    python -m pytest -q tests/test_verifier_generated.py > /out/tests.log 2>&1
+    verifier_result=$?
+    printf "%s\n" "$verifier_result" > /out/test_exit_code.txt
+    printf "%s\n" 98 > /out/pipeline_exit_code.txt
+    printf "%s\n" "Verifier mutation sensitivity check (pipeline not run)" > /out/pipeline.log
+    exit 0
+fi
 python -m pytest -q test_virtual_column.py tests > /out/tests.log 2>&1
 tests_result=$?
 printf "%s\n" "$tests_result" > /out/test_exit_code.txt
