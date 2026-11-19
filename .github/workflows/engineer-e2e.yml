@@ -1,4 +1,4 @@
-name: Foundry - real Data Engineer candidate authoring (P2)
+name: CloudFide - autonomous Data Engineering delivery
 
 # Trusted main only; no candidate Python is executed in an Azure/OIDC job.
 on:
