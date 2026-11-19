@@ -29,7 +29,26 @@
     {path:".github/workflows/engineer-e2e.yml",name:"GitHub Actions / Foundry",pl:"Jedno uruchomienie całego procesu, federacja OIDC tylko dla zaufanych etapów.",en:"One canonical delivery workflow; Azure OIDC only in trusted agent jobs."},
     {path:"showcase/delivery_gateway.mjs",name:"Public execution evidence",pl:"Bieżące joby pobierane z publicznego GitHub API; bez symulowanych stanów.",en:"Current jobs obtained from public GitHub API, without synthetic execution states."}
   ];
-  const state={enabled:false,id:null,timer:null,polling:false};
+  const state={enabled:false,id:null,timer:null,polling:false,submittedAt:null,workflowUrl:null,lastRun:null};
+  const savedKey="cloudfide.review.execution.v1";
+  function restore(){
+    try{
+      const saved=JSON.parse(sessionStorage.getItem(savedKey)||"null");
+      if(saved&&/^[0-9a-f-]{36}$/i.test(saved.id||"")){
+        state.id=saved.id;
+        state.submittedAt=saved.submittedAt||null;
+        state.workflowUrl=saved.workflowUrl||null;
+      }
+    }catch{/* Session storage is optional; never store the access code. */}
+  }
+  function preserve(){
+    try{
+      if(state.id)sessionStorage.setItem(savedKey,JSON.stringify({
+        id:state.id,submittedAt:state.submittedAt,workflowUrl:state.workflowUrl
+      }));
+      else sessionStorage.removeItem(savedKey);
+    }catch{/* The same live run can still be tracked without browser storage. */}
+  }
   function renderModules(){
     const node=$("technical-modules");node.replaceChildren();
     for(const item of modules){
@@ -43,119 +62,4 @@
       article.append(head,anchor);node.append(article);
     }
   }
-  const errors={
-    invalid_access_code:["Nieprawidłowy kod dostępu.","Invalid access code."],
-    daily_limit_or_active_run:["Limit uruchomień lub aktywny przebieg.","Run limit exceeded or execution already active."],
-    github_dispatch_failed:["Zlecenie do GitHub Actions zostało odrzucone.","GitHub Actions rejected the execution request."],
-    too_many_attempts:["Przekroczony limit prób uwierzytelnienia.","Too many authentication attempts."],
-    full_delivery_not_provisioned:["Uruchomienie pełnych agentów wymaga tokenu Actions i kodu recenzenta na serwerze.","Launching full agents requires a scoped Actions token and reviewer code on the server."],
-    daily_quota_or_active_execution:["Dzienny limit uruchomień lub inny aktywny przebieg.","Daily quota reached or another execution active."],
-    session_not_found_or_expired:["Przebieg jest niedostępny po wygaśnięciu sesji.","Run unavailable after the session expired."],
-    origin_not_allowed:["Żądanie nie pochodzi z tego serwisu.","Request origin is not permitted."]
-  };
-  const err=(key)=>local(...(errors[key]||["Nie udało się zrealizować żądania.","Request could not be completed."]));
-  async function capabilities(){
-    try{
-      const response=await fetch("/api/delivery/launch/capabilities",{cache:"no-store"});
-      if(!response.ok)throw Error("bad_gateway");
-      const info=await response.json();
-      state.enabled=info.liveReady===true;
-      $("technical-availability").textContent=state.enabled?
-        local("Gotowe do uruchomienia","Ready to launch"):
-        local("Uruchomienia na żądanie — nieaktywne","On-demand execution — not configured");
-      $("technical-availability-note").textContent=state.enabled?
-        local("Podaj kod rekrutera, aby uruchomić od nowa trzy role Foundry, izolowane testy i publikację draft PR. Maks. 5 uruchomień / 24 h.","Enter your private reviewer code to launch all three Foundry roles, isolated tests and draft PR delivery. Maximum 5 launches / 24 h."):
-        local("Start nowych agentów wymaga aktywnej konfiguracji serwera. Udokumentowane wcześniejsze wykonanie pozostaje dostępne.","New agent execution requires a configured server. Previously recorded evidence remains publicly available.");
-      $("technical-indicator").classList.toggle("available",state.enabled);
-      $("technical-start").disabled=!state.enabled||Boolean(state.id);
-    }catch{
-      state.enabled=false;
-      $("technical-availability").textContent=local("Bramka wykonawcza niedostępna","Execution gateway unavailable");
-      $("technical-availability-note").textContent=local("Historyczne wykonanie jest nadal dostępne.","The recorded execution remains accessible.");
-      $("technical-start").disabled=true;
-    }
-  }
-  function appendEvent(record){
-    const line=el("div","execution-event");
-    const seq=el("small","event-seq",String(record.seq).padStart(3,"0"));
-    const body=el("div","");
-    const p=record.payload||{};
-    const type=record.type==="agent.completed"?local("Raport agenta","Agent report"):
-      record.type==="tool.completed"?local("Narzędzie","Tool"):
-      record.type==="agent.timing"?local("Czas agenta","Agent timing"):record.type;
-    body.append(el("strong","",type+(p.role?" · "+p.role:"")+(p.tool?" · "+p.tool+"()":"")));
-    if(typeof p.summary==="string")body.append(el("p","",p.summary));
-    else if(Number.isFinite(p.duration_ms))body.append(el("p","",String(p.duration_ms)+" ms · "+(p.status||"")));
-    else if(Number.isFinite(p.total_ms))body.append(el("p","",String(p.total_ms)+" ms"));
-    body.append(el("small","",record.classification+" · "+record.at_utc));
-    line.append(seq,body);return line;
-  }
-  async function poll(){
-    if(!state.id||state.polling)return;
-    state.polling=true;
-    try{
-      const response=await fetch("/api/delivery/launch/session/"+encodeURIComponent(state.id),{cache:"no-store"});
-      const run=await response.json();
-      if(!response.ok)throw Error(run.error||"gateway_error");
-      $("technical-run-title").textContent=local("Wykonanie","Execution")+" "+state.id.slice(0,8)+" · "+run.status+(run.conclusion?" / "+run.conclusion:"");
-      const anchor=$("technical-run-link");
-      if(run.githubRunUrl){
-        const url=new URL(run.githubRunUrl);
-        if(url.protocol==="https:"&&url.hostname==="github.com"){anchor.href=url.href;anchor.hidden=false;}
-      }
-      const steps=$("technical-job-steps");steps.replaceChildren();
-      for(const job of run.jobs||[]){
-        const header=el("strong","execution-job-name",job.name+" · "+job.status);
-        steps.append(header);
-        for(const stage of job.steps||[]){
-          const cls=stage.conclusion==="success"?"passed":stage.conclusion==="failure"?"failed":stage.status==="in_progress"?"running":"";
-          const row=el("div","execution-step "+cls);
-          row.append(el("span","",stage.name),el("small","",stage.conclusion||stage.status||"pending"));
-          steps.append(row);
-        }
-      }
-      const events=$("technical-live-events");events.replaceChildren();
-      for(const e of run.events||[])events.append(appendEvent(e));
-      if(run.status==="completed"){
-         clearInterval(state.timer);state.timer=null;
-         // Keep this execution's jobs visible, but allow another authorized
-         // launch after server-side quota and concurrency checks.
-         state.id=null;
-         $("technical-start").disabled=!state.enabled;
-         void capabilities();
-       }
-      $("technical-error").textContent="";
-    }catch(e){$("technical-error").textContent=err(e.message);}
-    finally{state.polling=false;}
-  }
-  async function start(event){
-    event.preventDefault();
-    if(!state.enabled||state.id)return;
-    const input=$("technical-access");const accessCode=input.value;
-    if(accessCode.length<24){$("technical-error").textContent=err("invalid_access_code");return;}
-    $("technical-start").disabled=true;
-    $("technical-error").textContent="";
-    try{
-      const response=await fetch("/api/delivery/launch",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({accessCode})
-      });
-      const body=await response.json();
-      if(!response.ok)throw Error(body.error||"gateway_error");
-      input.value="";
-      state.id=body.id;
-      $("technical-run").hidden=false;
-      await poll();
-      // A fast completed run clears state.id inside poll(). Do not leave
-      // a permanent no-op interval running after completion.
-      if(state.id&&!state.timer)state.timer=setInterval(poll,6000);
-    }catch(e){
-      $("technical-error").textContent=err(e.message);
-      $("technical-start").disabled=false;
-    }
-  }
-  window.addEventListener("cloudfide:language",()=>{renderModules();if(!state.id)capabilities();});
-  $("technical-start-form").addEventListener("submit",start);
-  renderModules();capabilities();
-})();
+  // REPLACED
