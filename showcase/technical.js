@@ -30,6 +30,12 @@
     {path:"showcase/delivery_gateway.mjs",name:"Public execution evidence",pl:"Bieżące joby pobierane z publicznego GitHub API; bez symulowanych stanów.",en:"Current jobs obtained from public GitHub API, without synthetic execution states."}
   ];
   const state={enabled:false,id:null,timer:null,polling:false};
+  const sessionKey="cloudfide-active-review-request";
+  const uuidPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  try{
+    const saved=sessionStorage.getItem(sessionKey);
+    if(uuidPattern.test(saved||""))state.id=saved;
+  }catch{/* Restricted browser storage must not break the portal. */}
   function renderModules(){
     const node=$("technical-modules");node.replaceChildren();
     for(const item of modules){
@@ -105,7 +111,9 @@
       }
       const steps=$("technical-job-steps");steps.replaceChildren();
       for(const job of run.jobs||[]){
-        const header=el("strong","execution-job-name",job.name+" · "+job.status);
+        const duration=Number.isFinite(job.jobDurationMs)?
+          " · "+(job.jobDurationMs/1000).toFixed(1)+" s "+local("czas joba","job elapsed"):"";
+        const header=el("strong","execution-job-name",job.name+" · "+job.status+duration);
         steps.append(header);
         for(const stage of job.steps||[]){
           const cls=stage.conclusion==="success"?"passed":stage.conclusion==="failure"?"failed":stage.status==="in_progress"?"running":"";
@@ -140,7 +148,9 @@
       const body=await response.json();
       if(!response.ok)throw Error(body.error||"gateway_error");
       input.value="";
+      if(!uuidPattern.test(body.id||""))throw Error("invalid_session_id");
       state.id=body.id;
+      try{sessionStorage.setItem(sessionKey,state.id);}catch{}
       $("technical-run").hidden=false;
       await poll();
       state.timer=setInterval(poll,6000);
@@ -152,4 +162,9 @@
   window.addEventListener("cloudfide:language",()=>{renderModules();if(!state.id)capabilities();});
   $("technical-start-form").addEventListener("submit",start);
   renderModules();capabilities();
+  if(state.id){
+    $("technical-run").hidden=false;
+    poll();
+    state.timer=setInterval(poll,6000);
+  }
 })();
