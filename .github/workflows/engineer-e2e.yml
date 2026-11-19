@@ -12,6 +12,15 @@ on:
         options:
           - rebuild
           - improve
+      max_rounds:
+        description: "Maximum independent candidate iterations (1-3)"
+        type: choice
+        required: true
+        default: "3"
+        options:
+          - "1"
+          - "2"
+          - "3"
   push:
     branches: [main]
     paths:
@@ -237,7 +246,7 @@ jobs:
   rework-r2:
     name: Data Engineer repairs actual P3 failing tests (iteration 2)
     needs: [architect, engineer, sandbox-validate]
-    if: ${{ always() && needs.architect.result == 'success' && needs.engineer.result == 'success' && needs['sandbox-validate'].outputs.candidate_status == 'FAILED' }}
+    if: ${{ always() && fromJSON(inputs.max_rounds || '3') >= 2 && needs.architect.result == 'success' && needs.engineer.result == 'success' && needs['sandbox-validate'].outputs.candidate_status == 'FAILED' }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     permissions:
@@ -409,7 +418,7 @@ jobs:
   rework-r3:
     name: Data Engineer third and final evidence-driven correction (iteration 3)
     needs: [architect, rework-r2, sandbox-rework-r2]
-    if: ${{ always() && needs.architect.result == 'success' && needs['rework-r2'].result == 'success' && needs['sandbox-rework-r2'].outputs.candidate_status == 'FAILED' }}
+    if: ${{ always() && fromJSON(inputs.max_rounds || '3') >= 3 && needs.architect.result == 'success' && needs['rework-r2'].result == 'success' && needs['sandbox-rework-r2'].outputs.candidate_status == 'FAILED' }}
     runs-on: ubuntu-latest
     timeout-minutes: 24
     permissions:
@@ -608,6 +617,7 @@ jobs:
           uv run --no-sync python -m agentic.delivery_status \
             --artifacts collected-evidence \
             --original . \
+            --max-rounds "${{ inputs.max_rounds || '3' }}" \
             --output-dir state-evidence
       - name: Publish final state, source provenance and all iteration history
         if: always()
