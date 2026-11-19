@@ -1,4 +1,5 @@
 name: CloudFide - autonomous Data Engineering delivery
+run-name: CloudFide delivery · ${{ inputs.review_request_id || github.run_id }}
 
 # Trusted main only; no candidate Python is executed in an Azure/OIDC job.
 on:
@@ -26,6 +27,11 @@ on:
         type: boolean
         required: true
         default: true
+      review_request_id:
+        description: "Optional reviewer execution correlation ID, no credentials"
+        type: string
+        required: false
+        default: ""
 
 concurrency:
   group: cloudfide-engineer-p2
