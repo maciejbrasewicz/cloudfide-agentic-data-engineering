@@ -7,6 +7,7 @@ on:
     paths:
       - "showcase/**"
       - ".github/workflows/production-portal-smoke.yml"
+      - "scripts/verify_live_delivery_feed.py"
 
 permissions:
   contents: read
@@ -17,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Verify LIVE portal routes only after deployment is online
         shell: bash
         env:
@@ -74,7 +78,7 @@ jobs:
           assert doc["sourceSha256"] == "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4"
           print("Verified immutable original CSV and five revenue regions")
           PY
-      - name: Check public live job feed and exact SHA verification
+      - name: Check live GitHub delivery and fail closed on unsupported verification claims
         shell: bash
         env:
           BASE: https://engineering-intelligence-production-a972180f.up.railway.app
@@ -83,19 +87,9 @@ jobs:
           curl --fail --silent --show-error --max-time 20 \
             "$BASE/api/delivery/latest" \
             -o "$RUNNER_TEMP/cloudfide-http/latest.json"
-          python - "$RUNNER_TEMP/cloudfide-http/latest.json" <<'PY'
-          import json,sys
-          doc = json.load(open(sys.argv[1], encoding="utf-8"))
-          assert doc["available"] is True
-          assert doc["run"]["id"] == 44485096373, "Latest execution changed; inspect actual new run"
-          assert doc["run"]["conclusion"] == "success"
-          p = doc["publication"]
-          assert p["status"] == "verified_draft_awaiting_human", p
-          assert p["pullRequest"]["number"] == 35
-          assert p["pullRequest"]["headSha"] == "73ab197159f8ed5a595bdd99a88b01707371d12e"
-          assert p["exactCi"]["state"] == "success"
-          print("Live portal has independent verified draft PR #35")
-          PY
+          # Latest means latest, not always the historical successful run #44485096373.
+          # Reject false verified claims; ongoing and genuinely unverified runs remain honest.
+          python scripts/verify_live_delivery_feed.py "$RUNNER_TEMP/cloudfide-http/latest.json"
       - name: Publish privacy-safe run summary
         if: always()
         shell: bash
