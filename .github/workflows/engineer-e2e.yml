@@ -991,3 +991,54 @@ jobs:
           path: policy-review/request.md
           if-no-files-found: ignore
           retention-days: 30
+
+
+  delivery-telemetry:
+    name: Collect measured agent time, retries and verification outcome (no model text)
+    needs: [architect, engineer, p5-state, verifier, adversarial, publish-draft-pr]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: collected-evidence
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install trusted reporting dependencies and run provenance tests
+        run: |
+          uv sync --locked --extra quality
+          uv run --no-sync python -m pytest tests/test_delivery_metrics.py tests/test_role_telemetry.py
+          uv run --no-sync python -m ruff check agentic/delivery_metrics.py agentic/role_telemetry.py
+      - name: Fetch ACTUAL GitHub Actions job timestamps
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" > jobs.json
+      - name: Build privacy-safe operational metrics from source and role receipts
+        run: |
+          uv run --no-sync python -m agentic.delivery_metrics \
+            --jobs jobs.json \
+            --artifacts collected-evidence \
+            --run-id "$GITHUB_RUN_ID" \
+            --base-sha "$GITHUB_SHA" \
+            --output delivery-telemetry/run_metrics.json
+      - name: Attach source-run telemetry and model-usage limitations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-operational-telemetry
+          path: delivery-telemetry/run_metrics.json
+          retention-days: 30
+          if-no-files-found: warn
