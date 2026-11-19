@@ -63,7 +63,7 @@ different from the replay command above.
 
 ## Start all three Foundry roles from one portal
 
-The single portal includes an authorized **full delivery launch** panel immediately below the global header, above the task overview. It explains what a fresh run does, while the technology stack and gated P1–P6 workflow are separate cards below. The panel was previously located under
+The single portal includes an authorized **full delivery launch** panel below the main product introduction, above the task overview. It explains what a fresh run does, while the technology stack and gated P1–P6 workflow are separate cards below. The panel was previously located under
 System. Its backend uses a repository-scoped GitHub token stored **only in
 Railway**, never sent to the browser:
 
@@ -140,3 +140,7 @@ historical facts. The model cannot silently change these policy choices.
 The production Railway protected endpoint accepted the one-time authenticated request and issued GitHub `workflow_dispatch` [#44501856719](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44501856719), confirming Railway → GitHub execution without revealing the reviewer code. That run exposed an actual GitHub skipped-job dependency: P5 accepted round 2 while Verifier and P4 were skipped. PR #40 fixes the transition, PR #41 prevents a false green verdict in the portal, and PR #42 adds a mandatory final job-level acceptance. A **new real full run** must confirm Verifier, P4, draft PR and separate exact-SHA CI after the fix. A green historical workflow without P4 is not acceptance.
 
 The launcher permits up to five real `workflow_dispatch` attempts per rolling 24 hours, one active run, and a short server-side launch cooldown. The reviewer access code is a service-only Railway secret; it must not be committed to GitHub or inserted into public documentation.
+
+## Recruiter real-time progress presentation
+
+After private authorization, the portal displays the GitHub workflow link as soon as the dispatch is accepted, then binds the run to its exact correlation ID and public GitHub run ID. The reviewer sees actually observed Architect/Engineer/P3 retries/P5/Verifier/P4/P6/final-gate job results, the currently executing GitHub Actions step, elapsed time, failure or skipped phase labels, and a source link. A queued or not-yet-observed run is explicitly not represented as executing agents. A browser reload within the same tab retains only the random run/session ID and not the private reviewer code. When publication succeeds, the portal resolves the exact run's draft PR and its separate candidate exact-SHA CI state. Creating a draft PR is automatic after positive gates; merging remains human-reviewed. Timing is variable; the interface warns about multi-minute duration and possible long GitHub queues.
