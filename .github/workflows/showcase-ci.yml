@@ -38,7 +38,7 @@ jobs:
           node --check showcase/delivery_launch.mjs
           node --check showcase/live_gateway.mjs
           node --check showcase/server.mjs
-          node --test showcase/server.test.mjs showcase/live_gateway.test.mjs showcase/delivery_gateway.test.mjs showcase/delivery_status.test.mjs showcase/independent_oracle.test.mjs showcase/recalculation_gateway.test.mjs showcase/delivery_launch.test.mjs
+          node --test showcase/server.test.mjs showcase/live_gateway.test.mjs showcase/delivery_gateway.test.mjs showcase/delivery_status.test.mjs showcase/independent_oracle.test.mjs showcase/recalculation_gateway.test.mjs showcase/delivery_launch.test.mjs showcase/technical_launch_ui.test.mjs
       - uses: astral-sh/setup-uv@v6
       - uses: actions/setup-python@v5
         with:

@@ -147,7 +147,9 @@
       state.id=body.id;
       $("technical-run").hidden=false;
       await poll();
-      state.timer=setInterval(poll,6000);
+      // A fast completed run clears state.id inside poll(). Do not leave
+      // a permanent no-op interval running after completion.
+      if(state.id&&!state.timer)state.timer=setInterval(poll,6000);
     }catch(e){
       $("technical-error").textContent=err(e.message);
       $("technical-start").disabled=false;
