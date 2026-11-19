@@ -111,13 +111,13 @@ test("public portal cannot invoke arbitrary endpoints",async()=>{
   assert.equal((await fetch(origin+"/live_gateway.mjs")).status,404);
 });
 
-test("recruiter launch is first under header, with honest multiagent workflow and a single form",async()=>{
+test("recruiter launch follows the hero; progress panel and one authorized form remain on the same page",async()=>{
   const html=await (await fetch(origin+"/?lang=pl")).text();
   const entry=html.indexOf('id="reviewer-execution"');
   const intro=html.indexOf('id="intro"');
   const technical=html.indexOf('id="technical"');
   assert.ok(entry>=0&&intro>=0&&technical>=0);
-  assert.ok(entry<intro&&intro<technical);
+  assert.ok(intro<entry&&entry<technical);
   assert.equal(html.split('id="technical-start-form"').length-1,1);
   assert.equal(html.split('id="full-agent-console"').length-1,1);
   assert.match(html,/Zadanie i zasady/);
@@ -125,7 +125,11 @@ test("recruiter launch is first under header, with honest multiagent workflow an
   assert.match(html,/Data Engineer/);
   assert.match(html,/Verification Engineer/);
   assert.match(html,/Sandbox i kontroler/);
-  assert.match(html,/5 uruchomień w ciągu 24 godzin/);
+  assert.match(html,/5 startów \/ 24 h/);
   assert.match(html,/WYKORZYSTANE TECHNOLOGIE/);
   assert.match(html,/CYKL DOSTARCZENIA KODU/);
+  assert.match(html,/id="technical-run-outcome"/);
+  assert.match(html,/id="technical-run-explainer"/);
+  assert.match(html,/id="technical-run-meta"/);
+  assert.doesNotMatch(html,/header-launch-action/);
 });

@@ -1,6 +1,6 @@
 # CloudFide — execution, deliverables and reviewer access
 
-> **Current validated run (19 Nov 2026):** [full three-agent execution #44485096373](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373) created [draft PR #35](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35) **automatically**; separate [exact-SHA CI #44487613707](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44487613707) is successful. The older #44433630928 / PR #28 below remains a historical first complete multiagent example. For execution, governance and reviewer setup see [the current reviewer runbook](reviewer-runbook.md).
+> **Historical validated run (19 Nov 2026):** [full three-agent execution #44485096373](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373) created [draft PR #35](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35) **automatically**; separate [exact-SHA CI #44487613707](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44487613707) is successful. The older #44433630928 / PR #28 below remains a historical first complete multiagent example. For execution, governance and reviewer setup see [the current reviewer runbook](reviewer-runbook.md).
 
 ## Two layers, one product
 
@@ -96,7 +96,7 @@ The repository owner's separate Actions setting **Allow GitHub Actions to
 create and approve pull requests** is required for automatic creation of
 future draft PRs. The owner reports enabling it on 19 November 2026.
 This permission is not evidence that a new automated PR has been tested:
-that requires an actual new full Foundry run. The protected launch is available after Railway service variables are provisioned, and the form is immediately below the global header on the same public portal.
+that requires an actual new full Foundry run. The protected launch is available after Railway service variables are provisioned, and the form is directly after the product hero on the same public portal.
 
 ### Source links
 
@@ -114,3 +114,9 @@ that requires an actual new full Foundry run. The protected launch is available 
 ## Production reviewer launch verification
 
 The one-time authorized Railway HTTP POST generated real GitHub Actions `workflow_dispatch` [#44501856719](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44501856719). Architect, Engineer, P3, round-two repair and P5 actually ran. Verifier and P4 were skipped due to a downstream GitHub job condition, not because an agent claimed they had run. Fixes #40–#42 now make this transition explicit and fail closed, while a new full run is required to validate the corrected path. The recruiter UI never treats this false-green historical execution as verified delivery.
+
+## Production acceptance confirmed: reviewer portal (19 November 2026)
+
+A private reviewer code on Railway genuinely dispatched [GitHub Actions run #44509432197](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44509432197). Architect, Engineer (three candidate iterations), P3, P5, independent Verification Engineer, P4 positive and mutation tests, automatic draft-PR publisher, telemetry and the final fail-closed acceptance all completed successfully. This produced [draft PR #48](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/48) without requiring reviewer approval to create the PR. [Independent exact-SHA candidate CI #44512412721](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44512412721) is successful on the published candidate commit `fbebfefd7600f69d7b50507b4c9d0eb58f59a774`. The draft remains unmerged pending human code review. Historical source run #44485096373 / PR #35 remains an archived example, not the latest verified workflow.
+
+A separate one-time push acceptance run #44508892159 was rejected by its mandatory terminal gate when the generated third candidate failed P3; this is expected fail-closed behavior. The previous long `pending` experience arose in part because the launcher checked only `workflow_dispatch` runs for concurrency even though one-time `push` acceptance used the same GitHub concurrency group. The corrected launch guard checks **all** active runs but counts only authenticated reviewer-dispatched runs toward the five-per-24-hour quota. The UI shows a source-grounded timeline and links the automatic draft PR as soon as GitHub publication is verified.
