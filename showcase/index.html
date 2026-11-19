@@ -24,17 +24,61 @@
  <div class="container header-inner">
   <a class="logo" href="#intro"><b>CF<span class="slash">/</span></b><span>Agentic Data Engineering<small>MICROSOFT FOUNDRY × DATA ENGINEERING</small></span></a>
   <nav class="nav" aria-label="Sections"><a href="#task" data-i18n="navTask">Zadanie</a><a href="#architecture" data-i18n="navArchitecture">Architektura</a><a href="#execution" data-i18n="navAgents">Wykonanie</a><a href="#data" data-i18n="navData">Wyniki</a><a href="#technical" class="engineering-nav-link" data-i18n="navLab">System</a><a href="#evidence" data-i18n="navProof">Dowody</a></nav>
-  <div class="header-end"><div class="lang" role="group" aria-label="Language / Język"><button type="button" id="pl" data-lang="pl" aria-pressed="true">PL</button><button type="button" id="en" data-lang="en" aria-pressed="false">EN</button></div><a class="run-link" target="_blank" rel="noopener noreferrer" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373"><span data-i18n="originalRun">Oryginalny przebieg</span> ↗</a></div>
+  <div class="header-end"><div class="lang" role="group" aria-label="Language / Język"><button type="button" id="pl" data-lang="pl" aria-pressed="true">PL</button><button type="button" id="en" data-lang="en" aria-pressed="false">EN</button></div><a class="header-launch-action" href="#reviewer-execution" data-i18n="headerLaunch">Uruchom proces</a></div>
  </div>
 </header>
 <main id="main">
+<section class="reviewer-entry" id="reviewer-execution" data-section="reviewer-execution" aria-labelledby="recruiter-launch-title">
+ <div class="container reviewer-entry-grid">
+  <div class="reviewer-entry-intro">
+   <div class="reviewer-entry-kicker"><span class="ink-dot"></span><span data-i18n="entryEyebrow">LIVE EXECUTION / MICROSOFT FOUNDRY</span></div>
+   <h2 id="recruiter-launch-title" data-i18n="entryTitle">Uruchom nową realizację zadania</h2>
+   <p class="reviewer-entry-lead" data-i18n="entryIntro">Autoryzowany rekruter może uruchomić rzeczywisty proces rozwiązania zadania Data Engineering — od analizy wymagań i napisania nowego kodu po niezależne testy i przygotowanie pull requesta do przeglądu.</p>
+   <div class="reviewer-entry-steps" aria-label="Scope of the new execution">
+    <div><span>01</span><div><strong>Data Architect</strong><small data-i18n="entryArchitect">Analizuje dane i ustala kontrakt implementacji.</small></div></div>
+    <div><span>02</span><div><strong>Data Engineer · P3 / P5</strong><small data-i18n="entryEngineer">Tworzy kod; sandbox testuje i kieruje poprawkami (maks. 3 próby).</small></div></div>
+    <div><span>03</span><div><strong>Verifier · P4 / P6</strong><small data-i18n="entryVerifier">Niezależnie kwestionuje wynik; po zaliczeniu powstaje draft PR do oceny człowieka.</small></div></div>
+   </div>
+   <a class="reviewer-entry-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Otwórz pełny workflow GitHub Actions ↗</a>
+  </div>
+  <div class="technical-launch-full" id="full-agent-console">
+   <div class="technical-console">
+    <div class="console-status"><div><span class="console-label" data-i18n="execStatusLabel">GOTOWOŚĆ URUCHOMIENIA</span><strong id="technical-availability" data-i18n="execChecking">Sprawdzanie połączenia</strong><p id="technical-availability-note"></p></div><span class="console-indicator" id="technical-indicator" aria-hidden="true"></span></div>
+    <form id="technical-start-form" class="technical-start-form" autocomplete="off">
+     <label for="technical-access" data-i18n="accessLabel">Prywatny kod dostępu</label>
+     <div class="technical-controls"><input id="technical-access" type="password" minlength="24" maxlength="128" spellcheck="false" autocomplete="off" required placeholder="Reviewer access code"><button type="submit" id="technical-start" disabled data-i18n="startRun">Uruchom pełny proces</button></div>
+     <p class="execution-limits" data-i18n="executionLimits">Do 5 uruchomień w ciągu 24 godzin, maksymalnie 1 aktywny proces. Każde uruchomienie wykonuje nowe zadanie agentowe w GitHub Actions. Ostateczny kod trafia do draft PR — bez automatycznego scalania.</p>
+    </form>
+    <div id="technical-run" hidden><div class="technical-run-header"><strong id="technical-run-title"></strong><a id="technical-run-link" hidden target="_blank" rel="noopener noreferrer" data-i18n="openJob">Otwórz wykonanie w GitHub Actions ↗</a></div><div id="technical-job-steps" class="technical-job-steps"></div><div id="technical-live-events" class="technical-live-events" aria-live="polite"></div></div>
+    <p id="technical-error" role="status" aria-live="polite"></p>
+   </div>
+  </div>
+ </div>
+</section>
 <section class="intro container" id="intro" data-section="overview">
  <div class="intro-main">
   <div class="kicker"><span class="ink-dot"></span><span data-i18n="kicker">DATA ENGINEERING / VERIFIED EXECUTION</span></div>
   <h1 data-i18n="heroTitle">ETL sprzedażowy i kontrolowane wytwarzanie przez agentów.</h1>
   <p class="lead" data-i18n="heroLead">Rozwiązanie Data Engineering i trzy role Microsoft Foundry: projektowanie kontraktu, rzeczywiste pisanie kodu oraz niezależna weryfikacja. Przebiegi, testy i kod w jednym serwisie.</p>
   <div class="hero-actions"><a class="primary-button" href="#execution"><span data-i18n="heroAction">Zobacz pracę agentów</span> <span>↘</span></a><a class="secondary-button" href="#technical"><span data-i18n="heroLab">Specyfikacja techniczna</span> <span>↘</span></a></div>
-  <div class="tech-tags"><span>Microsoft Foundry</span><span>Agent Framework</span><span>Evidence gates</span><span>Python / Decimal</span><span>GitHub OIDC</span></div>
+  <div class="hero-system-map" aria-label="Technologies and delivery workflow">
+   <div class="hero-system-group">
+    <div class="hero-system-head"><span data-i18n="heroStackLabel">01 / WYKORZYSTANE TECHNOLOGIE</span><p data-i18n="heroStackDesc">Orkiestracja, implementacja i niezależna weryfikacja.</p></div>
+    <div class="hero-technology-list"><span>Microsoft Foundry · gpt-5.6-sol</span><span>Microsoft Agent Framework</span><span>GitHub Actions · Azure OIDC</span><span>Python · pandas · Decimal</span><span>Docker · pytest · Pydantic</span><span>SHA-256 · CI / PR</span></div>
+   </div>
+   <div class="hero-system-group">
+    <div class="hero-system-head"><span data-i18n="heroFlowLabel">02 / CYKL DOSTARCZENIA KODU</span><p data-i18n="heroFlowDesc">Trzy wyspecjalizowane role agentów i deterministyczne bramki pomiędzy nimi.</p></div>
+    <ol class="hero-workflow">
+     <li><small>01 / INPUT</small><strong data-i18n="flowInputTitle">Zadanie i zasady</strong><span data-i18n="flowInputDesc">Specyfikacja i polityka zatwierdzona przez człowieka.</span></li>
+     <li><small>02 / AGENT</small><strong>Data Architect</strong><span data-i18n="flowArchitectDesc">Profil danych i kontrakt implementacji.</span></li>
+     <li><small>03 / AGENT</small><strong>Data Engineer</strong><span data-i18n="flowEngineerDesc">Kod, testy i poprawki po błędach.</span></li>
+     <li><small>04 / P3 · P5</small><strong data-i18n="flowSandboxTitle">Sandbox i kontroler</strong><span data-i18n="flowSandboxDesc">Izolowane testy, rekonsyliacja i maks. 3 iteracje.</span></li>
+     <li><small>05 / P4 · AGENT</small><strong>Verification Engineer</strong><span data-i18n="flowVerifierDesc">Nowy test oraz kontrolowany kontrprzykład.</span></li>
+     <li><small>06 / P6 · REVIEW</small><strong>Draft PR · CI</strong><span data-i18n="flowReviewDesc">Weryfikacja SHA i przegląd człowieka; bez auto-merge.</span></li>
+    </ol>
+    <p class="hero-workflow-note" data-i18n="flowGovernanceNote">GitHub Actions steruje przejściami. Architect projektuje rozwiązanie, nie tworzy pozostałych agentów. Zmiany reguł biznesowych wymagają osobnej decyzji człowieka.</p>
+   </div>
+  </div>
  </div>
  <aside class="hero-proof" aria-label="Verified results">
   <div class="proof-header"><span data-i18n="resultCard">P3 + P4 + NIEZALEŻNY CI: ZALICZONE</span><span>RUN #44485096373</span></div>
@@ -139,22 +183,6 @@
    <article><span>02 / ENGINEERING</span><h3 data-i18n="engineeringTitle">Implementacja i kontrola zmian</h3><p data-i18n="engineeringDesc">Wersjonowany kod Python, testy regresyjne, walidacja Pandera i kontrola zmian przez pull requesty.</p><code>solution.py · pipeline.py</code></article>
    <article><span>03 / AGENT ORCHESTRATION</span><h3 data-i18n="orchestrationTitle">Trzy role dostarczania kodu</h3><p data-i18n="orchestrationDesc">Data Architect projektuje, Data Engineer tworzy pliki, Verification Engineer pisze niezależne testy. Przejścia egzekwuje kod.</p><code>agentic/architect.py · engineer.py · verifier.py</code></article>
    <article><span>04 / ASSURANCE</span><h3 data-i18n="assuranceTitle">Niezależna weryfikacja i dowody</h3><p data-i18n="assuranceDesc">Oryginalne testy, sandbox bez sieci, Decimal, SHA-256, próby naprawcze i kontrola draft PR.</p><code>agentic/delivery_status.py · verifier_verdict.py</code></article>
-  </div>
-  <div class="technical-launch-full" id="full-agent-console">
-  <div class="technical-head">
-   <div><span class="section-no">EXECUTION CONTROL</span><h3 data-i18n="launchHeading">Uruchomienie workflow Microsoft Foundry</h3><p data-i18n="launchLead">Zlecenie nowego przebiegu przez GitHub Actions. Status jobów i zdarzenia są pobierane z rzeczywistego wykonania; brak dostępu do sekretów i możliwości zmian w repozytorium.</p></div>
-   <a class="technical-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Uruchom przez GitHub Actions ↗</a>
-  </div>
-  <div class="technical-console">
-    <div class="console-status"><div><span class="console-label" data-i18n="execStatusLabel">STAN USŁUGI</span><strong id="technical-availability" data-i18n="execChecking">Weryfikacja możliwości uruchomienia</strong><p id="technical-availability-note"></p></div><span class="console-indicator" id="technical-indicator" aria-hidden="true"></span></div>
-    <form id="technical-start-form" class="technical-start-form" autocomplete="off">
-      <label for="technical-access" data-i18n="accessLabel">Kod dostępu do wykonania</label>
-      <div class="technical-controls"><input id="technical-access" type="password" minlength="20" maxlength="128" spellcheck="false" autocomplete="off" placeholder="Execution access code"><button type="submit" id="technical-start" disabled data-i18n="startRun">Uruchom w Foundry</button></div>
-      <p data-i18n="executionLimits">Pełny proces Architect → Engineer → Verifier wymaga autoryzacji. Limit: 2 uruchomienia dziennie i 1 aktywne. Wyniki publikowane w GitHub Actions, a po pozytywnych bramkach jako draft PR.</p>
-    </form>
-    <div id="technical-run" hidden><div class="technical-run-header"><strong id="technical-run-title"></strong><a id="technical-run-link" hidden target="_blank" rel="noopener noreferrer" data-i18n="openJob">Otwórz wykonanie w GitHub Actions ↗</a></div><div id="technical-job-steps" class="technical-job-steps"></div><div id="technical-live-events" class="technical-live-events" aria-live="polite"></div></div>
-    <p id="technical-error" role="status" aria-live="polite"></p>
-  </div>
   </div>
   <details class="technical-details"><summary><span data-i18n="implementationDetails">Moduły, uprawnienia i kontrakty wykonawcze</span><span aria-hidden="true">+</span></summary>
     <div class="technical-modules" id="technical-modules"></div>
