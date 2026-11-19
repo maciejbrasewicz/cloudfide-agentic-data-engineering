@@ -217,7 +217,7 @@
   const pending=[
     ["Nowe wykonania: prywatny kod; brak automatycznego scalenia PR","Fresh execution requires a private code; PR never auto-merges"],
     ["GitHub MCP: integracja kodu; walidacja przebiegu live","GitHub MCP: integrated; live runtime verification pending"],
-    ["Nowy niezależny Verifier/P4: walidacja produkcyjna trwa; wyniku nie należy zakładać","New independent Verifier/P4: production acceptance is still being validated"],
+    ["Wynik każdego nowego przebiegu jest osobno weryfikowany w P3/P4 i dokładnym SHA CI","Each new run is independently validated by P3/P4 and exact-SHA CI"],
     ["Application Insights: brak potwierdzonego eksportu trace","Application Insights: exporter not verified"],
     ["Koszt modelu: brak potwierdzonych stawek rozliczeniowych","Model cost: deployment billing rates not verified"],
     ["Ewaluacja skuteczności agentów: bez benchmarku","Agent effectiveness evaluation: no independent benchmark"]
