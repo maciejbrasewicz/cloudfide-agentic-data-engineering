@@ -166,3 +166,48 @@
 
 .reviewer-code-excerpt{margin:0;padding:16px 18px;overflow-x:auto;max-height:330px;background:#1f2922;color:#dfe9e1;border:1px solid #2d3a30;white-space:pre;text-align:left}
 .reviewer-code-excerpt code{font:11px/1.7 var(--mono);background:transparent;color:inherit}
+
+
+/* Real agent delivery status: factual milestones, not a simulated progress bar. */
+#technical-run{background:#fcfdfc;border-top:1px solid #d8e4db}
+.technical-run-header{align-items:flex-start}
+.technical-run-header>div{min-width:0}
+.technical-run-header strong{font:600 16px/1.45 var(--display);display:block;margin:7px 0}
+.technical-run-header strong.run-failure{color:#9a453b}
+#technical-run-explainer{color:#51695a;font:12px/1.7 var(--sans);max-width:670px;margin:8px 0 0}
+.technical-run-header>a{min-width:112px;text-align:right}
+.technical-run-meta{display:flex;flex-wrap:wrap;gap:6px 13px;padding:13px 0;border-top:1px solid #e4eae4;font:10px/1.55 var(--mono);color:#698075}
+.technical-job-steps{list-style:none;margin:10px 0 14px;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.technical-milestone{min-width:0;border:1px solid #dde5dd;border-left:3px solid #adbdb1;background:#fff;padding:11px 12px;display:flex;flex-direction:column;gap:6px}
+.technical-milestone strong{font:600 12px/1.4 var(--sans);color:#2f4234;overflow-wrap:anywhere}
+.technical-milestone small{font:10px/1.5 var(--mono);color:#718374}
+.technical-milestone p{font:11px/1.55 var(--sans);color:#546958;margin:0;overflow-wrap:anywhere}
+.technical-milestone.passed{border-left-color:#468b58;background:#f5faf6}
+.technical-milestone.running{border-left-color:#bd8e37;background:#fffcf3}
+.technical-milestone.running small{color:#99702c;font-weight:600}
+.technical-milestone.failed{border-left-color:#c15849;background:#fff7f5}
+.technical-milestone.failed small{color:#aa4d43;font-weight:600}
+.technical-milestone.skipped{opacity:.78}
+.technical-run-outcome{font:11px/1.7 var(--sans)}
+.technical-run-outcome:not(:empty){border-top:1px solid #dfe9e0;padding:14px 0}
+.technical-publication{padding:17px;background:#f1f8f2;border:1px solid #cddfce;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.technical-publication strong{font:600 14px/1.45 var(--display);color:#26613d}
+.technical-publication p{margin:0}
+.technical-publication small{font:10px var(--mono);color:#4e7058}
+.technical-pr-link{font:600 11px var(--mono);color:#286540;text-decoration:underline;text-underline-offset:4px}
+.technical-run-failure{border-left:2px solid #b75f54;color:#8b493f;padding:10px 12px;background:#fcf5f3;margin:5px 0 0}
+.technical-awaiting-publication{color:#627867;margin:0}
+.technical-run-raw{border-top:1px solid #dfe7df;margin-top:6px}
+.technical-run-raw summary{cursor:pointer;font:600 11px/1.6 var(--sans);color:#42684d;padding:14px 0;list-style:none}
+.technical-run-raw summary::-webkit-details-marker{display:none}
+.technical-run-raw summary::before{content:"+ ";font:15px var(--mono)}
+.technical-run-raw[open] summary::before{content:"− "}
+.technical-live-events{max-height:480px;overflow:auto;border-top:1px solid #e1eae1}
+.technical-raw-job{padding:13px 2px;border-bottom:1px solid #e0e9e1;overflow-wrap:anywhere}
+.technical-raw-job strong{font:600 11px/1.5 var(--mono);color:#344d3b;display:block}
+.technical-raw-job a{font:10px/1.5 var(--mono);color:#356445;display:block;margin-top:4px}
+.technical-raw-job p{font:10px/1.6 var(--sans);color:#607567;margin:6px 0 0}
+#technical-error:not(:empty){padding-top:14px;padding-bottom:14px;background:#fff8f6;border-top:1px solid #ead4d1}
+@media(max-width:1200px){.technical-job-steps{grid-template-columns:1fr}}
+@media(max-width:960px){.technical-job-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.technical-job-steps{grid-template-columns:1fr}.technical-run-header{flex-direction:column}.technical-run-header>a{text-align:left}}
