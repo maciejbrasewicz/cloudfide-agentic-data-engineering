@@ -237,8 +237,8 @@ def _atomic_json(path: Path, payload: dict) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run a real read-only Foundry Verifier")
-    parser.add_argument("--engineer-dir", type=Path, required=True)
-    parser.add_argument("--p3-dir", type=Path, required=True)
+    parser.add_argument("--run-artifacts", type=Path, required=True,
+                        help="All same-run Actions artifacts, including P5 state")
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--task-file", type=Path)
     args = parser.parse_args()
@@ -249,6 +249,28 @@ def main() -> None:
         repo_root=ROOT, path=args.task_file,
         encoded=os.getenv("CLOUDFIDE_TASK_SPEC_B64") or None,
     )
+    from .delivery_status import ROUNDS
+    state = json.loads(
+        (args.run_artifacts / "p5-bounded-run-state/run_state.json").read_text(encoding="utf-8")
+    )
+    if state.get("status") != "WAITING_VERIFIER":
+        raise SystemExit("P4 blocked: independent P3 has not passed")
+    selected = state.get("accepted_for_verification_iteration")
+    if type(selected) is not int or not 1 <= selected <= len(ROUNDS):
+        raise SystemExit("P4 blocked: invalid selected candidate iteration")
+    if os.getenv("GITHUB_RUN_ID") and state.get("github_run_id") != os.getenv("GITHUB_RUN_ID"):
+        raise SystemExit("P4 blocked: run ID evidence mismatch")
+    if os.getenv("GITHUB_SHA") and state.get("base_commit_sha") != os.getenv("GITHUB_SHA"):
+        raise SystemExit("P4 blocked: base commit evidence mismatch")
+    original_manifest = json.loads(
+        (args.run_artifacts / "p2-architect-receipt/input_manifest.json").read_text(encoding="utf-8")
+    )
+    if original_manifest.get("specification_sha256") != spec.sha256:
+        raise SystemExit("P4 blocked: original private task does not match P1")
+    candidate_label, p3_label = ROUNDS[selected - 1]
+    engineer_dir = args.run_artifacts / candidate_label
+    p3_dir = args.run_artifacts / p3_label
+
     endpoint = os.getenv("FOUNDRY_PROJECT_ENDPOINT")
     model = os.getenv("FOUNDRY_MODEL")
     if not endpoint or not model:
@@ -257,7 +279,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="cloudfide-p4-verifier-") as base:
         root = Path(base) / "candidate"
         _, receipt, _, candidate_digest, p3_digest, original_hash = trusted_verification_inputs(
-            engineer_dir=args.engineer_dir, p3_dir=args.p3_dir,
+            engineer_dir=engineer_dir, p3_dir=p3_dir,
             spec=spec, stage=root,
         )
         ledger = VerifierLedger()
