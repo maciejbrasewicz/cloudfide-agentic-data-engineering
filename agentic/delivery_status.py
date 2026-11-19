@@ -34,12 +34,14 @@ def _json(path: Path) -> dict:
     return data
 
 
-def evaluate_delivery_rounds(artifacts: Path, original: Path, scratch: Path) -> dict:
+def evaluate_delivery_rounds(artifacts: Path, original: Path, scratch: Path, max_rounds: int = 3) -> dict:
+    if max_rounds not in (1, 2, 3):
+        raise ValueError("max_rounds must be 1, 2 or 3")
     history: list[dict] = []
     first_missing_round = 0
     prior_admission: dict | None = None
     prior_verification: bytes | None = None
-    for number, (candidate_label, sandbox_label) in enumerate(ROUNDS, 1):
+    for number, (candidate_label, sandbox_label) in enumerate(ROUNDS[:max_rounds], 1):
         candidate = artifacts / candidate_label
         sandbox = artifacts / sandbox_label
         if not candidate.is_dir() or not sandbox.is_dir():
@@ -101,7 +103,7 @@ def evaluate_delivery_rounds(artifacts: Path, original: Path, scratch: Path) -> 
             return {
                 "schema_version": 1, "status": "WAITING_VERIFIER",
                 "accepted_for_verification_iteration": number,
-                "iterations_used": number, "max_iterations": len(ROUNDS),
+                "iterations_used": number, "max_iterations": max_rounds,
                 "history": history,
                 "approval": "NOT_APPROVED_FOR_PR_OR_MERGE",
             }
@@ -109,7 +111,7 @@ def evaluate_delivery_rounds(artifacts: Path, original: Path, scratch: Path) -> 
         return {
             "schema_version": 1, "status": "INCOMPLETE",
             "accepted_for_verification_iteration": None,
-            "iterations_used": len(history), "max_iterations": len(ROUNDS),
+            "iterations_used": len(history), "max_iterations": max_rounds,
             "history": history,
             "failure": "Missing candidate or sandbox receipt at round " + str(first_missing_round),
             "approval": "NOT_APPROVED_FOR_PR_OR_MERGE",
@@ -117,7 +119,7 @@ def evaluate_delivery_rounds(artifacts: Path, original: Path, scratch: Path) -> 
     return {
         "schema_version": 1, "status": "REJECTED",
         "accepted_for_verification_iteration": None,
-        "iterations_used": len(history), "max_iterations": len(ROUNDS),
+        "iterations_used": len(history), "max_iterations": max_rounds,
         "history": history,
         "failure": "All three real independent candidate validations failed",
         "approval": "NOT_APPROVED_FOR_PR_OR_MERGE",
@@ -129,18 +131,19 @@ def main() -> None:
     parser.add_argument("--artifacts", type=Path, required=True)
     parser.add_argument("--original", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--max-rounds", type=int, choices=(1, 2, 3), default=3)
     args = parser.parse_args()
 
     with tempfile.TemporaryDirectory(prefix="cloudfide-p5-state-") as temp:
         try:
             outcome = evaluate_delivery_rounds(
-                args.artifacts, args.original, Path(temp),
+                args.artifacts, args.original, Path(temp), max_rounds=args.max_rounds,
             )
         except (ValueError, KeyError, FileNotFoundError) as exc:
             outcome = {
                 "schema_version": 1, "status": "INFRA_FAILURE",
                 "accepted_for_verification_iteration": None,
-                "iterations_used": 0, "max_iterations": len(ROUNDS),
+                "iterations_used": 0, "max_iterations": max_rounds,
                 "history": [], "failure": str(exc),
                 "approval": "NOT_APPROVED_FOR_PR_OR_MERGE",
             }
