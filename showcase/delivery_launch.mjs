@@ -58,6 +58,21 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
     if(!response.ok)throw Error("GitHub request failed: "+response.status);
     return response.status===204?null:response.json();
   };
+  // Draft PRs and exact-SHA statuses are public repository evidence. A
+  // fine-grained Actions-only token can lack Pull Requests read permission.
+  // Read publication evidence without using or exposing that token.
+  const publicQuery=async(path)=>{
+    const response=await fetchImpl("https://api.github.com/repos/"+REPO+path,{
+      signal:AbortSignal.timeout(9000),
+      headers:{
+        "Accept":"application/vnd.github+json",
+        "X-GitHub-Api-Version":"2022-11-28",
+        "User-Agent":"CloudFide-Reviewer-Public-Evidence"
+      }
+    });
+    if(!response.ok)throw Error("Public GitHub evidence request failed: "+response.status);
+    return response.json();
+  };
   async function runs(){
     const result=await query("/actions/workflows/"+WORKFLOW+"/runs?branch="+REF+"&per_page=100");
     return Array.isArray(result.workflow_runs)?result.workflow_runs:[];
@@ -156,7 +171,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
         let publication={status:"not_yet_available",pullRequest:null,exactCi:null};
         if(jobs.some(j=>j.name==="Publish verified P4 candidate as human-reviewed draft PR (no Azure)"&&j.conclusion==="success")){
           try{
-            const matches=await query("/pulls?state=all&head=maciejbrasewicz:agentic-delivery/run-"+run.id+"&per_page=10");
+            const matches=await publicQuery("/pulls?state=all&head=maciejbrasewicz:agentic-delivery/run-"+run.id+"&per_page=10");
             const pr=(Array.isArray(matches)?matches:[]).find(x=>
               Number.isSafeInteger(x.number)&&x.head?.ref==="agentic-delivery/run-"+run.id&&
               x.base?.ref==="main"&&x.merged_at==null&&x.draft===true&&
@@ -170,7 +185,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
                 },exactCi:null
               };
               try{
-                const checks=await query("/commits/"+pr.head.sha+"/status");
+                const checks=await publicQuery("/commits/"+pr.head.sha+"/status");
                 const exact=(Array.isArray(checks.statuses)?checks.statuses:[]).find(x=>
                   x.context==="agentic-delivery/isolated-candidate-ci");
                 const state=["success","pending","error","failure"].includes(exact?.state)?
