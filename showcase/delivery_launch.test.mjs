@@ -94,7 +94,7 @@ test("five completed launches in a rolling day exhaust quota; four allow the fif
     return Array.from({length:count},(_,index)=>({
       id:1000+index,
       display_title:"CloudFide delivery · archived-"+index,
-      status:"completed",conclusion:"success",
+      event:"workflow_dispatch",status:"completed",conclusion:"success",
       created_at:new Date(T-(index+1)*3_600_000).toISOString()
     }));
   }
@@ -120,7 +120,7 @@ test("older completed runs do not consume today's five-run allowance",async()=>{
     env,now:()=>T,uuid:()=>ID,
     fetchImpl:async(url)=>{
       if(url.includes("/runs?"))return Response.json({workflow_runs:[{
-        id:123,status:"completed",conclusion:"success",
+        id:123,event:"workflow_dispatch",status:"completed",conclusion:"success",
         created_at:new Date(T-26*3_600_000).toISOString()
       }]});
       if(url.includes("/dispatches")){dispatchCount++;return new Response(null,{status:204});}
@@ -223,4 +223,42 @@ test("draft PR with missing independent CI is visible but must not be marked ver
   const session=await call(gateway,"/api/delivery/launch/session/"+ID);
   assert.equal(session.body.publication.status,"draft_created");
   assert.equal(session.body.publication.exactCi.state,"not_reported");
+});
+
+
+test("any active GitHub main workflow run, including push, blocks reviewer dispatch until it completes",async()=>{
+  let dispatched=0;
+  const gateway=createFullDeliveryLauncher({
+    env,now:()=>T,uuid:()=>ID,
+    fetchImpl:async(url)=>{
+      if(url.includes("/runs?"))return Response.json({workflow_runs:[{
+        id:889,event:"push",status:"in_progress",conclusion:null,
+        display_title:"One-time acceptance",created_at:new Date(T-60000).toISOString()
+      }]});
+      if(url.includes("/dispatches")){dispatched++;return new Response(null,{status:204});}
+      throw Error("Unexpected GitHub URL");
+    }
+  });
+  const result=await call(gateway,"/api/delivery/launch","POST",JSON.stringify({accessCode:CODE}));
+  assert.equal(result.status,429);
+  assert.equal(result.body.error,"daily_quota_or_active_execution");
+  assert.equal(dispatched,0);
+});
+
+test("a historical push does not consume one of the five protected reviewer starts",async()=>{
+  let dispatched=0;
+  const gateway=createFullDeliveryLauncher({
+    env,now:()=>T,uuid:()=>ID,
+    fetchImpl:async(url)=>{
+      if(url.includes("/runs?"))return Response.json({workflow_runs:[{
+        id:889,event:"push",status:"completed",conclusion:"success",
+        created_at:new Date(T-60000).toISOString()
+      }]});
+      if(url.includes("/dispatches")){dispatched++;return new Response(null,{status:204});}
+      throw Error("Unexpected GitHub URL");
+    }
+  });
+  const result=await call(gateway,"/api/delivery/launch","POST",JSON.stringify({accessCode:CODE}));
+  assert.equal(result.status,202);
+  assert.equal(dispatched,1);
 });
