@@ -85,3 +85,22 @@ test("remote active or quota-exhausted workflows block new expensive runs",async
   assert.equal((await call(gateway,"/api/delivery/launch","POST",JSON.stringify({accessCode:CODE}))).status,429);
   assert.equal(used,1);
 });
+
+
+test("Only completed real GitHub job timestamps produce a measured elapsed time",async()=>{
+  const api=createFullDeliveryLauncher({env,now:()=>T,
+    fetchImpl:async url=>{
+      if(url.includes("/runs?"))return Response.json({workflow_runs:[{
+        id:987654,display_title:"CloudFide delivery · "+ID,
+        status:"completed",conclusion:"success",created_at:new Date(T).toISOString()
+      }]});
+      return Response.json({jobs:[{
+        name:"architect",status:"completed",conclusion:"success",
+        started_at:"2026-11-19T08:00:00Z",completed_at:"2026-11-19T08:01:35Z",steps:[]
+      },{name:"engineer",status:"in_progress",started_at:"2026-11-19T08:02:00Z",steps:[]}]});
+    }});
+  const result=await call(api,"/api/delivery/launch/session/"+ID);
+  assert.equal(result.status,200);
+  assert.equal(result.body.jobs[0].jobDurationMs,95000);
+  assert.equal(result.body.jobs[1].jobDurationMs,null);
+});
