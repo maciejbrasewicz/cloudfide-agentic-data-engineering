@@ -625,6 +625,21 @@ jobs:
             --output-dir state-evidence
           result=$(python -c "import json;print(json.load(open('state-evidence/run_state.json'))['status'])")
           echo "status=$result" >> "$GITHUB_OUTPUT"
+      - name: Independently recheck and persist real P5 SHA-bound checkpoint
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f state-evidence/run_state.json ] && [ -f collected-evidence/p2-architect-receipt/input_manifest.json ]; then
+            uv run --no-sync python -m agentic.checkpoint \
+              --artifacts collected-evidence \
+              --original . \
+              --state state-evidence/run_state.json \
+              --max-rounds "${{ inputs.max_rounds || '3' }}" \
+              --output state-evidence/checkpoint.json
+          else
+            echo "No valid P5 stage evidence exists; no checkpoint may be created." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Publish final state, source provenance and all iteration history
         if: always()
         uses: actions/upload-artifact@v4
