@@ -62,12 +62,18 @@ jobs:
           "$BROWSER" --headless --no-sandbox --disable-dev-shm-usage --disable-gpu --virtual-time-budget=6500 --dump-dom 'http://127.0.0.1:4173/?lang=en' > site-en.html
           grep -q 'Warstwa techniczna systemu' site-pl.html
           grep -q 'Technical implementation' site-en.html
-          grep -q 'Uruchom nową realizację zadania' site-pl.html
-          grep -q 'Run a fresh engineering delivery' site-en.html
+          grep -q 'Uruchom agentów na zadaniu' site-pl.html
+          grep -q 'Launch the agents on the actual assignment' site-en.html
           grep -q 'WYKORZYSTANE TECHNOLOGIE' site-pl.html
           grep -q 'TECHNOLOGY STACK' site-en.html
           grep -q 'Uruchom pełny proces' site-pl.html
           grep -q 'Start full delivery' site-en.html
+          grep -q 'BIEŻĄCY PRZEBIEG' site-pl.html
+          grep -q 'LIVE RUN' site-en.html
+          if grep -q 'header-launch-action' site-pl.html; then
+            echo 'Redundant top menu launch action returned' >&2
+            exit 1
+          fi
           grep -q 'Source profiling confirms 1,507 rows' site-en.html
           grep -q 'Autonomiczny proces Data Engineering' site-pl.html
           grep -q 'Rzeczywista praca agentów' site-pl.html
