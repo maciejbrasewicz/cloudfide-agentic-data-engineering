@@ -60,7 +60,7 @@ def verified_failed_candidate(
         raise ReworkInputError("Missing real container exit codes; classify as INFRA_FAILURE") from exc
     if not 0 <= test_exit <= 255 or not 0 <= pipeline_exit <= 255:
         raise ReworkInputError("Invalid sandbox exit-code receipt")
-    if test_exit == 0 and pipeline_exit == 0 and "reconciliation" not in outcome.get("failure", "").lower():
+    if test_exit == 0 and pipeline_exit == 0 and not str(outcome.get("failure", "")).strip():
         raise ReworkInputError("Previous sandbox succeeded; no reproducible defect for rework")
     admission = json.loads((p3_dir / "admission.json").read_text(encoding="utf-8"))
     staged = verify_and_stage_candidate(
