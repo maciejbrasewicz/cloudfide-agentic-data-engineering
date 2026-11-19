@@ -15,7 +15,6 @@ import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from dotenv import load_dotenv
 
 from pipeline import ROOT
 from .candidate_intake import verify_and_stage_candidate
@@ -228,6 +227,7 @@ def main() -> None:
     parser.add_argument("--architect-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
+    from dotenv import load_dotenv
     load_dotenv(ROOT / ".env")
     spec = load_task_spec(
         repo_root=ROOT, encoded=os.getenv("CLOUDFIDE_TASK_SPEC_B64") or None,
