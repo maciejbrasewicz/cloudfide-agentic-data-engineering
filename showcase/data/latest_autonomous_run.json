@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "runId": 44485096373,
+  "historical": true,
+  "source": "real_github_actions_artifacts_2026_11_19",
+  "sourceWorkflowConclusion": "success",
+  "reference": {
+    "baseSha": "737baf62ad7fb17f89a194a4dcb904bf0081ceea",
+    "candidateSha": "73ab197159f8ed5a595bdd99a88b01707371d12e",
+    "sourceCsvSha256": "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4",
+    "candidateManifestSha256": "8e48cdb4ec30a378b105613f1888d9011d500033795dadacc6ec8303e2c7a99e",
+    "verifierTestSha256": "4969648eaf97d3a06440977ea552fffc0aaa1eec467f44dbd8631114ee8b7be4",
+    "draftPullRequestUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35",
+    "isolatedCIUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44487613707",
+    "ciCommitStatus": "success"
+  },
+  "result": {
+    "testCount": 18,
+    "testPassed": 18,
+    "netRevenue": "2570247.03",
+    "sourceRows": 1507,
+    "uniqueTransactions": 1500,
+    "regionTotals": {
+      "Central": "515824.67",
+      "East": "442219.91",
+      "North": "665897.52",
+      "South": "504036.04",
+      "West": "442268.89"
+    }
+  },
+  "stages": [
+    {
+      "key": "architect",
+      "role": "Data Architect",
+      "status": "PASSED",
+      "classification": "measured_github_actions_and_sha_bound_receipts",
+      "headlinePl": "Zbudował kontrakt na podstawie oryginalnego zadania",
+      "headlineEn": "Built the contract from the original assignment",
+      "explanationPl": "Siedem rzeczywistych operacji, weryfikacja surowego TOTAL i brak zmian zatwierdzonej polityki.",
+      "explanationEn": "Seven actual tools, original TOTAL checked and no unapproved business-policy changes.",
+      "facts": [
+        {
+          "label": "Gate",
+          "value": "APPROVED_FOR_ENGINEERING"
+        },
+        {
+          "label": "Tool calls",
+          "value": "7 of 7"
+        }
+      ],
+      "files": [],
+      "tools": [
+        "read_spec",
+        "inspect_original_tests",
+        "profile_source",
+        "reconcile_raw_control",
+        "inspect_approved_policy",
+        "inspect_orders",
+        "validate_policy_proposal"
+      ],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373"
+    },
+    {
+      "key": "engineer-1",
+      "role": "Data Engineer · 1",
+      "status": "FAILED",
+      "classification": "measured_github_actions_and_sha_bound_receipts",
+      "headlinePl": "Pierwszy kod nie przeszedł sandboxu",
+      "headlineEn": "First candidate failed independent sandbox",
+      "explanationPl": "Rzeczywiste źródła zapisane. Testy lub pipeline zakończyły się błędem, więc kontroler odrzucił kandydata.",
+      "explanationEn": "Actual source authored. Independent tests or pipeline exited nonzero; candidate was rejected.",
+      "facts": [
+        {
+          "label": "Iteration",
+          "value": "1 / 3"
+        },
+        {
+          "label": "P3",
+          "value": "FAILED"
+        }
+      ],
+      "files": [
+        {
+          "name": "solution.py",
+          "sha256": "143b14eaa28e744e8cc53c77f7d2825b7d9673178945c4c89976011694a725d1"
+        },
+        {
+          "name": "pipeline.py",
+          "sha256": "e96ebe6bcaeb58e0e8c61971801fc99fb4c681cf7914d4242c525226113ee23e"
+        }
+      ],
+      "tools": [],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373"
+    },
+    {
+      "key": "engineer-2",
+      "role": "Data Engineer · 2",
+      "status": "FAILED",
+      "classification": "measured_github_actions_and_sha_bound_receipts",
+      "headlinePl": "Druga wersja naruszyła schemat CSV",
+      "headlineEn": "Second candidate failed output CSV schema",
+      "explanationPl": "Model poprawił kod po rzeczywistych logach, ale oracle odrzucił nagłówek różny od `region,revenue`.",
+      "explanationEn": "The model fixed code from real logs, but independent oracle rejected output not matching `region,revenue`.",
+      "facts": [
+        {
+          "label": "Iteration",
+          "value": "2 / 3"
+        },
+        {
+          "label": "P3",
+          "value": "FAILED"
+        },
+        {
+          "label": "Reason",
+          "value": "CSV schema"
+        }
+      ],
+      "files": [
+        {
+          "name": "solution.py",
+          "sha256": "878485944eddb370438f9e8154f29a8faaad3f11f06af41d40c93563bc9c2428"
+        },
+        {
+          "name": "pipeline.py",
+          "sha256": "ddbb1d3533cbe4c342775dffbee380398888eb85c1f3211595212eb88807ce16"
+        }
+      ],
+      "tools": [],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373"
+    },
+    {
+      "key": "engineer-3",
+      "role": "Data Engineer · 3",
+      "status": "PASSED",
+      "classification": "measured_github_actions_and_sha_bound_receipts",
+      "headlinePl": "Trzecia wersja zaliczyła testy i Decimal oracle",
+      "headlineEn": "Third candidate passed tests and independent Decimal oracle",
+      "explanationPl": "Naprawa CSV przeszła izolowany Docker, oryginalny pytest i 5-regionowe przeliczenie.",
+      "explanationEn": "The repaired CSV passed no-network Docker, employer tests, and five-region independent arithmetic.",
+      "facts": [
+        {
+          "label": "Iteration",
+          "value": "3 / 3"
+        },
+        {
+          "label": "P3",
+          "value": "PASSED"
+        },
+        {
+          "label": "Transactions",
+          "value": "1500"
+        }
+      ],
+      "files": [
+        {
+          "name": "solution.py",
+          "sha256": "ebc0f37e57818ee21ef1298acb21c4a6da623f6fbf2cfeb637586f6eb0264345",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/73ab197159f8ed5a595bdd99a88b01707371d12e/deliveries/run-44485096373/solution.py"
+        },
+        {
+          "name": "pipeline.py",
+          "sha256": "2d149ced13bc6d1fdfb5978fba74988550e6cf7c0145498b5e917fe0ce325abd",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/73ab197159f8ed5a595bdd99a88b01707371d12e/deliveries/run-44485096373/pipeline.py"
+        },
+        {
+          "name": "README.md",
+          "sha256": "59ddd8aaf76023cfde9ddd98ba92c6904a289a0dea56a2e34a8ebc5933eeb743",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/73ab197159f8ed5a595bdd99a88b01707371d12e/deliveries/run-44485096373/README.md"
+        },
+        {
+          "name": "tests/test_candidate_behavior.py",
+          "sha256": "7d5b2c31127cebe6f5ce0a6d9aefe82f0c36ac64c4b99b4cd3f5b42004403a57",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/73ab197159f8ed5a595bdd99a88b01707371d12e/deliveries/run-44485096373/tests/test_candidate_behavior.py"
+        }
+      ],
+      "tools": [],
+      "codeExcerpt": {
+        "path": "pipeline.py",
+        "lines": "main()",
+        "source": "def main(argv: Iterable[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument(\"--input\", default=\"sales.csv\")\n    parser.add_argument(\"--output\", default=\"revenue_by_region.csv\")\n    arguments = parser.parse_args(list(argv) if argv is not None else None)\n    print(run_pipeline(arguments.input, arguments.output).to_dict())\n    return 0"
+      },
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373"
+    },
+    {
+      "key": "verifier",
+      "role": "Verification Engineer",
+      "status": "PASSED",
+      "classification": "measured_github_actions_and_sha_bound_receipts",
+      "headlinePl": "Trzeci agent napisał i wykonał test falsyfikacyjny",
+      "headlineEn": "Third agent authored a falsification test",
+      "explanationPl": "Nowy pytest przeszedł na kandydacie i wykrył celowo uszkodzoną funkcję w oddzielnym Dockerze.",
+      "explanationEn": "Original new pytest passed on the candidate and rejected a deliberate broken implementation in a separate Docker run.",
+      "facts": [
+        {
+          "label": "P4",
+          "value": "PASSED"
+        },
+        {
+          "label": "Mutation",
+          "value": "Detected"
+        },
+        {
+          "label": "Tests",
+          "value": "18/18"
+        }
+      ],
+      "files": [
+        {
+          "name": "tests/test_verifier_generated.py",
+          "sha256": "4969648eaf97d3a06440977ea552fffc0aaa1eec467f44dbd8631114ee8b7be4",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/73ab197159f8ed5a595bdd99a88b01707371d12e/deliveries/run-44485096373/tests/test_verifier_generated.py"
+        }
+      ],
+      "tools": [],
+      "codeExcerpt": {
+        "path": "tests/test_verifier_generated.py",
+        "lines": "23–32",
+        "source": "result = add_virtual_column(\n    source, \"base + quantity * unit_price - discount\", \"net_total\"\n)\nexpected = pristine.copy(deep=True)\nexpected[\"net_total\"] = pd.Series([115, 5, 8], index=expected.index)\nassert_frame_equal(result, expected)\nassert result is not source"
+      },
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373"
+    },
+    {
+      "key": "delivery",
+      "role": "Automated draft PR + exact-SHA CI",
+      "status": "PASSED",
+      "classification": "measured_github_actions_and_sha_bound_receipts",
+      "headlinePl": "Automatyczna publikacja bez nadpisania baseline",
+      "headlineEn": "Automated, isolated draft PR without replacing baseline",
+      "explanationPl": "GitHub Actions sam utworzył draft PR #35. Oddzielne CI potwierdziło SHA i 18 testów. Brak auto-merge.",
+      "explanationEn": "GitHub Actions itself created draft PR #35. Separate CI verified exact SHA and all 18 tests; no auto-merge.",
+      "facts": [
+        {
+          "label": "PR",
+          "value": "#35 · Draft"
+        },
+        {
+          "label": "CI",
+          "value": "SUCCESS"
+        },
+        {
+          "label": "SHA",
+          "value": "73ab197159f8…"
+        }
+      ],
+      "files": [],
+      "tools": [],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35"
+    }
+  ]
+}
