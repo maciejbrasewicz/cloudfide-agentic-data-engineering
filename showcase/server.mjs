@@ -7,7 +7,6 @@ import { createLiveGateway } from "./live_gateway.mjs";
 import { createDeliveryGateway } from "./delivery_gateway.mjs";
 import { createRecalculationGateway } from "./recalculation_gateway.mjs";
 import { createFullDeliveryLauncher } from "./delivery_launch.mjs";
-import { acceptanceUuidFactory, dispatchAcceptanceOnce } from "./one_time_acceptance.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const MEDIA = new Map([
@@ -44,7 +43,7 @@ export function createAppServer({
   gateway=createLiveGateway({env:{}}),
   deliveryGateway=createDeliveryGateway(),
   recalculationGateway=createRecalculationGateway(),
-  fullDeliveryLauncher=createFullDeliveryLauncher({uuid:acceptanceUuidFactory()})
+  fullDeliveryLauncher=createFullDeliveryLauncher()
 }={}){
   return createServer(async(req,res)=>{
     const target=new URL(req.url||"/","http://localhost");
@@ -104,13 +103,5 @@ if(process.argv[1] && resolve(process.argv[1])===fileURLToPath(import.meta.url))
   const raw=Number(process.env.PORT||4173);
   const port=Number.isInteger(raw)&&raw>0&&raw<65536?raw:4173;
   const host=process.env.HOST||"0.0.0.0";
-  createAppServer().listen(port,host,()=>{
-    console.log("Engineering Intelligence listening on "+host+":"+port);
-    if(process.env.CLOUDFIDE_REVIEWER_ACCEPTANCE_ID){
-      // Only Railway internally holds the reviewer code; never fetch it from
-      // user-facing API or commit it to source. Normal form flow is unchanged.
-      dispatchAcceptanceOnce({port,log:message=>console.log(message)})
-        .catch(error=>console.error("Operator acceptance: "+error.message));
-    }
-  });
+  createAppServer().listen(port,host,()=>console.log("Engineering Intelligence listening on "+host+":"+port));
 }
