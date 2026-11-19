@@ -31,30 +31,12 @@
 <section class="intro container" id="intro" data-section="overview">
  <div class="intro-main">
   <div class="kicker"><span class="ink-dot"></span><span data-i18n="kicker">DATA ENGINEERING / VERIFIED EXECUTION</span></div>
-  <h1 data-i18n="heroTitle">ETL sprzedażowy i kontrolowane wytwarzanie przez agentów.</h1>
-  <p class="lead" data-i18n="heroLead">Rozwiązanie Data Engineering i trzy role Microsoft Foundry: projektowanie kontraktu, rzeczywiste pisanie kodu oraz niezależna weryfikacja. Przebiegi, testy i kod w jednym serwisie.</p>
-  <div class="hero-actions"><a class="primary-button" href="#execution"><span data-i18n="heroAction">Zobacz pracę agentów</span> <span>↘</span></a><a class="secondary-button" href="#technical"><span data-i18n="heroLab">Specyfikacja techniczna</span> <span>↘</span></a></div>
-  <div class="hero-system-map" aria-label="Technologies and delivery workflow">
-   <div class="hero-system-group">
-    <div class="hero-system-head"><span data-i18n="heroStackLabel">01 / WYKORZYSTANE TECHNOLOGIE</span><p data-i18n="heroStackDesc">Orkiestracja, implementacja i niezależna weryfikacja.</p></div>
-    <div class="hero-technology-list"><span>Microsoft Foundry · gpt-5.6-sol</span><span>Microsoft Agent Framework</span><span>GitHub Actions · Azure OIDC</span><span>Python · pandas · Decimal</span><span>Docker · pytest · Pydantic</span><span>SHA-256 · CI / PR</span></div>
+  <h1 data-i18n="heroTitle">System agentowy, który tworzy i weryfikuje kod Data Engineering.</h1>
+  <p class="lead" data-i18n="heroLead">Trzy rzeczywiste role Microsoft Foundry rozwiązują zadanie rekrutacyjne: Data Architect analizuje wymagania, Data Engineer tworzy kod, a Verification Engineer próbuje wykryć jego błędy. Każdy etap ma niezależne testy i dowody.</p>
+  <div class="hero-actions"><a class="primary-button" href="#execution"><span data-i18n="heroAction">Zobacz pracę agentów</span> <span>↘</span></a><a class="secondary-button" href="#reviewer-execution"><span data-i18n="heroLab">Uruchom nowe wykonanie</span> <span>↘</span></a></div>
    </div>
-   <div class="hero-system-group">
-    <div class="hero-system-head"><span data-i18n="heroFlowLabel">02 / CYKL DOSTARCZENIA KODU</span><p data-i18n="heroFlowDesc">Trzy wyspecjalizowane role agentów i deterministyczne bramki pomiędzy nimi.</p></div>
-    <ol class="hero-workflow">
-     <li><small>01 / INPUT</small><strong data-i18n="flowInputTitle">Zadanie i zasady</strong><span data-i18n="flowInputDesc">Specyfikacja i polityka zatwierdzona przez człowieka.</span></li>
-     <li><small>02 / AGENT</small><strong>Data Architect</strong><span data-i18n="flowArchitectDesc">Profil danych i kontrakt implementacji.</span></li>
-     <li><small>03 / AGENT</small><strong>Data Engineer</strong><span data-i18n="flowEngineerDesc">Kod, testy i poprawki po błędach.</span></li>
-     <li><small>04 / P3 · P5</small><strong data-i18n="flowSandboxTitle">Sandbox i kontroler</strong><span data-i18n="flowSandboxDesc">Izolowane testy, rekonsyliacja i maks. 3 iteracje.</span></li>
-     <li><small>05 / P4 · AGENT</small><strong>Verification Engineer</strong><span data-i18n="flowVerifierDesc">Nowy test oraz kontrolowany kontrprzykład.</span></li>
-     <li><small>06 / P6 · REVIEW</small><strong>Draft PR · CI</strong><span data-i18n="flowReviewDesc">Weryfikacja SHA i przegląd człowieka; bez auto-merge.</span></li>
-    </ol>
-    <p class="hero-workflow-note" data-i18n="flowGovernanceNote">GitHub Actions steruje przejściami. Architect projektuje rozwiązanie, nie tworzy pozostałych agentów. Zmiany reguł biznesowych wymagają osobnej decyzji człowieka.</p>
-   </div>
-  </div>
- </div>
  <aside class="hero-proof" aria-label="Verified results">
-  <div class="proof-header"><span data-i18n="resultCard">P3 + P4 + NIEZALEŻNY CI: ZALICZONE</span><span>RUN #44485096373</span></div>
+  <div class="proof-header"><span data-i18n="resultCard">ARCHIWALNE DOWODY · P3 / P4 / CI</span><span>RUN #44485096373</span></div>
   <div class="proof-revenue"><span data-i18n="revenueTag">Przychód netto / 5 regionów</span><strong>2 570 247,03</strong><small data-i18n="revenueExplanation">Wyliczone deterministycznie — nie przez AI</small></div>
   <div class="proof-grid"><div><strong>03</strong><span data-i18n="agentCount">role agentów</span></div><div><strong>03</strong><span data-i18n="toolCount">wersje kodu</span></div><div><strong>18</strong><span data-i18n="testsCount">testów kandydata</span></div><div><strong>01</strong><span data-i18n="durationCount">wykryta mutacja</span></div></div>
   <a class="proof-bottom" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373" target="_blank" rel="noopener noreferrer"><span data-i18n="sourceEvidence">Otwórz oryginalny przebieg agentów</span> ↗</a>
@@ -93,6 +75,27 @@
   </div>
  </div>
 </section>
+<section class="container hero-system-section" aria-label="Technologies and delivery architecture">
+ <div class="hero-system-map" aria-label="Technologies and delivery workflow">
+   <div class="hero-system-group">
+    <div class="hero-system-head"><span data-i18n="heroStackLabel">01 / WYKORZYSTANE TECHNOLOGIE</span><p data-i18n="heroStackDesc">Orkiestracja, implementacja i niezależna weryfikacja.</p></div>
+    <div class="hero-technology-list"><span>Microsoft Foundry · gpt-5.6-sol</span><span>Microsoft Agent Framework</span><span>GitHub Actions · Azure OIDC</span><span>Python · pandas · Decimal</span><span>Docker · pytest · Pydantic</span><span>SHA-256 · CI / PR</span></div>
+   </div>
+   <div class="hero-system-group">
+    <div class="hero-system-head"><span data-i18n="heroFlowLabel">02 / CYKL DOSTARCZENIA KODU</span><p data-i18n="heroFlowDesc">Trzy wyspecjalizowane role agentów i deterministyczne bramki pomiędzy nimi.</p></div>
+    <ol class="hero-workflow">
+     <li><small>01 / INPUT</small><strong data-i18n="flowInputTitle">Zadanie i zasady</strong><span data-i18n="flowInputDesc">Specyfikacja i polityka zatwierdzona przez człowieka.</span></li>
+     <li><small>02 / AGENT</small><strong>Data Architect</strong><span data-i18n="flowArchitectDesc">Profil danych i kontrakt implementacji.</span></li>
+     <li><small>03 / AGENT</small><strong>Data Engineer</strong><span data-i18n="flowEngineerDesc">Kod, testy i poprawki po błędach.</span></li>
+     <li><small>04 / P3 · P5</small><strong data-i18n="flowSandboxTitle">Sandbox i kontroler</strong><span data-i18n="flowSandboxDesc">Izolowane testy, rekonsyliacja i maks. 3 iteracje.</span></li>
+     <li><small>05 / P4 · AGENT</small><strong>Verification Engineer</strong><span data-i18n="flowVerifierDesc">Nowy test oraz kontrolowany kontrprzykład.</span></li>
+     <li><small>06 / P6 · REVIEW</small><strong>Draft PR · CI</strong><span data-i18n="flowReviewDesc">Weryfikacja SHA i przegląd człowieka; bez auto-merge.</span></li>
+    </ol>
+    <p class="hero-workflow-note" data-i18n="flowGovernanceNote">GitHub Actions steruje przejściami. Architect projektuje rozwiązanie, nie tworzy pozostałych agentów. Zmiany reguł biznesowych wymagają osobnej decyzji człowieka.</p>
+   </div>
+  </div>
+</section>
+
 
 <section class="section container" id="task" data-section="task">
  <div class="section-heading"><div><span class="section-no">01 / <span data-i18n="taskEyebrow">ZADANIE</span></span><h2 data-i18n="taskHeading">Zakres dostarczonego rozwiązania</h2></div><p data-i18n="taskLead">Funkcja kolumn wirtualnych i pipeline sprzedażowy. W nowym procesie Data Architect projektuje kontrakt, Data Engineer tworzy kod, a Verification Engineer przeprowadza niezależną kontrolę.</p></div>
