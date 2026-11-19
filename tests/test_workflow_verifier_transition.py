@@ -39,3 +39,21 @@ def test_pub_requires_successful_adversarial_gate_and_never_auto_merges():
     assert "needs.adversarial.result == 'success'" in publisher
     assert "gh pr create" in publisher and "--draft" in publisher
     assert "gh pr merge" not in publisher
+
+
+
+def test_final_delivery_verdict_fails_when_p5_accepted_but_p4_skipped():
+    workflow = (ROOT / ".github/workflows/engineer-e2e.yml").read_text(encoding="utf-8")
+    final = workflow.split("  delivery-acceptance:\n", 1)[1]
+    assert "if: ${{ always() }}" in final
+    for mandatory in (
+        "p5-state", "verifier", "adversarial", "publish-draft-pr", "delivery-telemetry"
+    ):
+        assert mandatory in final
+    assert 'P5_STATUS" != "WAITING_VERIFIER"' in final
+    assert 'VERIFIER_RESULT" != "success"' in final
+    assert 'ADVERSARIAL_RESULT" != "success"' in final
+    assert 'TELEMETRY_RESULT" != "success"' in final
+    assert 'REQUIRE_PR" == "true" && "$PUBLISH_RESULT" != "success"' in final
+    assert "exit 1" in final
+    assert "Separate candidate exact-SHA CI must still pass" in final

@@ -1042,3 +1042,61 @@ jobs:
           path: delivery-telemetry/run_metrics.json
           retention-days: 30
           if-no-files-found: warn
+
+
+  delivery-acceptance:
+    name: Final fail-closed P5/P4/P6 acceptance (never infer from green jobs alone)
+    needs: [p5-state, verifier, adversarial, publish-draft-pr, delivery-telemetry]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    env:
+      P5_RESULT: ${{ needs['p5-state'].result }}
+      P5_STATUS: ${{ needs['p5-state'].outputs.selected_status }}
+      VERIFIER_RESULT: ${{ needs.verifier.result }}
+      ADVERSARIAL_RESULT: ${{ needs.adversarial.result }}
+      PUBLISH_RESULT: ${{ needs['publish-draft-pr'].result }}
+      TELEMETRY_RESULT: ${{ needs['delivery-telemetry'].result }}
+      REQUIRE_PR: ${{ (github.event_name == 'push' || inputs.publish_draft_pr == true) && 'true' || 'false' }}
+    steps:
+      - name: Reject missing Verifier, P4, telemetry or required human-review PR
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "## Final CloudFide delivery acceptance"
+            echo
+            echo "| Boundary | Reported job result |"
+            echo "|---|---|"
+            echo "| P5 state | $P5_RESULT / $P5_STATUS |"
+            echo "| Real Foundry Verification Engineer | $VERIFIER_RESULT |"
+            echo "| P4 independent adversarial sandbox | $ADVERSARIAL_RESULT |"
+            echo "| P6 draft PR publisher | $PUBLISH_RESULT |"
+            echo "| Operational telemetry | $TELEMETRY_RESULT |"
+            echo
+            echo "A GitHub workflow without these gates is NOT a verified code delivery."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "$P5_RESULT" != "success" || "$P5_STATUS" != "WAITING_VERIFIER" ]]; then
+            echo "BLOCKED: P5 did not accept actual source." >&2
+            exit 1
+          fi
+          if [[ "$VERIFIER_RESULT" != "success" || "$ADVERSARIAL_RESULT" != "success" ]]; then
+            echo "BLOCKED: independent Foundry Verifier and P4 negative control did not both execute successfully." >&2
+            exit 1
+          fi
+          if [[ "$TELEMETRY_RESULT" != "success" ]]; then
+            echo "BLOCKED: required operational telemetry did not verify." >&2
+            exit 1
+          fi
+          if [[ "$REQUIRE_PR" == "true" && "$PUBLISH_RESULT" != "success" ]]; then
+            echo "BLOCKED: required draft PR was not published." >&2
+            exit 1
+          fi
+          if [[ "$REQUIRE_PR" == "false" && "$PUBLISH_RESULT" != "skipped" ]]; then
+            echo "BLOCKED: publish flag was ignored." >&2
+            exit 1
+          fi
+          echo "P5, P4, telemetry and requested P6: VERIFIED. Separate candidate exact-SHA CI must still pass." >> "$GITHUB_STEP_SUMMARY"
