@@ -76,3 +76,10 @@
 .delivery-job-status.passed{color:#36744a}.delivery-job-status.failed{color:#a14a43}.delivery-job-status.running{color:#997238}
 .delivery-proof-note{font:11px/1.8 var(--sans);color:#687b6b;margin:15px 0 0}
 @media(max-width:750px){.delivery-evidence{padding:20px 18px}.delivery-evidence-head,.delivery-live-state{display:block}.delivery-launch-link,.delivery-run-source{display:inline-block;margin-top:16px}.delivery-jobs{grid-template-columns:1fr}.delivery-run-label{align-items:flex-start;flex-direction:column}.delivery-evidence-head h3{font-size:22px}}
+
+.delivery-reference{display:flex;align-items:center;justify-content:space-between;gap:25px;margin:16px 0;padding:19px 0;border-top:1px solid #dfe8e0;border-bottom:1px solid #dfe8e0}
+.delivery-reference>div:first-child{max-width:550px}
+.delivery-reference p{font:12px/1.75 var(--sans);color:#627466;margin:10px 0 0}
+.delivery-reference-links{display:flex;align-items:flex-end;gap:10px;flex-direction:column;min-width:235px}
+.delivery-reference-links a{font:600 11px/1.6 var(--mono);color:#2d6742;border-bottom:1px solid #9eb8a4}
+@media(max-width:750px){.delivery-reference{flex-direction:column;align-items:flex-start}.delivery-reference-links{align-items:flex-start;min-width:0}}
