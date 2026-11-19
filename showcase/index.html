@@ -14,10 +14,11 @@
 <link rel="stylesheet" href="./technical.css">
 <script src="./app.js" defer></script>
 <script src="./technical.js" defer></script>
+<script src="./delivery_status.js" defer></script>
 </head>
 <body>
 <a class="skip" href="#main" data-i18n="skip">Przejdź do treści</a>
-<div class="topline"><div class="container topline-inner"><span>CF / ENGINEERING REVIEW</span><span data-i18n="topDate">Rzeczywiste wdrożenie · 18 listopada 2026</span></div></div>
+<div class="topline"><div class="container topline-inner"><span>CF / DATA ENGINEERING DELIVERY</span><span data-i18n="topDate">Rzeczywiste wdrożenie · 18 listopada 2026</span></div></div>
 <header class="header">
  <div class="container header-inner">
   <a class="logo" href="#intro"><b>CF<span class="slash">/</span></b><span>Agentic Data Engineering<small>MICROSOFT FOUNDRY × DATA ENGINEERING</small></span></a>
@@ -29,10 +30,10 @@
 <section class="intro container" id="intro" data-section="overview">
  <div class="intro-main">
   <div class="kicker"><span class="ink-dot"></span><span data-i18n="kicker">DATA ENGINEERING / VERIFIED EXECUTION</span></div>
-  <h1 data-i18n="heroTitle">ETL sprzedażowy i wieloagentowa weryfikacja.</h1>
-  <p class="lead" data-i18n="heroLead">Deterministyczny pipeline ETL, kontrolowane środowisko Microsoft Foundry oraz audyt realizowany przez trzy agenty Microsoft Agent Framework. Wyniki, ścieżka wykonania i artefakty dostępne w jednym miejscu.</p>
+  <h1 data-i18n="heroTitle">ETL sprzedażowy i kontrolowane wytwarzanie przez agentów.</h1>
+  <p class="lead" data-i18n="heroLead">Rozwiązanie Data Engineering i trzy role Microsoft Foundry: projektowanie kontraktu, rzeczywiste pisanie kodu oraz niezależna weryfikacja. Przebiegi, testy i kod w jednym serwisie.</p>
   <div class="hero-actions"><a class="primary-button" href="#execution"><span data-i18n="heroAction">Zobacz pracę agentów</span> <span>↘</span></a><a class="secondary-button" href="#technical"><span data-i18n="heroLab">Specyfikacja techniczna</span> <span>↘</span></a></div>
-  <div class="tech-tags"><span>Microsoft Foundry</span><span>Agent Framework</span><span>SequentialBuilder</span><span>Python / Decimal</span><span>GitHub OIDC</span></div>
+  <div class="tech-tags"><span>Microsoft Foundry</span><span>Agent Framework</span><span>Evidence gates</span><span>Python / Decimal</span><span>GitHub OIDC</span></div>
  </div>
  <aside class="hero-proof" aria-label="Verified results">
   <div class="proof-header"><span data-i18n="resultCard">WYNIK Z PRAWDZIWEGO URUCHOMIENIA</span><span>RUN #44331275568</span></div>
@@ -48,15 +49,15 @@
  <div class="data-flow"><div><span data-i18n="rawSource">DANE ŹRÓDŁOWE</span><strong>1 507</strong><small data-i18n="rawExplain">wierszy, w tym nagłówek i TOTAL</small></div><span class="flow-arrow">→</span><div><span data-i18n="cleanSource">PO OCZYSZCZENIU</span><strong>1 500</strong><small data-i18n="cleanExplain">wierszy transakcyjnych</small></div><span class="flow-arrow">→</span><div><span data-i18n="finalSource">WYNIK</span><strong>5 <small data-i18n="regionWord">regionów</small></strong><small data-i18n="finalExplain">kwoty dokładne do grosza</small></div></div>
 </section>
 <section class="section gray-area" id="architecture" data-section="architecture"><div class="container">
- <div class="section-heading"><div><span class="section-no">02 / <span data-i18n="architectureEyebrow">ARCHITEKTURA</span></span><h2 data-i18n="architectureHeading">Architektura przetwarzania i audytu</h2></div><p data-i18n="architectureLead">Dwie rozdzielone ścieżki wykonania: deterministyczne obliczenia finansowe oraz recenzja kodu i danych przez Microsoft Foundry.</p></div>
+ <div class="section-heading"><div><span class="section-no">02 / <span data-i18n="architectureEyebrow">ARCHITEKTURA</span></span><h2 data-i18n="architectureHeading">Architektura obliczeń i dostarczania kodu</h2></div><p data-i18n="architectureLead">Deterministyczne obliczenia i kontrolowany proces projektowania, generowania kodu, testowania oraz korekt.</p></div>
  <div class="architecture-grid">
   <div class="architecture-lane"><div class="lane-title"><span>A</span><strong data-i18n="laneA">Tor obliczeniowy / bez AI</strong></div>
    <div class="lane-node"><small data-i18n="sourceStep">WEJŚCIE</small><b>sales.csv + data_policy.json</b><p data-i18n="sourceStepDesc">Niezmienione dane i wersjonowana polityka.</p></div><div class="vertical-arrow">↓</div>
    <div class="lane-node"><small data-i18n="processingStep">PRZETWARZANIE</small><b>Python · pandas · Decimal</b><p data-i18n="processingStepDesc">Kontrole źródła, czyszczenie, deduplikacja i przychód.</p></div><div class="vertical-arrow">↓</div>
    <div class="lane-node output-node"><small data-i18n="resultStep">WYNIK</small><b>revenue_by_region.csv</b><p data-i18n="resultStepDesc">5 regionów, raport jakości, SHA-256.</p></div>
   </div>
-  <div class="architecture-lane"><div class="lane-title dark-title"><span>B</span><strong data-i18n="laneB">Tor audytu / Microsoft Foundry</strong></div>
-   <div class="lane-node foundry-node"><div class="foundry-top"><b>Microsoft Foundry</b><span>gpt-5.6-sol</span></div><div class="foundry-technical">Microsoft Agent Framework<br>SequentialBuilder · Azure Entra OIDC</div></div><div class="vertical-arrow">↓</div>
+  <div class="architecture-lane"><div class="lane-title dark-title"><span>B</span><strong data-i18n="laneB">Proces wytwarzania / Microsoft Foundry</strong></div>
+   <div class="lane-node foundry-node"><div class="foundry-top"><b>Microsoft Foundry</b><span>gpt-5.6-sol</span></div><div class="foundry-technical">Microsoft Agent Framework<br>Scoped tools · Azure Entra OIDC</div></div><div class="vertical-arrow">↓</div>
    <div class="agents-list"><div class="agent-architecture-row"><span>01</span><div><b>Data Architect</b><p data-i18n="roleArchitect">Profilowanie danych, anomalie i założenia</p></div></div><div class="small-arrow">↓</div><div class="agent-architecture-row"><span>02</span><div><b>Data Engineer</b><p data-i18n="roleEngineer">Przegląd implementacji i testów</p></div></div><div class="small-arrow">↓</div><div class="agent-architecture-row"><span>03</span><div><b>Verification Engineer</b><p data-i18n="roleVerifier">Niezależna weryfikacja i próba falsyfikacji</p></div></div></div><div class="vertical-arrow">↓</div>
    <div class="lane-node review-node"><small data-i18n="reviewStep">REZULTAT AUDYTU</small><b>3 × Pydantic JSON report</b><p data-i18n="reviewStepDesc">Ustalenia, dowody i zalecenia; walidacja manifestu.</p></div>
   </div>
@@ -91,15 +92,24 @@
    <div><span class="section-no">06 / <span data-i18n="technicalEyebrow">IMPLEMENTACJA I OPERACJE</span></span><h2 data-i18n="technicalHeading">Warstwa techniczna systemu</h2></div>
    <p data-i18n="technicalLead">Kontrakty danych, kontrola zmian, uprawnienia agentów, rejestrowanie zdarzeń i procedura uruchamiania. Specyfikacja bezpośrednio powiązana z kodem i artefaktami.</p>
   </div>
+  <section class="delivery-evidence" id="delivery-evidence" aria-labelledby="delivery-status-title">
+   <div class="delivery-evidence-head">
+    <div><span class="section-no">LIVE / GITHUB ACTIONS</span><h3 id="delivery-status-title">Autonomiczny proces Data Engineering</h3><p id="delivery-status-lead">Aktualne wykonanie agentów, niezależnych testów i bramek dostarczenia kodu, bez symulowanych rezultatów.</p></div>
+    <a class="delivery-launch-link" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer">Otwórz pełny workflow GitHub Actions ↗</a>
+   </div>
+   <div id="delivery-live-state" class="delivery-live-state" aria-live="polite">Pobieranie bieżącego stanu z GitHub Actions…</div>
+   <div id="delivery-jobs" class="delivery-jobs" role="list"></div>
+   <p id="delivery-proof-note" class="delivery-proof-note">Status joba nie zastępuje wyników bramek. O akceptacji decydują rzeczywiste testy, artefakty i hashe.</p>
+  </section>
   <div class="technical-architecture">
    <article><span>01 / GOVERNANCE</span><h3 data-i18n="governanceTitle">Specyfikacja i zatwierdzenie polityki</h3><p data-i18n="governanceDesc">Wymagania zadania, polityka jakości danych, decyzje biznesowe i kontrola akceptacji. Agent nie może sam zatwierdzić reguł.</p><code>contracts/data_policy.json</code></article>
    <article><span>02 / ENGINEERING</span><h3 data-i18n="engineeringTitle">Implementacja i kontrola zmian</h3><p data-i18n="engineeringDesc">Wersjonowany kod Python, testy regresyjne, walidacja Pandera i kontrola zmian przez pull requesty.</p><code>solution.py · pipeline.py</code></article>
-   <article><span>03 / AGENT ORCHESTRATION</span><h3 data-i18n="orchestrationTitle">Trzystopniowy audyt Foundry</h3><p data-i18n="orchestrationDesc">SequentialBuilder: Data Architect → Data Engineer → Verification Engineer. Narzędzia ograniczone rolą i uprawnieniami.</p><code>agentic/run.py</code></article>
-   <article><span>04 / ASSURANCE</span><h3 data-i18n="assuranceTitle">Walidacja i ślad audytowy</h3><p data-i18n="assuranceDesc">Kontrole źródła, niezależne przeliczenie Decimal, Pydantic, SHA-256, CI oraz ledger propozycji wymagających akceptacji.</p><code>DataDecision · agentic/verify.py</code></article>
+   <article><span>03 / AGENT ORCHESTRATION</span><h3 data-i18n="orchestrationTitle">Trzy role dostarczania kodu</h3><p data-i18n="orchestrationDesc">Data Architect projektuje, Data Engineer tworzy pliki, Verification Engineer pisze niezależne testy. Przejścia egzekwuje kod.</p><code>agentic/architect.py · engineer.py · verifier.py</code></article>
+   <article><span>04 / ASSURANCE</span><h3 data-i18n="assuranceTitle">Niezależna weryfikacja i dowody</h3><p data-i18n="assuranceDesc">Oryginalne testy, sandbox bez sieci, Decimal, SHA-256, próby naprawcze i kontrola draft PR.</p><code>agentic/delivery_status.py · verifier_verdict.py</code></article>
   </div>
   <div class="technical-head">
    <div><span class="section-no">EXECUTION CONTROL</span><h3 data-i18n="launchHeading">Uruchomienie workflow Microsoft Foundry</h3><p data-i18n="launchLead">Zlecenie nowego przebiegu przez GitHub Actions. Status jobów i zdarzenia są pobierane z rzeczywistego wykonania; brak dostępu do sekretów i możliwości zmian w repozytorium.</p></div>
-   <a class="technical-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44379368776" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Zweryfikowany audyt po integracji ↗</a>
+   <a class="technical-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Zweryfikowany audyt po integracji ↗</a>
   </div>
   <div class="technical-console">
     <div class="console-status"><div><span class="console-label" data-i18n="execStatusLabel">STAN USŁUGI</span><strong id="technical-availability" data-i18n="execChecking">Weryfikacja możliwości uruchomienia</strong><p id="technical-availability-note"></p></div><span class="console-indicator" id="technical-indicator" aria-hidden="true"></span></div>
