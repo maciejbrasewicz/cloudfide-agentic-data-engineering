@@ -97,13 +97,13 @@ test("Refresh caches bounded public requests and marks temporary failures stale"
   await query(api);
   await query(api);
   assert.equal(calls,2);
-  clock+=61_000;
+  clock+=181_000;
   fail=true;
   const stale=await query(api);
   assert.equal(stale.res.code,200);
   assert.equal(stale.data.stale,true);
   assert.equal(stale.data.warning,"temporary_github_api_failure");
-  clock+=310_000;
+  clock+=910_000;
   const unavailable=await query(api);
   assert.equal(unavailable.res.code,503);
   assert.equal(unavailable.data.available,false);
