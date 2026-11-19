@@ -11,8 +11,11 @@ const run={
 const jobs=[
   {name:"architect",status:"completed",conclusion:"success",modelOutput:"UNTRUSTED"},
   {name:"engineer",status:"completed",conclusion:"success"},
-  {name:"sandbox-validate",status:"completed",conclusion:"success"},
-  {name:"verifier",status:"queued",conclusion:null},
+  {name:"Verify P2 code inside no-network, no-secret Docker sandbox",status:"completed",conclusion:"success"},
+  {name:"Independent Foundry Verification Engineer proposes real falsification test",status:"queued",conclusion:null},
+  {name:"Verify final P5 round-3 candidate in independent sandbox",status:"completed",conclusion:"success"},
+  {name:"Deterministic 3-round delivery state and strict evidence verification",status:"completed",conclusion:"success"},
+  {name:"Execute Verifier test independently and prove mutation sensitivity",status:"in_progress",conclusion:null},
 ];
 
 function fakeResponse(){
@@ -48,7 +51,11 @@ test("Public latest status uses only real GitHub jobs and never model narratives
   assert.equal(data.run.url,"https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928");
   assert.equal(data.phases.find(x=>x.id==="architect").conclusion,"success");
   assert.equal(data.phases.find(x=>x.id==="verifier").status,"queued");
-  assert.equal(data.phases.find(x=>x.id==="adversarial").status,"not_started");
+  assert.equal(data.phases.find(x=>x.id==="sandbox-validate").conclusion,"success");
+  assert.equal(data.phases.find(x=>x.id==="sandbox-rework-r3").conclusion,"success");
+  assert.equal(data.phases.find(x=>x.id==="p5-state").conclusion,"success");
+  assert.equal(data.phases.find(x=>x.id==="adversarial").status,"in_progress");
+  assert.equal(data.phases.find(x=>x.id==="publish-draft-pr").status,"not_started");
   assert.doesNotMatch(JSON.stringify(data),/UNTRUSTED|alert|modelOutput/);
   assert.equal(seen.length,2);
 });
