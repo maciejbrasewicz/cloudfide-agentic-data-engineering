@@ -32,6 +32,12 @@ on:
         type: string
         required: false
         default: ""
+  # ONE-TIME owner-authorized acceptance run to verify new Actions draft-PR
+  # permission. Remove this trigger once GitHub run starts.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/engineer-e2e.yml"
 
 concurrency:
   group: cloudfide-engineer-p2
