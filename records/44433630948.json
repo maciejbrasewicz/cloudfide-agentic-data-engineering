@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "393b847e5de31bdb288f02ecc3d429bb1507a2dc",
+  "generated_at_utc": "2026-11-19T01:03:39.260307+00:00",
+  "source_manifest_sha256": "81b4ad70b035db38add69620902d6603860275d34007ab6fec9fe41a38cce6ef",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Define and test the exact calculations represented by TOTAL Quantity=37150 and Discount=65924.67 before excluding the control row.",
+      "evidence": "The source contains one TOTAL row with those values, and the contract requires verification before deduplication without exposing the formulas.",
+      "risk": "An incorrect metric mapping or rounding convention could pass a superficial reconciliation.",
+      "status": "pending_human_review",
+      "source_report_sha256": "5226187ac9acdf1548f11dc32f9364a353d125aae9fd6dc96026126b8afe8d84",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit price inference only when the affected product has exactly one normalized, nonmissing unit price; otherwise fail closed and report the order.",
+      "evidence": "There are 4 missing unit prices, and the approved contract already requires a unique product price or failure.",
+      "risk": "Product prices may legitimately vary over time, region, or transaction context even when current profiling finds one candidate.",
+      "status": "pending_human_review",
+      "source_report_sha256": "5226187ac9acdf1548f11dc32f9364a353d125aae9fd6dc96026126b8afe8d84",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain the 6 negative quantities provisionally but flag them as assumed returns until business evidence validates their meaning.",
+      "evidence": "Six negative-quantity rows were measured, while the contract's returns interpretation is not established by the available source evidence.",
+      "risk": "The values could represent corrections or input errors rather than returns, affecting downstream totals.",
+      "status": "pending_human_review",
+      "source_report_sha256": "5226187ac9acdf1548f11dc32f9364a353d125aae9fd6dc96026126b8afe8d84",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Require authoritative order-line or export-log evidence before declaring the five exact duplicate occurrences removable business duplicates.",
+      "evidence": "Both production and the independent oracle remove exact source tuples, while README.md states that the export alone cannot prove their meaning.",
+      "risk": "Distinct genuine sales with identical fields would be undercounted.",
+      "status": "pending_human_review",
+      "source_report_sha256": "e7f7f2f3b0c31e56b739996ad5a59ab216dab94de502366ba9ed23ad131065b8",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six signed rows provisionally, but classify the returns interpretation as unresolved until matched to return or credit records.",
+      "evidence": "The policy and arithmetic retain all six values, but no inspected source field independently identifies them as returns.",
+      "risk": "Corrections or data-entry errors could be misclassified, and discount treatment could alter net revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "e7f7f2f3b0c31e56b739996ad5a59ab216dab94de502366ba9ed23ad131065b8",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Validate the four inferred prices against a dated authoritative price or invoice source before treating the output as business-final.",
+      "evidence": "The implementation proves only that each affected product has one normalized candidate price within this export.",
+      "risk": "A product can have one observed export price while the missing transaction legitimately used another historical or contextual price.",
+      "status": "pending_human_review",
+      "source_report_sha256": "e7f7f2f3b0c31e56b739996ad5a59ab216dab94de502366ba9ed23ad131065b8",
+      "approved_by": null
+    }
+  ]
+}
