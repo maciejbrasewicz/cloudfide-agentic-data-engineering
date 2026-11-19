@@ -72,7 +72,7 @@ def fixture(tmp: Path) -> Path:
     }))
     p4_dir = collection / "p4-independent-adversarial-validation"
     verifier_sha = validate_adversarial_test(VERIFIER_TEST)
-    (collection / "p4-verifier-evidence" / TEST_PATH).write_text(VERIFIER_TEST)
+    (collection / "p4-verifier-evidence" / TEST_PATH).write_text(VERIFIER_TEST, newline="\n")
     (p4_dir / "admission.json").write_text(json.dumps({
         "candidate_manifest_sha256": candidate_digest,
         "original_test_sha256": protected["test_virtual_column.py"],
@@ -158,6 +158,6 @@ def test_different_run_and_git_sha_cannot_be_published(tmp_path: Path):
 def test_forged_verifier_test_sha_blocks_publication(tmp_path: Path):
     evidence = fixture(tmp_path)
     test = evidence / "p4-verifier-evidence" / TEST_PATH
-    test.write_text(VERIFIER_TEST.replace("== 5", "== 7"), encoding="utf-8")
+    test.write_text(VERIFIER_TEST.replace("== 5", "== 7"), encoding="utf-8", newline="\n")
     with pytest.raises(DraftPublicationError, match="Verifier test SHA mismatch"):
         publish(tmp_path, evidence)
