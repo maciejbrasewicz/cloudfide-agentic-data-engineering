@@ -48,4 +48,4 @@ jobs:
           print("Foundry, MCPStdioTool and middleware SDK imports verified")
           PY
       - name: Validate schema, privacy and telemetry tests
-        run: uv run --no-sync python -m pytest tests/test_decision_ledger.py tests/test_agent_telemetry.py tests/test_review_metrics.py tests/test_telemetry_export.py tests/test_architect_sdk_smoke.py tests/test_engineer_sdk_smoke.py tests/test_rework_sdk_smoke.py tests/test_verifier_sdk_smoke.py
+        run: uv run --no-sync python -m pytest tests/test_decision_ledger.py tests/test_agent_telemetry.py tests/test_review_metrics.py tests/test_telemetry_export.py tests/test_architect_sdk_smoke.py tests/test_engineer_sdk_smoke.py tests/test_rework_sdk_smoke.py tests/test_verifier_sdk_smoke.py tests/test_publisher_sdk_smoke.py

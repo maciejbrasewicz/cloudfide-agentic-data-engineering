@@ -1,4 +1,4 @@
-name: Foundry - real Data Engineer candidate authoring (P2)
+name: CloudFide - autonomous Data Engineering delivery
 
 # Trusted main only; no candidate Python is executed in an Azure/OIDC job.
 on:
@@ -21,6 +21,11 @@ on:
           - "1"
           - "2"
           - "3"
+      publish_draft_pr:
+        description: "After P4 independent PASS, publish verified draft PR (never merge)"
+        type: boolean
+        required: true
+        default: true
   push:
     branches: [main]
     paths:
@@ -205,6 +210,7 @@ jobs:
       - name: Independently recompute output from original CSV using stdlib Decimal
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           uv run --no-sync python -m agentic.p3_oracle \
             --source sales.csv \
@@ -316,7 +322,7 @@ jobs:
     outputs:
       candidate_status: ${{ steps.verdict.outputs.status }}
     needs: rework-r2
-    if: needs['rework-r2'].result == 'success'
+    if: ${{ always() && needs['rework-r2'].result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -378,6 +384,7 @@ jobs:
       - name: Independently recompute output from original CSV using stdlib Decimal
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           uv run --no-sync python -m agentic.p3_oracle \
             --source sales.csv \
@@ -488,7 +495,7 @@ jobs:
     outputs:
       candidate_status: ${{ steps.verdict.outputs.status }}
     needs: rework-r3
-    if: needs['rework-r3'].result == 'success'
+    if: ${{ always() && needs['rework-r3'].result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -550,6 +557,7 @@ jobs:
       - name: Independently recompute output from original CSV using stdlib Decimal
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           uv run --no-sync python -m agentic.p3_oracle \
             --source sales.csv \
@@ -743,6 +751,7 @@ jobs:
       - name: Independently recalculate original raw CSV and candidate output
         shell: bash
         run: |
+          set +e
           set -uo pipefail
           uv run --no-sync python -m agentic.p3_oracle \
             --source sales.csv \
@@ -793,6 +802,7 @@ jobs:
           cp "$RUNNER_TEMP/cloudfide-verifier-positive-output"/tests.log p4-evidence/positive_tests.log 2>/dev/null || true
           cp "$RUNNER_TEMP/cloudfide-verifier-positive-output"/pipeline.log p4-evidence/positive_pipeline.log 2>/dev/null || true
           cp "$RUNNER_TEMP/cloudfide-verifier-positive-output"/verification.json p4-evidence/positive_finance_oracle.json 2>/dev/null || true
+          cp "$RUNNER_TEMP/cloudfide-verifier-positive-output"/revenue_by_region.csv p4-evidence/ 2>/dev/null || true
           cp "$RUNNER_TEMP/cloudfide-verifier-negative-output"/tests.log p4-evidence/mutation_tests.log 2>/dev/null || true
           cp "$RUNNER_TEMP/cloudfide-verifier-negative-output"/test_exit_code.txt p4-evidence/mutation_exit_code.txt 2>/dev/null || true
       - uses: actions/upload-artifact@v4
@@ -802,3 +812,110 @@ jobs:
           path: p4-evidence/*
           if-no-files-found: warn
           retention-days: 30
+
+
+  publish-draft-pr:
+    name: Publish verified P4 candidate as human-reviewed draft PR (no Azure)
+    needs: [p5-state, verifier, adversarial]
+    if: ${{ always() && needs.adversarial.result == 'success' && (github.event_name == 'push' || inputs.publish_draft_pr == true) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          path: collected-evidence
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install trusted original-source and publisher tools only
+        run: uv sync --locked --extra quality
+      - name: Verify source-level publication and exact candidate CI controls
+        run: |
+          uv run --no-sync python -m pytest tests/test_publisher_prepare.py tests/test_candidate_branch_ci.py
+          uv run --no-sync python -m ruff check agentic/publisher_prepare.py agentic/candidate_branch_ci.py
+      - name: Enforce full P3/P4 independent receipts and prepare only SHA-approved candidate files
+        run: |
+          uv run --no-sync python -m agentic.publisher_prepare \
+            --artifacts collected-evidence \
+            --original . \
+            --destination "$RUNNER_TEMP/approved-publication" \
+            --run-id "$GITHUB_RUN_ID" \
+            --base-sha "$GITHUB_SHA"
+      - name: Commit validated source and generated evidence on one review branch
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="agentic-delivery/run-$GITHUB_RUN_ID"
+          git switch -c "$BRANCH"
+          python - <<'PY'
+          import json, os, pathlib, shutil
+          root = pathlib.Path(".")
+          staged = pathlib.Path(os.environ["RUNNER_TEMP"]) / "approved-publication"
+          manifest = json.loads((staged / "reports/agentic_delivery_manifest.json").read_text())
+          for relative in sorted(manifest["published_files"]):
+              output = root / relative
+              output.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(staged / relative, output)
+          receipt = root / "reports/agentic_delivery_manifest.json"
+          receipt.parent.mkdir(exist_ok=True)
+          shutil.copyfile(staged / "reports/agentic_delivery_manifest.json", receipt)
+          PY
+          git add -- solution.py pipeline.py README.md revenue_by_region.csv tests/test_*.py reports/agentic_delivery_manifest.json
+          if git diff --cached --quiet; then
+            echo "Verified candidate creates no changes; no empty draft PR" >&2
+            exit 1
+          fi
+          git config user.name "cloudfide-delivery-bot"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "Independent CloudFide candidate from run $GITHUB_RUN_ID - human review required"
+          COMMIT_SHA=$(git rev-parse HEAD)
+          git push origin "HEAD:refs/heads/$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+      - name: Create human-reviewed DRAFT PR without automatic merge
+        id: pull
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_BRANCH: ${{ steps.commit.outputs.branch }}
+        run: |
+          set -euo pipefail
+          gh pr create \
+            --base main --head "$CANDIDATE_BRANCH" \
+            --draft \
+            --title "CloudFide candidate - audited source run $GITHUB_RUN_ID" \
+            --body-file "$RUNNER_TEMP/approved-publication/draft-pr-body.md"
+      - name: Explicitly dispatch isolated CI against the exact published commit
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_BRANCH: ${{ steps.commit.outputs.branch }}
+          CANDIDATE_SHA: ${{ steps.commit.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api -X POST \
+            "repos/$GITHUB_REPOSITORY/actions/workflows/candidate-ci.yml/dispatches" \
+            -f ref=main \
+            -f "inputs[branch]=$CANDIDATE_BRANCH" \
+            -f "inputs[expected_sha]=$CANDIDATE_SHA" \
+            -f "inputs[base_sha]=$GITHUB_SHA" \
+            -f "inputs[source_run_id]=$GITHUB_RUN_ID"
+          echo "Published draft PR candidate SHA: $CANDIDATE_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "Independent candidate CI requested; success remains UNVERIFIED until its exact-SHA status is green." >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve trusted preparation receipt for the source run
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p6-publication-receipt
+          path: ${{ runner.temp }}/approved-publication/reports/agentic_delivery_manifest.json
+          retention-days: 30
+          if-no-files-found: warn
