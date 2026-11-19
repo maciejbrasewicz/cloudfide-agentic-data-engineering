@@ -17,15 +17,15 @@ const HEADER={
 const PHASES=Object.freeze([
   ["architect","Data Architect","architect"],
   ["engineer","Data Engineer","engineer"],
-  ["sandbox-validate","P3 Independent Sandbox","sandbox-validate"],
-  ["rework-r2","P5 Data Engineer / repair 2","rework-r2"],
-  ["sandbox-rework-r2","P5 Sandbox / repair 2","sandbox-rework-r2"],
-  ["rework-r3","P5 Data Engineer / repair 3","rework-r3"],
-  ["sandbox-rework-r3","P5 Sandbox / repair 3","sandbox-rework-r3"],
-  ["p5-state","Deterministic Controller","p5-state"],
-  ["verifier","Verification Engineer","verifier"],
-  ["adversarial","P4 Independent Falsification","adversarial"],
-  ["publish-draft-pr","Draft PR / human review","publish-draft-pr"]
+  ["sandbox-validate","P3 Independent Sandbox","Verify P2 code inside no-network, no-secret Docker sandbox"],
+  ["rework-r2","P5 Data Engineer / repair 2","Data Engineer repairs actual P3 failing tests (iteration 2)"],
+  ["sandbox-rework-r2","P5 Sandbox / repair 2","Verify corrected P5 round-2 code in independent sandbox"],
+  ["rework-r3","P5 Data Engineer / repair 3","Data Engineer third and final evidence-driven correction (iteration 3)"],
+  ["sandbox-rework-r3","P5 Sandbox / repair 3","Verify final P5 round-3 candidate in independent sandbox"],
+  ["p5-state","Deterministic Controller","Deterministic 3-round delivery state and strict evidence verification"],
+  ["verifier","Verification Engineer","Independent Foundry Verification Engineer proposes real falsification test"],
+  ["adversarial","P4 Independent Falsification","Execute Verifier test independently and prove mutation sensitivity"],
+  ["publish-draft-pr","Draft PR / human review","Publish verified P4 candidate as human-reviewed draft PR (no Azure)"]
 ]);
 
 function reply(res,status,value,head=false){
