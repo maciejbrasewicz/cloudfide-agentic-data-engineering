@@ -36,7 +36,7 @@ test("recorded evidence is available and cannot be cached as live state",async()
 });
 
 test("client assets are served without requiring any dependency",async()=>{
-  for(const path of ["/app.js","/technical.js","/delivery_status.js","/styles.css","/technical.css","/favicon.svg"]){
+  for(const path of ["/app.js","/technical.js","/delivery_status.js","/reviewer_console.js","/styles.css","/technical.css","/favicon.svg"]){
     const r=await fetch(origin+path);
     assert.equal(r.status,200);
     assert.ok((await r.text()).length>100);
@@ -71,8 +71,23 @@ test("single integrated site presents implementation and governed Foundry execut
   assert.match(html,/SequentialBuilder/);
   assert.match(html,/Microsoft Foundry/);
   assert.match(html,/id="delivery-evidence"/);
+  assert.match(html,/id="reviewer-workspace"/);
+  assert.match(html,/id="reviewer-recalculate"/);
   assert.doesNotMatch(html,/ChatGPT/i);
   assert.doesNotMatch(html,/engineering.html/);
+});
+
+test("verified real P1-P6 agent evidence is public and API launch is protected",async()=>{
+  const page=await fetch(origin+"/data/autonomous_run.json");
+  assert.equal(page.status,200);
+  const record=await page.json();
+  assert.equal(record.runId,44433630928);
+  assert.equal(record.stages.length,6);
+  assert.equal(record.result.testPassed,18);
+  const cap=await (await fetch(origin+"/api/delivery/launch/capabilities")).json();
+  assert.equal(cap.liveReady,false);
+  assert.equal((await fetch(origin+"/api/delivery/launch",{method:"POST"})).status,503);
+  assert.equal((await fetch(origin+"/independent_oracle.mjs")).status,404);
 });
 
 test("old Engineering Lab bookmarks redirect to canonical single page",async()=>{
