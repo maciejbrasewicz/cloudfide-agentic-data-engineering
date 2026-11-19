@@ -53,13 +53,13 @@ There is **no independent dashboard or second portal**. Existing `/engineering.h
 
 ### Optional authenticated recruiter execution
 
-By default, the real execution UI is present but **dispatch is disabled until credentials are explicitly provisioned**. The portal keeps original Foundry evidence available regardless. To enable the protected `workflow_dispatch` path, set Railway service variables:
+The real execution UI is directly below the global header. It becomes available when Railway provisions the two private credentials; public evidence inspection never requires a reviewer code. The portal keeps original Foundry evidence available regardless. To enable the protected `workflow_dispatch` path, set Railway service variables:
 
 - `GITHUB_WORKFLOW_TOKEN`: repository-scoped, short-lived fine-grained GitHub token allowing Actions read/write (dispatch plus run polling). Do not use a general account-level token.
-- `REVIEWER_ACCESS_CODE`: independent, high-entropy access code of at least 20 characters, distributed privately to an intended reviewer.
+- `REVIEWER_ACCESS_CODE`: independent, high-entropy access code of at least 24 characters, distributed privately to an intended reviewer.
 - `PUBLIC_BASE_URL`: only if the public hostname changes; used to bind event OIDC audience.
 
-The browser posts only an access code to the backend, which enforces a daily dispatch quota, cooldown and single-run concurrency. Actions runners authenticate event delivery with short-lived GitHub OIDC. Server verifies the expected workflow, repository, ref, run ID, JWT signature and publisher audience. Only allowlisted event metadata and explicitly untrusted report summaries can reach the browser. **No Azure key, arbitrary shell command, prompts or raw tool arguments are exposed.**
+The browser posts only an access code to the backend, which permits at most five launches per rolling 24 hours, a single active workflow and a short cooldown. Actions runners authenticate event delivery with short-lived GitHub OIDC. Server verifies the expected workflow, repository, ref, run ID, JWT signature and publisher audience. Only allowlisted event metadata and explicitly untrusted report summaries can reach the browser. **No Azure key, arbitrary shell command, prompts or raw tool arguments are exposed.**
 
 The Railway in-memory session store is single-replica and restart-volatile; it is not described as a durable task queue. For live readiness inspect `GET /api/live/capabilities`. A missing token produces `recorded_only`, not simulated execution.
 
@@ -77,3 +77,7 @@ The latest review controls require authentic cloud execution for operational ver
 ### Quality gates
 
 `node --test showcase/server.test.mjs showcase/live_gateway.test.mjs` validates the real gateway, strict allowlist, signed OIDC acceptance and unauthorized-event rejection. `pytest tests/test_showcase_evidence.py` enforces original run consistency, bilingual rendering invariants and a unified layout. Chromium screenshots in `.github/workflows/showcase-ci.yml` cover Polish/English desktop/mobile and the embedded technical section.
+
+### Recruiter-first entry and delivery process
+
+The top section now explains exactly what the reviewer launches: a new restricted Foundry Data Architect run, real Data Engineer source authoring with up to three sandbox-gated corrections, a distinct Verification Engineer falsification test, independently executed P4, and publication as a draft PR for human review with separate exact-SHA CI. A second, compact hero diagram separates **technology stack** (Foundry, Agent Framework, GitHub Actions, Azure OIDC, Python, Docker, pytest, SHA-256) from **six delivery stages** (approved specification, Architect, Engineer, P3/P5, Verifier/P4, draft PR/CI). The Architect does not dynamically create agents; GitHub Actions hosts the deterministic orchestration, and human approval is required for business-rule changes and final PR merging.
