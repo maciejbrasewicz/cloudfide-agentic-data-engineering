@@ -139,22 +139,22 @@
    <article><span>03 / AGENT ORCHESTRATION</span><h3 data-i18n="orchestrationTitle">Trzy role dostarczania kodu</h3><p data-i18n="orchestrationDesc">Data Architect projektuje, Data Engineer tworzy pliki, Verification Engineer pisze niezależne testy. Przejścia egzekwuje kod.</p><code>agentic/architect.py · engineer.py · verifier.py</code></article>
    <article><span>04 / ASSURANCE</span><h3 data-i18n="assuranceTitle">Niezależna weryfikacja i dowody</h3><p data-i18n="assuranceDesc">Oryginalne testy, sandbox bez sieci, Decimal, SHA-256, próby naprawcze i kontrola draft PR.</p><code>agentic/delivery_status.py · verifier_verdict.py</code></article>
   </div>
-  <details class="technical-details legacy-audit"><summary><span id="legacy-audit-label">Archiwalna bramka audytu (opcjonalna)</span><span aria-hidden="true">+</span></summary>
+  <div class="technical-launch-full" id="full-agent-console">
   <div class="technical-head">
    <div><span class="section-no">EXECUTION CONTROL</span><h3 data-i18n="launchHeading">Uruchomienie workflow Microsoft Foundry</h3><p data-i18n="launchLead">Zlecenie nowego przebiegu przez GitHub Actions. Status jobów i zdarzenia są pobierane z rzeczywistego wykonania; brak dostępu do sekretów i możliwości zmian w repozytorium.</p></div>
-   <a class="technical-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Zweryfikowany audyt po integracji ↗</a>
+   <a class="technical-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Uruchom przez GitHub Actions ↗</a>
   </div>
   <div class="technical-console">
     <div class="console-status"><div><span class="console-label" data-i18n="execStatusLabel">STAN USŁUGI</span><strong id="technical-availability" data-i18n="execChecking">Weryfikacja możliwości uruchomienia</strong><p id="technical-availability-note"></p></div><span class="console-indicator" id="technical-indicator" aria-hidden="true"></span></div>
     <form id="technical-start-form" class="technical-start-form" autocomplete="off">
       <label for="technical-access" data-i18n="accessLabel">Kod dostępu do wykonania</label>
       <div class="technical-controls"><input id="technical-access" type="password" minlength="20" maxlength="128" spellcheck="false" autocomplete="off" placeholder="Execution access code"><button type="submit" id="technical-start" disabled data-i18n="startRun">Uruchom w Foundry</button></div>
-      <p data-i18n="executionLimits">Uruchomienie wymaga autoryzacji. Limit kosztowy: maksymalnie 2 przebiegi dziennie i jeden aktywny proces. Kod oraz tokeny Azure nie są publikowane.</p>
+      <p data-i18n="executionLimits">Pełny proces Architect → Engineer → Verifier wymaga autoryzacji. Limit: 2 uruchomienia dziennie i 1 aktywne. Wyniki publikowane w GitHub Actions, a po pozytywnych bramkach jako draft PR.</p>
     </form>
     <div id="technical-run" hidden><div class="technical-run-header"><strong id="technical-run-title"></strong><a id="technical-run-link" hidden target="_blank" rel="noopener noreferrer" data-i18n="openJob">Otwórz wykonanie w GitHub Actions ↗</a></div><div id="technical-job-steps" class="technical-job-steps"></div><div id="technical-live-events" class="technical-live-events" aria-live="polite"></div></div>
     <p id="technical-error" role="status" aria-live="polite"></p>
   </div>
-  </details>
+  </div>
   <details class="technical-details"><summary><span data-i18n="implementationDetails">Moduły, uprawnienia i kontrakty wykonawcze</span><span aria-hidden="true">+</span></summary>
     <div class="technical-modules" id="technical-modules"></div>
     <p class="technical-footnote" data-i18n="technicalFootnote">Każde przejście między agentami podlega niezależnej kontroli danych, kodu lub testów. Draft PR wymaga pozytywnych dowodów i późniejszej decyzji człowieka. Agenci nie scalają zmian automatycznie.</p>
