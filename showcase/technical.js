@@ -214,10 +214,22 @@
       renderRun(run);
       $("technical-error").textContent="";
       if(run.status==="completed"){
-        clearInterval(state.timer);state.timer=null;
-        state.id=null;store();
-        $("technical-start").disabled=!state.enabled;
-        void capabilities();
+        const publisher=(run.jobs||[]).find(j=>j.name==="Publish verified P4 candidate as human-reviewed draft PR (no Azure)");
+        const ci=run.publication?.exactCi?.state;
+        const finalized=["success","failure","error"].includes(ci);
+        const referenceTime=Date.parse(run.updatedAt||state.submittedAt||"");
+        const stillChecking=publisher?.conclusion==="success"&&!finalized&&
+          Number.isFinite(referenceTime)&&Date.now()-referenceTime<600_000;
+        if(stillChecking){
+          // The source workflow can finish before separate exact-SHA CI.
+          // Keep polling its immutable PR SHA until CI finishes or times out.
+          $("technical-start").disabled=true;
+        }else{
+          clearInterval(state.timer);state.timer=null;
+          state.id=null;store();
+          $("technical-start").disabled=!state.enabled;
+          void capabilities();
+        }
       }
     }catch(e){$("technical-error").textContent=err(e.message);}
     finally{state.polling=false;}
