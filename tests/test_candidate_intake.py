@@ -31,11 +31,11 @@ def setup_case(tmp_path: Path):
     gate = {
         "status": "CANDIDATE_READY_FOR_SANDBOX",
         "failures": [],
-        "actual_written_files": files,
+        "actual_written_files": [dict(entry) for entry in files],
     }
     request = {
         "status": "PENDING_SANDBOX_VALIDATION",
-        "files": files,
+        "files": [dict(entry) for entry in files],
         "protected_hashes": {
             name: sha((root / name).read_bytes())
             for name in ("sales.csv", "test_virtual_column.py", "contracts/data_policy.json")
