@@ -8,6 +8,7 @@
   const heading=document.getElementById("delivery-status-title");
   const lead=document.getElementById("delivery-status-lead");
   const note=document.getElementById("delivery-proof-note");
+  const published=document.getElementById("delivery-publication");
   const isEN=()=>document.documentElement.lang==="en";
   const choose=(pl,en)=>isEN()?en:pl;
   const core=new Set([
@@ -62,6 +63,7 @@
       "A green job status alone does not accept the code. The P3–P6 gate artifacts and independent test results are authoritative."
     );
     jobsNode.replaceChildren();
+    published.replaceChildren();
     if(!latest){
       statusNode.textContent=choose("Odczytywanie aktualnego przebiegu…","Loading current execution…");
       return;
@@ -114,6 +116,20 @@
         ),label(item.conclusion||item.status))
       );
       jobsNode.append(article);
+    }
+    const result=latest.publication;
+    if(result?.status==="verified_draft_awaiting_human"&&result.pullRequest?.draft===true){
+      const row=el("div","delivery-published");
+      row.append(el("strong","",choose("Kod opublikowany i zweryfikowany przez osobne CI","Published source independently verified by CI")));
+      row.append(el("small","",choose("Draft PR · wymagany przegląd człowieka · exact-SHA CI: SUCCESS","Draft PR · human review required · exact-SHA CI: SUCCESS")));
+      const link=el("a","delivery-run-source","PR #"+result.pullRequest.number+" ↗");
+      const href=result.pullRequest.url;
+      if(typeof href==="string"&&/^https:\/\/github\.com\/maciejbrasewicz\/cloudfide-agentic-data-engineering\/pull\/\d+$/.test(href)){
+        link.href=href;link.target="_blank";link.rel="noopener noreferrer";row.append(link);
+      }
+      published.append(row);
+    }else if(result?.status==="draft_ci_not_confirmed"){
+      published.append(el("p","delivery-pending-ci",choose("Draft PR utworzony; dokładny commit czeka na potwierdzenie niezależnego CI.","Draft PR created; exact commit is still awaiting independent CI confirmation.")));
     }
   }
   async function refresh(){

@@ -57,6 +57,11 @@
 @media(max-width:1120px){.technical-architecture{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:750px){.technical-architecture{grid-template-columns:1fr}.technical-architecture article{padding:22px}.technical-head{display:block;padding-top:45px}.technical-source{display:inline-block;margin-top:18px}.technical-modules{grid-template-columns:1fr}.technical-module:nth-child(odd){border-right:0}.technical-controls{grid-template-columns:1fr}.technical-controls button{width:100%}.console-status,.technical-start-form,#technical-run{padding-left:19px;padding-right:19px}.technical-head h3{font-size:26px}}
 
+.delivery-publication:not(:empty){padding:15px 18px;background:#f7faf7;border:1px solid #d8e4d9;border-top:0}
+.delivery-published{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.delivery-published strong{font:600 12px/1.5 var(--sans);color:#2c6141}
+.delivery-published small{font:10px/1.5 var(--mono);color:#657c6b}
+.delivery-pending-ci{margin:0;font:11px/1.7 var(--mono);color:#8c714b}
 /* Latest actual delivery record: one restrained section within the same portal. */
 .delivery-evidence{background:#fff;border:1px solid #d0ded3;margin:20px 0 28px;padding:26px 28px}
 .delivery-evidence-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-bottom:1px solid #e3eae4;padding-bottom:21px}

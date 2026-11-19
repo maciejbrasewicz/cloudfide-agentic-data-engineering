@@ -219,10 +219,16 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="cloudfide-engineer-") as temporary:
         workspace = create_workspace(ROOT, Path(temporary) / "candidate", args.mode)
         ledger = EngineerLedger()
-        result = asyncio.run(perform(
-            spec, architect, workspace, ledger, accepted.report_sha256,
-            endpoint, model,
-        ))
+        from .role_telemetry import measure_role
+
+        with measure_role(
+            role="data_engineer", output_dir=args.output_dir,
+            model_deployment=model, tool_call_count=lambda: len(ledger.calls),
+        ):
+            result = asyncio.run(perform(
+                spec, architect, workspace, ledger, accepted.report_sha256,
+                endpoint, model,
+            ))
         verify_unchanged_inputs(ROOT, inputs)
         try:
             report = EngineerReport.model_validate_json(result.strip())

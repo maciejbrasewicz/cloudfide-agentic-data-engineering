@@ -1,0 +1,110 @@
+name: Production reviewer portal - live read-only acceptance
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "showcase/**"
+      - ".github/workflows/production-portal-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live-site:
+    name: Real Railway HTTP smoke (no Azure or reviewer credentials)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify LIVE portal routes only after deployment is online
+        shell: bash
+        env:
+          BASE: https://engineering-intelligence-production-a972180f.up.railway.app
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cloudfide-http"
+          for n in $(seq 1 24); do
+            if curl --fail --silent --show-error --max-time 10 \
+              "$BASE/data/latest_autonomous_run.json" \
+              -o "$RUNNER_TEMP/cloudfide-http/actual-run.json"; then
+              if python - "$RUNNER_TEMP/cloudfide-http/actual-run.json" <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert d["runId"] == 44485096373
+          assert d["reference"]["candidateSha"] == "73ab197159f8ed5a595bdd99a88b01707371d12e"
+          assert d["reference"]["ciCommitStatus"] == "success"
+          PY
+              then break; fi
+            fi
+            if [ "$n" -eq 24 ]; then echo "Production latest run never became ready"; exit 1; fi
+            sleep 10
+          done
+          curl --fail --silent --show-error --max-time 15 \
+            "$BASE/api/delivery/launch/capabilities" \
+            -o "$RUNNER_TEMP/cloudfide-http/launcher.json"
+          python - "$RUNNER_TEMP/cloudfide-http/launcher.json" <<'PY'
+          import json, sys
+          obj = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert obj["liveReady"] is True, "Railway full delivery token/code missing"
+          assert obj["mode"] == "protected_full_three_agent_delivery"
+          assert "token" not in str(obj).lower()
+          print("Public capability ready without exposing credentials")
+          PY
+      - name: Actually rerun independent original CSV arithmetic through production API
+        shell: bash
+        env:
+          BASE: https://engineering-intelligence-production-a972180f.up.railway.app
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 30 \
+            --retry 2 --retry-delay 3 \
+            -X POST -H 'Content-Type: application/json' \
+            --data '{}' "$BASE/api/review/recalculate" \
+            -o "$RUNNER_TEMP/cloudfide-http/recalculation.json"
+          python - "$RUNNER_TEMP/cloudfide-http/recalculation.json" <<'PY'
+          import json,sys
+          doc = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert doc["status"] == "PASSED"
+          assert doc["agentRunExecuted"] is False
+          assert doc["netRevenue"] == "2570247.03"
+          assert doc["sourceCounts"]["rawRows"] == 1507
+          assert doc["sourceCounts"]["uniqueTransactions"] == 1500
+          assert set(doc["regions"]) == {"Central", "East", "North", "South", "West"}
+          assert doc["sourceSha256"] == "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4"
+          print("Verified immutable original CSV and five revenue regions")
+          PY
+      - name: Check public live job feed and exact SHA verification
+        shell: bash
+        env:
+          BASE: https://engineering-intelligence-production-a972180f.up.railway.app
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 20 \
+            "$BASE/api/delivery/latest" \
+            -o "$RUNNER_TEMP/cloudfide-http/latest.json"
+          python - "$RUNNER_TEMP/cloudfide-http/latest.json" <<'PY'
+          import json,sys
+          doc = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert doc["available"] is True
+          assert doc["run"]["id"] == 44485096373, "Latest execution changed; inspect actual new run"
+          assert doc["run"]["conclusion"] == "success"
+          p = doc["publication"]
+          assert p["status"] == "verified_draft_awaiting_human", p
+          assert p["pullRequest"]["number"] == 35
+          assert p["pullRequest"]["headSha"] == "73ab197159f8ed5a595bdd99a88b01707371d12e"
+          assert p["exactCi"]["state"] == "success"
+          print("Live portal has independent verified draft PR #35")
+          PY
+      - name: Publish privacy-safe run summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Railway production verification"
+            echo
+            echo "- Actual HTTP calls to production (not mocked)"
+            echo "- Read-only GitHub latest/CI retrieval"
+            echo "- No GitHub API token or review code logged"
+            echo "- Recalculation independently performed on the server"
+          } >> "$GITHUB_STEP_SUMMARY"

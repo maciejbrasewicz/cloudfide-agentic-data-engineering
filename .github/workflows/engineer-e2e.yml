@@ -625,6 +625,21 @@ jobs:
             --output-dir state-evidence
           result=$(python -c "import json;print(json.load(open('state-evidence/run_state.json'))['status'])")
           echo "status=$result" >> "$GITHUB_OUTPUT"
+      - name: Independently recheck and persist real P5 SHA-bound checkpoint
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f state-evidence/run_state.json ] && [ -f collected-evidence/p2-architect-receipt/input_manifest.json ]; then
+            uv run --no-sync python -m agentic.checkpoint \
+              --artifacts collected-evidence \
+              --original . \
+              --state state-evidence/run_state.json \
+              --max-rounds "${{ inputs.max_rounds || '3' }}" \
+              --output state-evidence/checkpoint.json
+          else
+            echo "No valid P5 stage evidence exists; no checkpoint may be created." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Publish final state, source provenance and all iteration history
         if: always()
         uses: actions/upload-artifact@v4
@@ -910,5 +925,120 @@ jobs:
         with:
           name: p6-publication-receipt
           path: ${{ runner.temp }}/approved-publication/reports/agentic_delivery_manifest.json
+          retention-days: 30
+          if-no-files-found: warn
+
+
+  policy-review:
+    name: Human approval REQUEST for SHA-verified policy change (never auto-approve)
+    needs: architect
+    if: ${{ always() && needs.architect.result == 'failure' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Retrieve Architect gate, never raw assignment content
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: p2-architect-receipt
+          path: architect-evidence
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Independently validate SHA-bound proposal before human escalation
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv sync --locked --extra quality
+          uv run --no-sync python -m pytest tests/test_policy_review_request.py
+          uv run --no-sync python -m agentic.policy_review_request \
+            --architect-evidence architect-evidence \
+            --root . \
+            --run-id "$GITHUB_RUN_ID" \
+            --output policy-review/request.md
+      - name: Open an auditable HUMAN decision issue, not a model approval
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ ! -s policy-review/request.md ]; then
+            echo "No validated policy exception; do not open a speculative issue."
+            exit 0
+          fi
+          TITLE="CloudFide policy approval required - run $GITHUB_RUN_ID"
+          EXISTING=$(gh issue list --state all --limit 100 --json number,title \
+            --jq ".[] | select(.title == \"$TITLE\") | .number" | head -1)
+          if [ -n "$EXISTING" ]; then
+            echo "Previously issued policy request #$EXISTING" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          URL=$(gh issue create --title "$TITLE" --body-file policy-review/request.md)
+          echo "## Policy was NOT changed or approved" >> "$GITHUB_STEP_SUMMARY"
+          echo "$URL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Preserve escalation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: human-policy-review-request
+          path: policy-review/request.md
+          if-no-files-found: ignore
+          retention-days: 30
+
+
+  delivery-telemetry:
+    name: Collect measured agent time, retries and verification outcome (no model text)
+    needs: [architect, engineer, p5-state, verifier, adversarial, publish-draft-pr]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          path: collected-evidence
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install trusted reporting dependencies and run provenance tests
+        run: |
+          uv sync --locked --extra quality
+          uv run --no-sync python -m pytest tests/test_delivery_metrics.py tests/test_role_telemetry.py
+          uv run --no-sync python -m ruff check agentic/delivery_metrics.py agentic/role_telemetry.py
+      - name: Fetch ACTUAL GitHub Actions job timestamps
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" > jobs.json
+      - name: Build privacy-safe operational metrics from source and role receipts
+        run: |
+          uv run --no-sync python -m agentic.delivery_metrics \
+            --jobs jobs.json \
+            --artifacts collected-evidence \
+            --run-id "$GITHUB_RUN_ID" \
+            --base-sha "$GITHUB_SHA" \
+            --output delivery-telemetry/run_metrics.json
+      - name: Attach source-run telemetry and model-usage limitations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-operational-telemetry
+          path: delivery-telemetry/run_metrics.json
           retention-days: 30
           if-no-files-found: warn

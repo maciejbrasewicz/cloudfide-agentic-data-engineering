@@ -1,0 +1,7 @@
+# Governance boundaries for the CloudFide engineering platform.
+# CODEOWNERS requests a review; branch rules must explicitly enforce reviews.
+# An owner cannot approve their own change. Add a second reviewer if required.
+/contracts/data_policy.json @maciejbrasewicz
+/agentic/ @maciejbrasewicz
+/.github/workflows/ @maciejbrasewicz
+/showcase/ @maciejbrasewicz

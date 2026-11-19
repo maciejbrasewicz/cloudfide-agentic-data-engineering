@@ -122,3 +122,55 @@ test("No fetched jobs are synthesized into successful execution states",async()=
   assert.equal(data.run.conclusion,"failure");
   assert.ok(data.phases.every(x=>x.status==="not_started"&&x.conclusion===null));
 });
+
+
+test("Only real matching draft PR and exact candidate SHA status allow a verified publication", async()=>{
+  const sourceRun={...run,status:"completed",conclusion:"success"};
+  const publishJob={name:"Publish verified P4 candidate as human-reviewed draft PR (no Azure)",
+                    status:"completed",conclusion:"success"};
+  const seen=[];
+  const api=createDeliveryGateway({
+    fetchImpl:async url=>{
+      seen.push(url);
+      if(url.includes("/workflows/"))return {ok:true,json:async()=>({workflow_runs:[sourceRun]})};
+      if(url.includes("/jobs?"))return {ok:true,json:async()=>({jobs:[...jobs,publishJob]})};
+      if(url.includes("/pulls?"))return {ok:true,json:async()=>[{
+        number:35,draft:true,state:"open",merged_at:null,
+        head:{ref:"agentic-delivery/run-"+run.id,sha:SHA},base:{ref:"main"}
+      }]};
+      if(url.includes("/status"))return {ok:true,json:async()=>({statuses:[
+        {context:"agentic-delivery/isolated-candidate-ci",state:"success"}
+      ]})};
+      throw Error("Unexpected evidence fetch "+url);
+    },
+    now:()=>500_000,
+  });
+  const {data}=await query(api);
+  assert.equal(data.publication.status,"verified_draft_awaiting_human");
+  assert.equal(data.publication.pullRequest.number,35);
+  assert.equal(data.publication.pullRequest.headSha,SHA);
+  assert.equal(data.publication.exactCi.state,"success");
+  assert.equal(seen.length,4);
+});
+
+test("Publisher job success alone never establishes valid candidate CI",async()=>{
+  const sourceRun={...run,status:"completed",conclusion:"success"};
+  const publishJob={name:"Publish verified P4 candidate as human-reviewed draft PR (no Azure)",
+                    status:"completed",conclusion:"success"};
+  const api=createDeliveryGateway({
+    fetchImpl:async url=>({
+      ok:true,json:async()=>{
+        if(url.includes("/workflows/"))return {workflow_runs:[sourceRun]};
+        if(url.includes("/jobs?"))return {jobs:[publishJob]};
+        if(url.includes("/pulls?"))return [{
+          number:35,draft:true,state:"open",merged_at:null,
+          head:{ref:"agentic-delivery/run-"+run.id,sha:SHA},base:{ref:"main"}
+        }];
+        return {statuses:[{context:"agentic-delivery/isolated-candidate-ci",state:"failure"}]};
+      }
+    }),
+  });
+  const {data}=await query(api);
+  assert.equal(data.publication.status,"draft_ci_not_confirmed");
+  assert.equal(data.publication.exactCi.state,"failure");
+});

@@ -196,3 +196,79 @@ def test_invalid_attempt_budget_rejected(tmp_path: Path, bad_limit: int):
             tmp_path / "none", original, tmp_path / "stages",
             max_rounds=bad_limit,
         )
+
+
+
+def _checkpoint_case(tmp_path: Path):
+    from agentic.checkpoint import capture_checkpoint
+
+    original = source_dir(tmp_path)
+    artifacts = tmp_path / "evidence"
+    round_artifacts(artifacts, original, 1, "PASSED")
+    arch = artifacts / "p2-architect-receipt"
+    arch.mkdir()
+    run_id = "44485096373"
+    source_sha = "a" * 40
+    fixture_sha = {
+        "source_csv_sha256": digest((original / "sales.csv").read_bytes()),
+        "original_tests_sha256": digest((original / "test_virtual_column.py").read_bytes()),
+        "approved_policy_sha256": digest((original / "contracts/data_policy.json").read_bytes()),
+    }
+    (arch / "input_manifest.json").write_text(json.dumps({
+        "run_id": run_id, "base_commit": source_sha, **fixture_sha,
+    }))
+    (arch / "architect_gate.json").write_text(json.dumps({
+        "status": "APPROVED_FOR_ENGINEERING",
+        "source_sha256": fixture_sha["source_csv_sha256"], "failures": [],
+    }))
+    outcome = evaluate_delivery_rounds(artifacts, original, tmp_path / "rechecked", max_rounds=1)
+    outcome.update({"github_run_id": run_id, "base_commit_sha": source_sha})
+    state = tmp_path / "run_state.json"
+    state.write_text(json.dumps(outcome))
+    result = capture_checkpoint(
+        artifacts, original, state,
+        run_id=run_id, base_sha=source_sha, max_rounds=1,
+    )
+    return artifacts, original, state, result
+
+
+def test_checkpoint_reconstructs_real_p5_and_source_sha(tmp_path: Path):
+    from agentic.checkpoint import verify_checkpoint
+    artifacts, original, state, checkpoint = _checkpoint_case(tmp_path)
+    assert checkpoint["status"] == "WAITING_VERIFIER"
+    assert checkpoint["selected_iteration"] == 1
+    assert checkpoint["source"] == "independent_p5_revalidation"
+    assert checkpoint["artifact_sha256"]
+    assert checkpoint["auto_resume"] is False
+    assert checkpoint["recovery_method"].startswith("github_actions_")
+    verify_checkpoint(checkpoint, artifacts, original, state)
+
+
+def test_checkpoint_detects_replaced_previous_candidate(tmp_path: Path):
+    from agentic.checkpoint import verify_checkpoint
+    artifacts, original, state, checkpoint = _checkpoint_case(tmp_path)
+    file = artifacts / "p2-engineer-candidate-pending-sandbox/engineer_gate.json"
+    file.write_text(file.read_text() + " ")
+    with pytest.raises(ValueError):
+        verify_checkpoint(checkpoint, artifacts, original, state)
+
+
+def test_checkpoint_rejects_modified_original_csv(tmp_path: Path):
+    from agentic.checkpoint import CheckpointError, verify_checkpoint
+    artifacts, original, state, checkpoint = _checkpoint_case(tmp_path)
+    (original / "sales.csv").write_bytes(b"tampered")
+    with pytest.raises(CheckpointError, match="Original source changed"):
+        verify_checkpoint(checkpoint, artifacts, original, state)
+
+
+def test_checkpoint_rejects_false_history_even_if_job_claims_success(tmp_path: Path):
+    from agentic.checkpoint import CheckpointError, capture_checkpoint
+    artifacts, original, state, _checkpoint = _checkpoint_case(tmp_path)
+    report = json.loads(state.read_text())
+    report["history"][0]["candidate_status"] = "PASSED_MODEL_CLAIM"
+    state.write_text(json.dumps(report))
+    with pytest.raises(CheckpointError, match="P5 state differs"):
+        capture_checkpoint(
+            artifacts, original, state,
+            run_id="44485096373", base_sha="a" * 40, max_rounds=1,
+        )

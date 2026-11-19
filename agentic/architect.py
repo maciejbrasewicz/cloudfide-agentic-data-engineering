@@ -231,9 +231,15 @@ def main() -> None:
         run_id=os.environ.get("GITHUB_RUN_ID"),
     )
     ledger = ArchitectToolLedger()
-    raw_response = asyncio.run(execute_architect(
-        spec=spec, root=ROOT, ledger=ledger, endpoint=endpoint, model=model,
-    ))
+    from .role_telemetry import measure_role
+
+    with measure_role(
+        role="data_architect", output_dir=args.output_dir,
+        model_deployment=model, tool_call_count=lambda: len(ledger.calls),
+    ):
+        raw_response = asyncio.run(execute_architect(
+            spec=spec, root=ROOT, ledger=ledger, endpoint=endpoint, model=model,
+        ))
     verify_unchanged_inputs(ROOT, manifest)
     if source_facts(ROOT) != trusted:
         raise SystemExit("Original source changed during Architect execution")

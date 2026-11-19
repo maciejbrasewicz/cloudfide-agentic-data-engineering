@@ -248,13 +248,20 @@ def main() -> None:
         )
         workspace = create_workspace(ROOT, base / "candidate", "rebuild")
         engineer_ledger, rework_ledger = EngineerLedger(), ReworkLedger()
-        answer = asyncio.run(run_rework_foundry(
-            spec=spec, architect=architect, workspace=workspace,
-            engineer_ledger=engineer_ledger, rework_ledger=rework_ledger,
-            prior_root=prior, verdict=outcome, feedback_dir=args.p3_dir,
-            architect_digest=approved.report_sha256,
-            endpoint=endpoint, model=model, iteration=args.iteration,
-        ))
+        from .role_telemetry import measure_role
+
+        with measure_role(
+            role="data_engineer_rework_" + str(args.iteration),
+            output_dir=args.output_dir, model_deployment=model,
+            tool_call_count=lambda: len(engineer_ledger.calls),
+        ):
+            answer = asyncio.run(run_rework_foundry(
+                spec=spec, architect=architect, workspace=workspace,
+                engineer_ledger=engineer_ledger, rework_ledger=rework_ledger,
+                prior_root=prior, verdict=outcome, feedback_dir=args.p3_dir,
+                architect_digest=approved.report_sha256,
+                endpoint=endpoint, model=model, iteration=args.iteration,
+            ))
         from .input_manifest import verify_unchanged_inputs
         verify_unchanged_inputs(ROOT, inputs)
         try:

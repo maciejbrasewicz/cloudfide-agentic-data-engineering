@@ -186,10 +186,10 @@
   }
   $("reviewer-recalculate").addEventListener("click",recalculate);
   window.addEventListener("cloudfide:language",language);
-  fetch("/data/autonomous_run.json",{cache:"no-store"}).then(r=>{
+  fetch("/data/latest_autonomous_run.json",{cache:"no-store"}).then(r=>{
     if(!r.ok)throw Error("No recorded evidence");return r.json();
   }).then(payload=>{
-    if(payload.schemaVersion!==1||payload.runId!==44433630928||!Array.isArray(payload.stages))throw Error("Unexpected evidence schema");
+    if(payload.schemaVersion!==1||payload.runId!==44485096373||!Array.isArray(payload.stages))throw Error("Unexpected evidence schema");
     data=payload;language();
   }).catch(()=>{
     detail.replaceChildren(node("p","",loc(

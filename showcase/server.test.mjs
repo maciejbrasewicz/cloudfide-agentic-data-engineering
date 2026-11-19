@@ -82,6 +82,10 @@ test("verified real P1-P6 agent evidence is public and API launch is protected",
   assert.equal(page.status,200);
   const record=await page.json();
   assert.equal(record.runId,44433630928);
+  const latest=await (await fetch(origin+"/data/latest_autonomous_run.json")).json();
+  assert.equal(latest.runId,44485096373);
+  assert.equal(latest.sourceWorkflowConclusion,"success");
+  assert.equal(latest.reference.ciCommitStatus,"success");
   assert.equal(record.stages.length,6);
   assert.equal(record.result.testPassed,18);
   const cap=await (await fetch(origin+"/api/delivery/launch/capabilities")).json();

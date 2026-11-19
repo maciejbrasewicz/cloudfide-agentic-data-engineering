@@ -1,5 +1,7 @@
 # CloudFide — execution, deliverables and reviewer access
 
+> **Current validated run (19 Nov 2026):** [full three-agent execution #44485096373](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373) created [draft PR #35](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35) **automatically**; separate [exact-SHA CI #44487613707](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44487613707) is successful. The older #44433630928 / PR #28 below remains a historical first complete multiagent example. For execution, governance and reviewer setup see [the current reviewer runbook](reviewer-runbook.md).
+
 ## Two layers, one product
 
 **The product is the agentic delivery system**, not a second copy of the sales
