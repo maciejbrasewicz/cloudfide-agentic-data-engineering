@@ -63,7 +63,7 @@ different from the replay command above.
 
 ## Start all three Foundry roles from one portal
 
-The portal includes an authorized **full delivery launch** panel under
+The single portal includes an authorized **full delivery launch** panel immediately below the global header, above the task overview. It explains what a fresh run does, while the technology stack and gated P1–P6 workflow are separate cards below. The panel was previously located under
 System. Its backend uses a repository-scoped GitHub token stored **only in
 Railway**, never sent to the browser:
 
@@ -78,7 +78,7 @@ Railway**, never sent to the browser:
 The backend dispatches exactly engineer-e2e.yml on main in rebuild mode,
 at most three Engineer iterations, with a draft-PR publication after P4 PASS.
 The portal polls real GitHub jobs, not a fake progress timeline. It limits
-launches to two per rolling 24 hours and one concurrent run; treat these as
+launches to five per rolling 24 hours and one concurrent run; treat these as
 cost controls, not a complete identity platform.
 
 **Acceptance test for the UI:** use the private review access code to start
@@ -134,3 +134,9 @@ historical facts. The model cannot silently change these policy choices.
 - For full OpenTelemetry traces and reliable model cost, configure a
   controlled exporter and usage receipts; this is separate from the accurate
   operation-level metrics already captured.
+
+## Verified portal dispatch and current acceptance status (19 Nov 2026)
+
+The production Railway protected endpoint accepted the one-time authenticated request and issued GitHub `workflow_dispatch` [#44501856719](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44501856719), confirming Railway → GitHub execution without revealing the reviewer code. That run exposed an actual GitHub skipped-job dependency: P5 accepted round 2 while Verifier and P4 were skipped. PR #40 fixes the transition, PR #41 prevents a false green verdict in the portal, and PR #42 adds a mandatory final job-level acceptance. A **new real full run** must confirm Verifier, P4, draft PR and separate exact-SHA CI after the fix. A green historical workflow without P4 is not acceptance.
+
+The launcher permits up to five real `workflow_dispatch` attempts per rolling 24 hours, one active run, and a short server-side launch cooldown. The reviewer access code is a service-only Railway secret; it must not be committed to GitHub or inserted into public documentation.

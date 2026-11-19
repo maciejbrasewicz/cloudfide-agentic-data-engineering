@@ -110,3 +110,22 @@ test("public portal cannot invoke arbitrary endpoints",async()=>{
   assert.equal((await fetch(origin+"/.env")).status,404);
   assert.equal((await fetch(origin+"/live_gateway.mjs")).status,404);
 });
+
+test("recruiter launch is first under header, with honest multiagent workflow and a single form",async()=>{
+  const html=await (await fetch(origin+"/?lang=pl")).text();
+  const entry=html.indexOf('id="reviewer-execution"');
+  const intro=html.indexOf('id="intro"');
+  const technical=html.indexOf('id="technical"');
+  assert.ok(entry>=0&&intro>=0&&technical>=0);
+  assert.ok(entry<intro&&intro<technical);
+  assert.equal(html.split('id="technical-start-form"').length-1,1);
+  assert.equal(html.split('id="full-agent-console"').length-1,1);
+  assert.match(html,/Zadanie i zasady/);
+  assert.match(html,/Data Architect/);
+  assert.match(html,/Data Engineer/);
+  assert.match(html,/Verification Engineer/);
+  assert.match(html,/Sandbox i kontroler/);
+  assert.match(html,/5 uruchomień w ciągu 24 godzin/);
+  assert.match(html,/WYKORZYSTANE TECHNOLOGIE/);
+  assert.match(html,/CYKL DOSTARCZENIA KODU/);
+});

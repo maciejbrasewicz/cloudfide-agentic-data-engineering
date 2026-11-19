@@ -8,6 +8,8 @@ const WORKFLOW="engineer-e2e.yml";
 const REF="main";
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 const DAY_MS=86_400_000;
+const MAX_RUNS_PER_DAY=5;
+const MIN_LAUNCH_INTERVAL_MS=120_000;
 const MAX_BODY=512;
 const HEADERS={
   "Cache-Control":"no-store, private","Content-Type":"application/json; charset=utf-8",
@@ -66,7 +68,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
     if(url.pathname==="/api/delivery/launch/capabilities"&&method==="GET"){
       send(res,200,{
         liveReady:ready,mode:ready?"protected_full_three_agent_delivery":"operator_setup_required",
-        maxRunsPerDay:2,maxConcurrentRuns:1,workflow:WORKFLOW,
+        maxRunsPerDay:MAX_RUNS_PER_DAY,maxConcurrentRuns:1,workflow:WORKFLOW,
         execution:"real_github_actions_foundry",
         message:ready?"Reviewer code required; all runs are audited in GitHub":
           "Set GITHUB_WORKFLOW_TOKEN and REVIEWER_ACCESS_CODE on the Railway service"
@@ -89,7 +91,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
       let input;
       try{input=await bodyObject(req);}catch{send(res,400,{error:"invalid_request"});return true;}
       if(!safeEqual(input.accessCode,access)){send(res,401,{error:"invalid_access_code"});return true;}
-      if(pendingStart||now()-lastDispatch<1_800_000){
+      if(pendingStart||now()-lastDispatch<MIN_LAUNCH_INTERVAL_MS){
         send(res,429,{error:"another_reviewer_execution_active_or_recent"});return true;
       }
       pendingStart=true;
@@ -97,7 +99,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
         const history=await runs();
         const active=history.some(x=>x.status!=="completed");
         const daily=history.filter(x=>now()-Date.parse(x.created_at)<DAY_MS).length;
-        if(active||daily>=2){
+        if(active||daily>=MAX_RUNS_PER_DAY){
           send(res,429,{error:"daily_quota_or_active_execution"});return true;
         }
         const id=uuid();
