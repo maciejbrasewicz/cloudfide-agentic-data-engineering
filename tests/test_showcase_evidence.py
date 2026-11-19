@@ -80,6 +80,10 @@ def test_showcase_is_bilingual_and_explains_the_real_delivery():
     assert '<script src="./app.js" defer>' in html
     assert '<script src="./technical.js" defer>' in html
     assert '<script src="./delivery_status.js" defer>' in html
+    assert '<script src="./reviewer_console.js" defer>' in html
+    assert 'id="reviewer-workspace"' in html
+    assert 'id="reviewer-recalculate"' in html
+    assert 'id="full-agent-console"' in html
     assert 'https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/28' in html
     assert 'https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44478568225' in html
     assert 'id="delivery-evidence"' in html
@@ -184,3 +188,33 @@ def test_system_is_one_portal_and_has_no_legacy_personal_branding():
     assert "data/agent_trace.json" not in technical
     assert "api/live/start" in technical
     assert 'location==="/engineering.html"' in server
+
+
+def test_real_agent_public_console_is_grounded_in_executed_artifacts():
+    record = json.loads((SHOWCASE / "data/autonomous_run.json").read_text(encoding="utf-8"))
+    assert record["schemaVersion"] == 1
+    assert record["runId"] == 44433630928
+    assert record["historical"] is True
+    assert record["sourceWorkflowConclusion"] == "failure_at_initial_automated_pull_request_creation"
+    assert record["reference"]["candidateSha"] == "287b9d82237e90b753991cd43f3ebd5a2e514a53"
+    assert record["result"]["testPassed"] == 18
+    assert record["result"]["testCount"] == 18
+    assert Decimal(record["result"]["netRevenue"]) == Decimal("2570247.03")
+    assert [stage["key"] for stage in record["stages"]] == [
+        "architect", "engineer-1", "engineer-2", "engineer-3", "verifier", "delivery",
+    ]
+    assert [stage["status"] for stage in record["stages"]] == [
+        "PASSED", "FAILED", "FAILED", "PASSED", "PASSED", "PASSED",
+    ]
+    assert len(record["stages"][0]["tools"]) == 7
+    assert len(record["stages"][4]["tools"]) == 8
+    assert record["stages"][4]["files"][0]["name"] == "tests/test_verifier_generated.py"
+    for stage in record["stages"]:
+        assert stage["classification"] != "simulated"
+        assert stage["sourceUrl"].startswith(
+            "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/"
+        )
+        for file in stage.get("files", []):
+            assert len(file["sha256"]) == 64
+    assert "original" not in record.keys()
+    assert "secret" not in json.dumps(record).lower()
