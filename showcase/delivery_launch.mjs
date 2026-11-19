@@ -44,6 +44,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
   const recentAttempts=new Map();
   let lastDispatch=0;
   let pendingStart=false;
+  const publicationCache=new Map();
   const query=async(path,options={})=>{
     const response=await fetchImpl("https://api.github.com/repos/"+REPO+path,{
       ...options,signal:AbortSignal.timeout(9000),
@@ -170,6 +171,10 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
         }));
         let publication={status:"not_yet_available",pullRequest:null,exactCi:null};
         if(jobs.some(j=>j.name==="Publish verified P4 candidate as human-reviewed draft PR (no Azure)"&&j.conclusion==="success")){
+          const cached=publicationCache.get(run.id);
+          if(cached&&now()-cached.at<30_000){
+            publication=cached.value;
+          }else{
           try{
             const matches=await publicQuery("/pulls?state=all&head=maciejbrasewicz:agentic-delivery/run-"+run.id+"&per_page=10");
             const pr=(Array.isArray(matches)?matches:[]).find(x=>
@@ -198,6 +203,8 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
               }catch{publication.status="draft_ci_unavailable";}
             }
           }catch{publication.status="publication_check_unavailable";}
+          publicationCache.set(run.id,{at:now(),value:publication});
+          }
         }
         send(res,200,{
           id:m[1],mode:"real_full_delivery",status:run.status,
