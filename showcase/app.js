@@ -26,7 +26,7 @@
     flowGovernanceNote:"GitHub Actions controls transitions. The Architect designs the solution — it does not create the other agents. Business policy changes require separate human authorization.",
     skip:"Skip to content",
     navLab:"System",
-    verifiedDeliveryLabel:"LATEST VERIFIED RUN / 19 NOV 2026",
+    verifiedDeliveryLabel:"VERIFIED HISTORICAL RUN / REFERENCE",
     verifiedDeliveryDesc:"Three actual iterations, an independently executed third-agent test, and 18/18 passing candidate tests. Published as a draft PR without replacing the trusted production pipeline.",
     verifiedDeliveryRun:"Execution evidence #44485096373 ↗",
     verifiedDeliveryPR:"Independently verified draft PR #35 ↗",
