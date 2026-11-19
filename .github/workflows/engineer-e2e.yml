@@ -3,12 +3,6 @@ run-name: CloudFide delivery · ${{ inputs.review_request_id || github.run_id }}
 
 # Trusted main only; no candidate Python is executed in an Azure/OIDC job.
 on:
-  # TEMPORARY one-time acceptance: this exact main merge starts one real P1–P6.
-  # Remove this push trigger immediately after observing the new run.
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/engineer-e2e.yml"
   workflow_dispatch:
     inputs:
       mode:
