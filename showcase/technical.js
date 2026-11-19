@@ -3,7 +3,7 @@
    Recorded evidence remains in the main execution section; never simulate events. */
 (() => {
   "use strict";
-  const root=document.getElementById("technical");
+  const root=document.getElementById("reviewer-execution");
   if(!root)return;
   const $=id=>document.getElementById(id);
   const el=(tag,cls,text)=>{
@@ -61,11 +61,11 @@
       const info=await response.json();
       state.enabled=info.liveReady===true;
       $("technical-availability").textContent=state.enabled?
-        local("Dostępne po autoryzacji","Available with authorization"):
+        local("Gotowe do uruchomienia","Ready to launch"):
         local("Uruchomienia na żądanie — nieaktywne","On-demand execution — not configured");
       $("technical-availability-note").textContent=state.enabled?
-        local("Kod autoryzuje rzeczywiste wykonanie Architect → Engineer → Verifier, do trzech prób z niezależnymi testami.","The code authorizes real Architect → Engineer → Verifier execution, up to three attempts with independent tests."):
-        local("Pełny start agentów wymaga konfiguracji serwera. Rekruter może już oglądać ich rzeczywistą pracę i uruchomić niezależne przeliczenie CSV powyżej.","Server configuration is required for paid full-agent launch. The reviewer can already inspect real agent work and rerun independent CSV verification above.");
+        local("Podaj kod rekrutera, aby uruchomić od nowa trzy role Foundry, izolowane testy i publikację draft PR. Maks. 5 uruchomień / 24 h.","Enter your private reviewer code to launch all three Foundry roles, isolated tests and draft PR delivery. Maximum 5 launches / 24 h."):
+        local("Start nowych agentów wymaga aktywnej konfiguracji serwera. Udokumentowane wcześniejsze wykonanie pozostaje dostępne.","New agent execution requires a configured server. Previously recorded evidence remains publicly available.");
       $("technical-indicator").classList.toggle("available",state.enabled);
       $("technical-start").disabled=!state.enabled||Boolean(state.id);
     }catch{
@@ -117,9 +117,13 @@
       const events=$("technical-live-events");events.replaceChildren();
       for(const e of run.events||[])events.append(appendEvent(e));
       if(run.status==="completed"){
-        clearInterval(state.timer);state.timer=null;
-        $("technical-start").disabled=true;
-      }
+         clearInterval(state.timer);state.timer=null;
+         // Keep this execution's jobs visible, but allow another authorized
+         // launch after server-side quota and concurrency checks.
+         state.id=null;
+         $("technical-start").disabled=!state.enabled;
+         void capabilities();
+       }
       $("technical-error").textContent="";
     }catch(e){$("technical-error").textContent=err(e.message);}
     finally{state.polling=false;}
@@ -128,7 +132,7 @@
     event.preventDefault();
     if(!state.enabled||state.id)return;
     const input=$("technical-access");const accessCode=input.value;
-    if(accessCode.length<20){$("technical-error").textContent=err("invalid_access_code");return;}
+    if(accessCode.length<24){$("technical-error").textContent=err("invalid_access_code");return;}
     $("technical-start").disabled=true;
     $("technical-error").textContent="";
     try{
