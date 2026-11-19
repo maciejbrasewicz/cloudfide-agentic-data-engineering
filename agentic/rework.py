@@ -70,20 +70,23 @@ def verified_failed_candidate(
     )
     if admission != staged:
         raise ReworkInputError("P3 admission does not match original candidate and fixtures")
-    from .verifier_gate import candidate_manifest_digest
-    return outcome, gate, staged, candidate_manifest_digest(staged["files"])
+    digest_payload = json.dumps(
+        staged["files"], sort_keys=True, separators=(",", ":"),
+    ).encode("utf-8")
+    return outcome, gate, staged, hashlib.sha256(digest_payload).hexdigest()
 
 
 def rework_tools(
     *, spec: TaskSpec, architect: ArchitectReport, workspace: CandidateWorkspace,
     engineer_ledger: EngineerLedger, rework_ledger: ReworkLedger,
     prior_root: Path, verdict: dict, feedback_dir: Path,
+    architect_digest: str,
 ):
     """Extend the seven real writing tools with two read-only failure tools."""
     from agent_framework import tool
 
     original_tools = engineer_tools(
-        spec, architect, workspace, engineer_ledger, architect_digest="",
+        spec, architect, workspace, engineer_ledger, architect_digest,
     )
 
     @tool(approval_mode="never_require")
@@ -207,6 +210,7 @@ async def run_rework_foundry(
             workspace=workspace, engineer_ledger=engineer_ledger,
             rework_ledger=rework_ledger, prior_root=prior_root,
             verdict=verdict, feedback_dir=feedback_dir,
+            architect_digest=architect_digest,
         ),
     )
     outcome = await agent.run(
