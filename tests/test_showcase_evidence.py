@@ -79,6 +79,9 @@ def test_showcase_is_bilingual_and_explains_the_real_delivery():
         assert f'data-section="{page}"' in html
     assert '<script src="./app.js" defer>' in html
     assert '<script src="./technical.js" defer>' in html
+    assert '<script src="./delivery_status.js" defer>' in html
+    assert 'id="delivery-evidence"' in html
+    assert 'engineer-e2e.yml' in html
     assert '<link rel="stylesheet" href="./technical.css">' in html
     assert 'id="technical-start-form"' in html
     assert 'id="technical-modules"' in html
