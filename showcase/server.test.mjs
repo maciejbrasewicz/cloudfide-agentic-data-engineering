@@ -36,7 +36,7 @@ test("recorded evidence is available and cannot be cached as live state",async()
 });
 
 test("client assets are served without requiring any dependency",async()=>{
-  for(const path of ["/app.js","/technical.js","/styles.css","/technical.css","/favicon.svg"]){
+  for(const path of ["/app.js","/technical.js","/delivery_status.js","/styles.css","/technical.css","/favicon.svg"]){
     const r=await fetch(origin+path);
     assert.equal(r.status,200);
     assert.ok((await r.text()).length>100);
@@ -70,7 +70,7 @@ test("single integrated site presents implementation and governed Foundry execut
   assert.match(html,/id="technical-start-form"/);
   assert.match(html,/SequentialBuilder/);
   assert.match(html,/Microsoft Foundry/);
-  assert.match(html,/DataDecision/);
+  assert.match(html,/id="delivery-evidence"/);
   assert.doesNotMatch(html,/ChatGPT/i);
   assert.doesNotMatch(html,/engineering.html/);
 });
