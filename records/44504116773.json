@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "6c64739446e3f3ff6b3aefd9a764d14a3e04097c",
+  "generated_at_utc": "2026-11-19T10:18:59.718028+00:00",
+  "source_manifest_sha256": "d2562a36ec598fef33808160b0b7658b639f7d2bdc5cef55d2ff9c693aed1931",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Require both TOTAL quantity and discount to reconcile against parsed transactions before deduplication, then exclude the control row.",
+      "evidence": "The source has one TOTAL row with Quantity 37150 and Discount 65924.67, and five exact-duplicate rows make reconciliation order material.",
+      "risk": "The appropriate decimal tolerance and treatment of negative quantities in the source control have not been independently confirmed.",
+      "status": "pending_human_review",
+      "source_report_sha256": "72c4377a98d1a39a3dca234284a353d50ec38f7db87be4915af9e3179dec8b9e",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Allow price inference only when all valid comparison rows for the same product contain one unique parsed unit price; otherwise stop the pipeline.",
+      "evidence": "Four source rows lack unit prices, and the approved policy already specifies unique_price_per_product_or_fail and fail_closed behavior.",
+      "risk": "Product-only matching may ignore legitimate temporal or regional price variation.",
+      "status": "pending_human_review",
+      "source_report_sha256": "72c4377a98d1a39a3dca234284a353d50ec38f7db87be4915af9e3179dec8b9e",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "quality_gate",
+      "proposal": "Block publication unless anomaly counts, control reconciliation, final schema, regional domain, null constraints, and deterministic row counts all pass executable assertions.",
+      "evidence": "Profiling identifies repeated headers, a control row, duplicates, numeric-format variants, missing prices, negative quantities, blank discounts, and noncanonical regions.",
+      "risk": "Expected post-deduplication counts and final values must be independently calculated rather than inferred from the profile summary alone.",
+      "status": "pending_human_review",
+      "source_report_sha256": "72c4377a98d1a39a3dca234284a353d50ec38f7db87be4915af9e3179dec8b9e",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "other",
+      "proposal": "Restrict monetary input to an explicitly documented non-exponent decimal grammar with either dot or comma as the decimal separator.",
+      "evidence": "The current Decimal constructor can accept scientific notation and explicit plus signs beyond the documented source format.",
+      "risk": "Rejecting such forms could be incompatible with an unstated upstream format; confirm the source contract before changing behavior.",
+      "status": "pending_human_review",
+      "source_report_sha256": "54bddaa2033c942bd724d66f607ab1f7bd51c15bdfccbea68984c230ca09abdf",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "quality_gate",
+      "proposal": "Publish the final CSV and audit report as one staged artifact set when a report path is requested.",
+      "evidence": "The current pipeline writes the CSV before attempting the report, allowing partial publication after a late I/O failure.",
+      "risk": "True multi-file atomicity is filesystem-dependent; staging and ordered replacement reduce but may not eliminate crash windows.",
+      "status": "pending_human_review",
+      "source_report_sha256": "54bddaa2033c942bd724d66f607ab1f7bd51c15bdfccbea68984c230ca09abdf",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Require upstream ledger or export-log evidence for each of the five exact duplicate groups before treating their removal as business-validated.",
+      "evidence": "The raw TOTAL includes all 1,505 transactions and therefore cannot prove that reducing them to 1,500 is semantically correct.",
+      "risk": "Legitimate identical sales could be removed, materially changing regional revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "b2f5478cbda03c95ed15a8e1621556c06764acfe458c06a8f513ccfe854ea6cd",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Confirm the six negative-quantity rows against return or credit records and document discount treatment for returns.",
+      "evidence": "The policy labels them as returns, but the reviewed source contains no independent return indicator.",
+      "risk": "Corrections or malformed transactions may be misclassified and netted into revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "b2f5478cbda03c95ed15a8e1621556c06764acfe458c06a8f513ccfe854ea6cd",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "quality_gate",
+      "proposal": "Keep separate gates for direct-source arithmetic verification and external business-assumption validation, and require consistent publication of the CSV and audit report.",
+      "evidence": "The raw oracle independently verifies parsing and arithmetic but deliberately repeats policy assumptions; run_pipeline writes output before its audit report.",
+      "risk": "A passing computational oracle could otherwise be mistaken for semantic proof, or a partial write could publish an output without matching audit evidence.",
+      "status": "pending_human_review",
+      "source_report_sha256": "b2f5478cbda03c95ed15a8e1621556c06764acfe458c06a8f513ccfe854ea6cd",
+      "approved_by": null
+    }
+  ]
+}
