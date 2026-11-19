@@ -67,6 +67,26 @@
 </div></section>
 <section class="section container" id="execution" data-section="execution">
  <div class="section-heading"><div><span class="section-no">03 / <span data-i18n="executionEyebrow">PRAWDZIWY PRZEBIEG</span></span><h2 data-i18n="executionHeading">Rzeczywista praca agentów i kolejne wersje rozwiązania</h2></div><p data-i18n="executionLead">Kontrakt danych, trzy wersje kodu, dwie nieudane próby, test niezależnego Verifiera i finalna publikacja.</p></div>
+ <div class="reviewer-workspace" id="reviewer-workspace">
+  <div class="reviewer-workspace-head">
+   <div><span class="label">FOUNDRY / REAL EXECUTION #44433630928</span>
+    <h3 id="reviewer-headline">Data Architect → Data Engineer → Verification Engineer</h3>
+    <p id="reviewer-intro">Przebieg z oryginalnych artefaktów GitHub Actions. Raporty modeli są odróżnione od niezależnych wyników testów.</p>
+   </div>
+   <a href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/28" class="reviewer-source-link" target="_blank" rel="noopener noreferrer">Wygenerowany kod / PR #28 ↗</a>
+  </div>
+  <div id="reviewer-stage-tabs" class="reviewer-stage-tabs" role="tablist" aria-label="Real agent stages"></div>
+  <div id="reviewer-stage-detail" class="reviewer-stage-detail" aria-live="polite"><p>Wczytywanie artefaktów...</p></div>
+  <div class="reviewer-bottom">
+   <div><strong id="reviewer-result-title">Weryfikacja rzeczywistego wyniku</strong>
+    <p id="reviewer-result-explainer">Niezależne przeliczenie oryginalnego CSV i porównanie z wynikiem wygenerowanym przez agentów. Rzeczywista operacja bez uruchamiania płatnych modeli.</p>
+   </div>
+   <button class="reviewer-recalculate-button" type="button" id="reviewer-recalculate">Przelicz dane i sprawdź wynik</button>
+  </div>
+  <div id="reviewer-recalculation-result" class="reviewer-recalculation-result" role="status" aria-live="polite"></div>
+ </div>
+ <details class="historical-audit">
+  <summary><span id="historic-audit-label">Archiwalny audyt odczytowy — nie jest to przebieg generowania kodu</span><span aria-hidden="true">+</span></summary>
  <div class="run-meta"><div><span data-i18n="runDate">DATA</span><strong>18.11.2026</strong></div><div><span>GITHUB RUN</span><strong>#44331275568</strong></div><div><span>GIT SHA</span><strong>aa01b168deee…</strong></div><div><span data-i18n="walltime">CZAS</span><strong>90,8 s</strong></div><a href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44331275568" target="_blank" rel="noopener noreferrer" data-i18n="openEvidence">Otwórz wykonanie ↗</a></div>
  <div class="execution-explainer"><div class="label" data-i18n="whatRan">CO URUCHOMIONO</div><p data-i18n="whatRanText">GitHub Actions wykonał pipeline i testy, uwierzytelnił się przez OIDC, a następnie uruchomił SequentialBuilder z trzema agentami. Każdy korzystał z ograniczonej listy funkcji. Wyniki zostały sparsowane przez Pydantic i zestawione z hashami rzeczywistych plików.</p></div>
  <div class="inline-heading"><h3 data-i18n="reportsHeading">Archiwalne raporty audytu Microsoft Foundry</h3><p data-i18n="reportsSubheading">Wyniki walidowanego wykonania, lista ustaleń i narzędzi przypisanych do roli.</p></div>
@@ -75,6 +95,7 @@
  <div class="tool-counts" id="tool-counts"></div>
  <details class="raw-events"><summary><span data-i18n="expandEvents">Rozwiń 16 zmierzonych wywołań</span><span aria-hidden="true">+</span></summary><div id="tool-events"></div></details>
  <div class="limit-note" data-i18n="traceLimit">To zapis wywołań narzędzi, nie pełny distributed trace. W tym przebiegu nie zebraliśmy liczby tokenów, kosztów modelu ani czasów poszczególnych agentów.</div>
+ </details>
 </section>
 <section class="section gray-area" id="data" data-section="data"><div class="container">
  <div class="section-heading"><div><span class="section-no">04 / <span data-i18n="resultsEyebrow">WYNIK DANYCH</span></span><h2 data-i18n="resultsHeading">Wyniki ETL i rekonsyliacja</h2></div><p data-i18n="resultsLead">Kwoty regionalne z artefaktu CSV, profil jakości źródła i weryfikacja sum kontrolnych. Obliczenia wykonane z precyzją Decimal.</p></div>
