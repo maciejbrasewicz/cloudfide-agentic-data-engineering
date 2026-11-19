@@ -96,7 +96,7 @@ The repository owner's separate Actions setting **Allow GitHub Actions to
 create and approve pull requests** is required for automatic creation of
 future draft PRs. The owner reports enabling it on 19 November 2026.
 This permission is not evidence that a new automated PR has been tested:
-that requires an actual new full Foundry run. The protected launch is available after Railway service variables are provisioned, and the form is immediately below the global header on the same public portal.
+that requires an actual new full Foundry run. The protected launch is available after Railway service variables are provisioned, and the form is directly after the product hero on the same public portal.
 
 ### Source links
 
