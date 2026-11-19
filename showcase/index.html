@@ -24,37 +24,10 @@
  <div class="container header-inner">
   <a class="logo" href="#intro"><b>CF<span class="slash">/</span></b><span>Agentic Data Engineering<small>MICROSOFT FOUNDRY × DATA ENGINEERING</small></span></a>
   <nav class="nav" aria-label="Sections"><a href="#task" data-i18n="navTask">Zadanie</a><a href="#architecture" data-i18n="navArchitecture">Architektura</a><a href="#execution" data-i18n="navAgents">Wykonanie</a><a href="#data" data-i18n="navData">Wyniki</a><a href="#technical" class="engineering-nav-link" data-i18n="navLab">System</a><a href="#evidence" data-i18n="navProof">Dowody</a></nav>
-  <div class="header-end"><div class="lang" role="group" aria-label="Language / Język"><button type="button" id="pl" data-lang="pl" aria-pressed="true">PL</button><button type="button" id="en" data-lang="en" aria-pressed="false">EN</button></div><a class="header-launch-action" href="#reviewer-execution" data-i18n="headerLaunch">Uruchom proces</a></div>
+  <div class="header-end"><div class="lang" role="group" aria-label="Language / Język"><button type="button" id="pl" data-lang="pl" aria-pressed="true">PL</button><button type="button" id="en" data-lang="en" aria-pressed="false">EN</button></div></div>
  </div>
 </header>
 <main id="main">
-<section class="reviewer-entry" id="reviewer-execution" data-section="reviewer-execution" aria-labelledby="recruiter-launch-title">
- <div class="container reviewer-entry-grid">
-  <div class="reviewer-entry-intro">
-   <div class="reviewer-entry-kicker"><span class="ink-dot"></span><span data-i18n="entryEyebrow">LIVE EXECUTION / MICROSOFT FOUNDRY</span></div>
-   <h2 id="recruiter-launch-title" data-i18n="entryTitle">Uruchom nową realizację zadania</h2>
-   <p class="reviewer-entry-lead" data-i18n="entryIntro">Autoryzowany rekruter może uruchomić rzeczywisty proces rozwiązania zadania Data Engineering — od analizy wymagań i napisania nowego kodu po niezależne testy i przygotowanie pull requesta do przeglądu.</p>
-   <div class="reviewer-entry-steps" aria-label="Scope of the new execution">
-    <div><span>01</span><div><strong>Data Architect</strong><small data-i18n="entryArchitect">Analizuje dane i ustala kontrakt implementacji.</small></div></div>
-    <div><span>02</span><div><strong>Data Engineer · P3 / P5</strong><small data-i18n="entryEngineer">Tworzy kod; sandbox testuje i kieruje poprawkami (maks. 3 próby).</small></div></div>
-    <div><span>03</span><div><strong>Verifier · P4 / P6</strong><small data-i18n="entryVerifier">Niezależnie kwestionuje wynik; po zaliczeniu powstaje draft PR do oceny człowieka.</small></div></div>
-   </div>
-   <a class="reviewer-entry-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Otwórz pełny workflow GitHub Actions ↗</a>
-  </div>
-  <div class="technical-launch-full" id="full-agent-console">
-   <div class="technical-console">
-    <div class="console-status"><div><span class="console-label" data-i18n="execStatusLabel">GOTOWOŚĆ URUCHOMIENIA</span><strong id="technical-availability" data-i18n="execChecking">Sprawdzanie połączenia</strong><p id="technical-availability-note"></p></div><span class="console-indicator" id="technical-indicator" aria-hidden="true"></span></div>
-    <form id="technical-start-form" class="technical-start-form" autocomplete="off">
-     <label for="technical-access" data-i18n="accessLabel">Prywatny kod dostępu</label>
-     <div class="technical-controls"><input id="technical-access" type="password" minlength="24" maxlength="128" spellcheck="false" autocomplete="off" required placeholder="Reviewer access code"><button type="submit" id="technical-start" disabled data-i18n="startRun">Uruchom pełny proces</button></div>
-     <p class="execution-limits" data-i18n="executionLimits">Do 5 uruchomień w ciągu 24 godzin, maksymalnie 1 aktywny proces. Każde uruchomienie wykonuje nowe zadanie agentowe w GitHub Actions. Ostateczny kod trafia do draft PR — bez automatycznego scalania.</p>
-    </form>
-    <div id="technical-run" hidden><div class="technical-run-header"><strong id="technical-run-title"></strong><a id="technical-run-link" hidden target="_blank" rel="noopener noreferrer" data-i18n="openJob">Otwórz wykonanie w GitHub Actions ↗</a></div><div id="technical-job-steps" class="technical-job-steps"></div><div id="technical-live-events" class="technical-live-events" aria-live="polite"></div></div>
-    <p id="technical-error" role="status" aria-live="polite"></p>
-   </div>
-  </div>
- </div>
-</section>
 <section class="intro container" id="intro" data-section="overview">
  <div class="intro-main">
   <div class="kicker"><span class="ink-dot"></span><span data-i18n="kicker">DATA ENGINEERING / VERIFIED EXECUTION</span></div>
@@ -87,6 +60,40 @@
   <a class="proof-bottom" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44485096373" target="_blank" rel="noopener noreferrer"><span data-i18n="sourceEvidence">Otwórz oryginalny przebieg agentów</span> ↗</a>
  </aside>
 </section>
+<section class="reviewer-entry" id="reviewer-execution" data-section="reviewer-execution" aria-labelledby="recruiter-launch-title">
+ <div class="container reviewer-entry-grid">
+  <div class="reviewer-entry-intro">
+   <div class="reviewer-entry-kicker"><span class="ink-dot"></span><span data-i18n="entryEyebrow">LIVE EXECUTION / MICROSOFT FOUNDRY</span></div>
+   <h2 id="recruiter-launch-title" data-i18n="entryTitle">Uruchom agentów na zadaniu</h2>
+   <p class="reviewer-entry-lead" data-i18n="entryIntro">To nie demonstracja ani odtworzenie nagrania. Po wpisaniu kodu GitHub Actions uruchomi rzeczywiste agenty Microsoft Foundry, które od nowa opracują rozwiązanie zadania: bezpieczne kolumny wirtualne w Pythonie oraz ETL pliku sprzedażowego. Kod, testy i wynik będą powstawać w nowym, audytowalnym przebiegu.</p>
+   <div class="reviewer-entry-steps" aria-label="Scope of the new execution">
+    <div><span>01</span><div><strong>Data Architect</strong><small data-i18n="entryArchitect">Czyta wymagania, sprawdza dane i przygotowuje plan oraz kontrakt kodu.</small></div></div>
+    <div><span>02</span><div><strong>Data Engineer · P3 / P5</strong><small data-i18n="entryEngineer">Pisze pliki Python i testy. Docker uruchamia kod, a błędy wracają do poprawy (maks. 3 próby).</small></div></div>
+    <div><span>03</span><div><strong>Verifier · P4 / P6</strong><small data-i18n="entryVerifier">Pisze własny test i sprawdza błędy. Po zaliczeniu P4 system sam tworzy draft PR; człowiek decyduje dopiero o scaleniu.</small></div></div>
+   </div>
+   <a class="reviewer-entry-source" href="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/workflows/engineer-e2e.yml" target="_blank" rel="noopener noreferrer" data-i18n="recordedLink">Otwórz pełny workflow GitHub Actions ↗</a>
+  </div>
+  <div class="technical-launch-full" id="full-agent-console">
+   <div class="technical-console">
+    <div class="console-status"><div><span class="console-label" data-i18n="execStatusLabel">GOTOWOŚĆ URUCHOMIENIA</span><strong id="technical-availability" data-i18n="execChecking">Sprawdzanie połączenia</strong><p id="technical-availability-note"></p></div><span class="console-indicator" id="technical-indicator" aria-hidden="true"></span></div>
+    <form id="technical-start-form" class="technical-start-form" autocomplete="off">
+     <label for="technical-access" data-i18n="accessLabel">Prywatny kod dostępu</label>
+     <div class="technical-controls"><input id="technical-access" type="password" minlength="24" maxlength="128" spellcheck="false" autocomplete="off" required placeholder="Reviewer access code"><button type="submit" id="technical-start" disabled data-i18n="startRun">Uruchom pełny proces</button></div>
+     <p class="execution-limits" data-i18n="executionLimits">Po uruchomieniu system wykona Architect → Engineer → testy Docker i ewentualne poprawki (do 3 prób) → Verification Engineer → P4 → automatyczny draft PR i osobne CI. Przebieg zwykle zajmuje kilkanaście minut; przy poprawkach lub kolejce GitHub może potrwać ponad 30 minut. Widzisz aktualny krok i link do wykonania. Limit: 5 startów / 24 h, 1 aktywny.</p>
+    </form>
+    <div id="technical-run" hidden>
+     <div class="technical-run-header"><div><span class="console-label" data-i18n="progressEyebrow">BIEŻĄCY PRZEBIEG · GITHUB ACTIONS</span><strong id="technical-run-title" aria-live="polite"></strong><p id="technical-run-explainer" aria-live="polite"></p></div><a id="technical-run-link" hidden target="_blank" rel="noopener noreferrer" data-i18n="openJob">Otwórz szczegóły GitHub Actions ↗</a></div>
+     <div id="technical-run-meta" class="technical-run-meta" role="status" aria-live="polite"></div>
+     <ol id="technical-job-steps" class="technical-job-steps" aria-label="Real execution milestones"></ol>
+     <div id="technical-run-outcome" class="technical-run-outcome" aria-live="polite"></div>
+     <details class="technical-run-raw"><summary data-i18n="progressDetails">Szczegóły rzeczywistych jobów i kroków GitHub Actions</summary><div id="technical-live-events" class="technical-live-events"></div></details>
+    </div>
+    <p id="technical-error" role="status" aria-live="polite"></p>
+   </div>
+  </div>
+ </div>
+</section>
+
 <section class="section container" id="task" data-section="task">
  <div class="section-heading"><div><span class="section-no">01 / <span data-i18n="taskEyebrow">ZADANIE</span></span><h2 data-i18n="taskHeading">Zakres dostarczonego rozwiązania</h2></div><p data-i18n="taskLead">Funkcja kolumn wirtualnych i pipeline sprzedażowy. W nowym procesie Data Architect projektuje kontrakt, Data Engineer tworzy kod, a Verification Engineer przeprowadza niezależną kontrolę.</p></div>
  <div class="two-cards"><article class="plain-card"><div class="card-top"><span>01 — PYTHON API</span><code>solution.py</code></div><h3 data-i18n="virtualTitle">Kolumna wirtualna</h3><p data-i18n="virtualDesc">Funkcja add_virtual_column(df, role, new_column) tworzy kolumnę na podstawie bezpiecznie ograniczonych działań arytmetycznych. AST waliduje dozwolone nazwy i operatory, bez wykonywania arbitralnego kodu.</p><div class="card-footer" data-i18n="virtualFooter">Wynik: funkcja, oryginalne testy, testy regresyjne.</div></article>
