@@ -220,3 +220,32 @@ def test_real_agent_public_console_is_grounded_in_executed_artifacts():
             assert len(file["sha256"]) == 64
     assert "original" not in record.keys()
     assert "secret" not in json.dumps(record).lower()
+
+
+
+def test_latest_recruiter_run_is_real_automatic_pr_with_ci_provenance():
+    record = json.loads((SHOWCASE / "data/latest_autonomous_run.json").read_text(encoding="utf-8"))
+    assert record["schemaVersion"] == 1
+    assert record["runId"] == 44485096373
+    assert record["sourceWorkflowConclusion"] == "success"
+    assert record["reference"]["candidateSha"] == "73ab197159f8ed5a595bdd99a88b01707371d12e"
+    assert record["reference"]["draftPullRequestUrl"].endswith("/pull/35")
+    assert record["reference"]["ciCommitStatus"] == "success"
+    assert record["result"]["testPassed"] == record["result"]["testCount"] == 18
+    assert Decimal(record["result"]["netRevenue"]) == Decimal("2570247.03")
+    assert [x["status"] for x in record["stages"]] == [
+        "PASSED", "FAILED", "FAILED", "PASSED", "PASSED", "PASSED"
+    ]
+    assert [x["key"] for x in record["stages"]] == [
+        "architect", "engineer-1", "engineer-2", "engineer-3", "verifier", "delivery"
+    ]
+    assert len(record["stages"][0]["tools"]) == 7
+    assert record["stages"][4]["files"][0]["sha256"] == record["reference"]["verifierTestSha256"]
+    for stage in record["stages"]:
+        assert stage["sourceUrl"].startswith(
+            "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/"
+        )
+        for file in stage.get("files", []):
+            assert len(file["sha256"]) == 64
+    assert "task_spec_text" not in json.dumps(record)
+    assert "accessCode" not in json.dumps(record)
