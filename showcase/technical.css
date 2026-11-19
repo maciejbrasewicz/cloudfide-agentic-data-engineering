@@ -56,3 +56,23 @@
 .technical-footnote{font-size:11px;line-height:1.8;color:#627768;margin:0;padding:15px 24px 20px}
 @media(max-width:1120px){.technical-architecture{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:750px){.technical-architecture{grid-template-columns:1fr}.technical-architecture article{padding:22px}.technical-head{display:block;padding-top:45px}.technical-source{display:inline-block;margin-top:18px}.technical-modules{grid-template-columns:1fr}.technical-module:nth-child(odd){border-right:0}.technical-controls{grid-template-columns:1fr}.technical-controls button{width:100%}.console-status,.technical-start-form,#technical-run{padding-left:19px;padding-right:19px}.technical-head h3{font-size:26px}}
+
+/* Latest actual delivery record: one restrained section within the same portal. */
+.delivery-evidence{background:#fff;border:1px solid #d0ded3;margin:20px 0 28px;padding:26px 28px}
+.delivery-evidence-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-bottom:1px solid #e3eae4;padding-bottom:21px}
+.delivery-evidence-head h3{font-size:25px;line-height:1.25;margin:12px 0}
+.delivery-evidence-head p{margin:0;color:#586d5d;font-size:12px;line-height:1.75;max-width:680px}
+.delivery-launch-link{font:600 11px/1.6 var(--mono);color:#2d6241;border-bottom:1px solid #93ad9a;flex-shrink:0;padding-bottom:4px}
+.delivery-live-state{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:21px 0;font-size:13px;color:#4f6153}
+.delivery-run-label{display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.delivery-run-label strong{font:600 16px/1.4 var(--display);color:#1f3829}
+.delivery-run-label span{font:11px/1.6 var(--mono);color:#5b735e}
+.delivery-stale{font:10px/1.6 var(--mono);color:#955c42}
+.delivery-run-source{font:10px/1.5 var(--mono);color:#376f47;text-align:right}
+.delivery-jobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:#dee7df;border:1px solid #dee7df}
+.delivery-job{display:flex;align-items:center;justify-content:space-between;gap:15px;background:#f8faf8;padding:14px 16px;min-width:0}
+.delivery-job strong{font:600 12px/1.4 var(--sans);color:#273e30}
+.delivery-job-status{font:10px/1.4 var(--mono);color:#708274;text-align:right;flex-shrink:0}
+.delivery-job-status.passed{color:#36744a}.delivery-job-status.failed{color:#a14a43}.delivery-job-status.running{color:#997238}
+.delivery-proof-note{font:11px/1.8 var(--sans);color:#687b6b;margin:15px 0 0}
+@media(max-width:750px){.delivery-evidence{padding:20px 18px}.delivery-evidence-head,.delivery-live-state{display:block}.delivery-launch-link,.delivery-run-source{display:inline-block;margin-top:16px}.delivery-jobs{grid-template-columns:1fr}.delivery-run-label{align-items:flex-start;flex-direction:column}.delivery-evidence-head h3{font-size:22px}}

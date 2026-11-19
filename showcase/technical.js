@@ -16,16 +16,18 @@
   const local=(pl,en)=>isEN()?en:pl;
   const project="https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering";
   const modules=[
-    {path:"contracts/data_policy.json",name:"DataPolicy",pl:"Wersjonowane reguły czyszczenia i zatwierdzony zakres automatycznych korekt.",en:"Versioned cleaning rules and an approved scope of automated corrections."},
-    {path:"solution.py",name:"Virtual column / AST",pl:"Dozwolona gramatyka wyrażeń; odrzucenie niedozwolonych operacji.",en:"Allowlisted expression grammar; invalid operations fail closed."},
-    {path:"dataframe_contracts.py",name:"Pandera · DataFrame contract",pl:"Niezależna walidacja typów, wartości Decimal i arytmetyki bez konwersji.",en:"Independent validation of Decimal types and arithmetic without coercion."},
-    {path:"agentic/run.py",name:"Microsoft Agent Framework",pl:"SequentialBuilder, trzy role, kontrolowany zestaw narzędzi i manifest wykonania.",en:"SequentialBuilder, three roles, scoped tools and execution manifest."},
-    {path:"agentic/github_mcp.py",name:"GitHub MCP · read-only",pl:"Ograniczony token GitHub Actions; brak uprawnień do zapisu w repozytorium.",en:"Scoped GitHub Actions token; no repository write permissions."},
-    {path:"agentic/decision_ledger.py",name:"DataDecision / approval control",pl:"Propozycje z dowodami i hashami raportów; brak automatycznego zatwierdzenia.",en:"Evidence-linked proposals and report hashes; no autonomous approval."},
-    {path:"agentic/review_metrics.py",name:"Run-level metrics",pl:"Pomiar czasu każdego agenta, tokeny wyłącznie z danych SDK, bez szacowanych kosztów.",en:"Per-agent timings, SDK-reported token counters only, no invented costs."},
-    {path:"agentic/coding_proposal.py",name:"Regression author",pl:"Wygenerowany test przechodzi izolowane CI, następnie powstaje draft PR.",en:"Generated test runs in isolated CI; only then may a draft PR be opened."},
-    {path:".github/workflows/agent-review.yml",name:"CI / OIDC / provenance",pl:"Wykonanie w GitHub Actions, federacja Azure, dowody i walidacja raportów.",en:"GitHub Actions execution, Azure federation, evidence and report validation."},
-    {path:"showcase/live_gateway.mjs",name:"Execution API",pl:"Autoryzacja, limit uruchomień i kryptograficzna weryfikacja zdarzeń runnera.",en:"Authentication, run limits and cryptographic runner event verification."}
+    {path:"agentic/spec_loader.py",name:"Specification & provenance",pl:"Oryginalne wymagania przekazywane prywatnie, kontrola integralności i hashy danych.",en:"Private original task input, immutable source fingerprints and provenance checks."},
+    {path:"agentic/architect.py",name:"01 / Data Architect",pl:"Rzeczywiste profilowanie źródła, kontrakt wymagań i decyzje sprawdzane niezależną bramką.",en:"Actual source profiling, requirements contract and independently verified policy proposals."},
+    {path:"agentic/engineer.py",name:"02 / Data Engineer",pl:"Zapisywanie rzeczywistego kodu, testów i README w izolowanym workspace.",en:"Real code, regression tests and README written inside a restricted candidate workspace."},
+    {path:"agentic/workspace.py",name:"Candidate workspace",pl:"Granice zapisu, ochrona oryginalnych plików, SHA-256 i brak uruchamiania kodu z Azure.",en:"Write allowlist, original fixture protection, SHA-256 and deferred code execution."},
+    {path:"agentic/p3_oracle.py",name:"03 / Independent sandbox",pl:"Testy oryginalne i wygenerowane, osobny Docker i przeliczenie CSV/Decimal.",en:"Original and generated tests, isolated Docker and independent raw CSV/Decimal oracle."},
+    {path:"agentic/rework.py",name:"Bounded remediation",pl:"Poprawka przez tego samego Engineera na podstawie rzeczywistego błędu i poprzednich plików.",en:"Feedback-driven code correction from real failing tests and previous candidate source."},
+    {path:"agentic/delivery_status.py",name:"Execution control",pl:"Maksymalnie trzy próby, niezależne decyzje PASS/REJECTED i pełny ślad iteracji.",en:"Three-attempt maximum, independent acceptance gates and full iteration provenance."},
+    {path:"agentic/verifier.py",name:"04 / Verification Engineer",pl:"Niezależny test pytest napisany przez trzeciego agenta i walidacja falsyfikacyjna.",en:"A third agent authors original pytest falsification tests that run independently."},
+    {path:"agentic/verifier_verdict.py",name:"Adversarial assurance",pl:"Test musi przejść na właściwym kodzie i wykryć kontrolowaną mutację błędnej implementacji.",en:"The test must pass on real code and reject a deliberately corrupted implementation."},
+    {path:"agentic/publisher_prepare.py",name:"Human-reviewed delivery",pl:"Publikacja tylko zweryfikowanych plików, draft PR i oddzielny CI na konkretnym SHA.",en:"SHA-bound source publication, a human-reviewed draft PR and separate exact-commit CI."},
+    {path:".github/workflows/engineer-e2e.yml",name:"GitHub Actions / Foundry",pl:"Jedno uruchomienie całego procesu, federacja OIDC tylko dla zaufanych etapów.",en:"One canonical delivery workflow; Azure OIDC only in trusted agent jobs."},
+    {path:"showcase/delivery_gateway.mjs",name:"Public execution evidence",pl:"Bieżące joby pobierane z publicznego GitHub API; bez symulowanych stanów.",en:"Current jobs obtained from public GitHub API, without synthetic execution states."}
   ];
   const state={enabled:false,id:null,timer:null,polling:false};
   function renderModules(){
