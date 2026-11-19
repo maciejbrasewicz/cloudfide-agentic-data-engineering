@@ -27,6 +27,11 @@ on:
       - ".github/workflows/engineer-e2e.yml"
       - "agentic/engineer.py"
       - "agentic/rework.py"
+      - "agentic/verifier.py"
+      - "agentic/verifier_gate.py"
+      - "agentic/verifier_intake.py"
+      - "agentic/verifier_verdict.py"
+      - "tests/test_verifier_gate.py"
       - "tests/test_rework.py"
       - "agentic/workspace.py"
       - "agentic/engineer_gate.py"
@@ -589,6 +594,8 @@ jobs:
 
   p5-state:
     name: Deterministic 3-round delivery state and strict evidence verification
+    outputs:
+      selected_status: ${{ steps.state.outputs.status }}
     needs: [architect, engineer, sandbox-validate, rework-r2, sandbox-rework-r2, rework-r3, sandbox-rework-r3]
     if: ${{ always() }}
     runs-on: ubuntu-latest
@@ -613,17 +620,185 @@ jobs:
           uv run --no-sync python -m pytest tests/test_delivery_status.py tests/test_rework.py
           uv run --no-sync python -m ruff check agentic/delivery_status.py agentic/rework.py
       - name: Calculate truthful P5 decision from actual SHA-bound P3 receipts
+        id: state
         run: |
           uv run --no-sync python -m agentic.delivery_status \
             --artifacts collected-evidence \
             --original . \
             --max-rounds "${{ inputs.max_rounds || '3' }}" \
             --output-dir state-evidence
+          result=$(python -c "import json;print(json.load(open('state-evidence/run_state.json'))['status'])")
+          echo "status=$result" >> "$GITHUB_OUTPUT"
       - name: Publish final state, source provenance and all iteration history
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: p5-bounded-run-state
           path: state-evidence/*.json
+          if-no-files-found: warn
+          retention-days: 30
+
+
+  verifier:
+    name: Independent Foundry Verification Engineer proposes real falsification test
+    needs: [p5-state]
+    if: ${{ needs['p5-state'].outputs.selected_status == 'WAITING_VERIFIER' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FOUNDRY_PROJECT_ENDPOINT: https://registry9-claude-resource.services.ai.azure.com/api/projects/registry9-claude
+      FOUNDRY_MODEL: gpt-5.6-sol
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          path: collected-evidence
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Foundry SDK (no candidate code executed)
+        run: uv sync --locked --extra quality --extra foundry
+      - name: Verify independent Verifier gate tests before cloud call
+        run: |
+          uv run --no-sync python -m pytest tests/test_verifier_gate.py
+          uv run --no-sync python -m ruff check agentic/verifier.py agentic/verifier_gate.py agentic/verifier_intake.py agentic/verifier_verdict.py
+      - name: Azure OIDC for read-only code inspection and test authoring
+        uses: azure/login@v2
+        with:
+          client-id: 459e0c31-5a4c-40b0-88d4-4f521ead55fc
+          tenant-id: 2fcd0468-9e97-4247-a52a-a7bc870ef450
+          allow-no-subscriptions: true
+      - name: Real Foundry Verifier writes original adversarial pytest, never executes it
+        env:
+          CLOUDFIDE_TASK_SPEC_B64: ${{ secrets.CLOUDFIDE_TASK_SPEC_B64 }}
+        run: |
+          uv run --no-sync python -m agentic.verifier \
+            --run-artifacts collected-evidence \
+            --output-dir verifier-evidence
+      - name: Publish actual Verifier test, tool gate and source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p4-verifier-evidence
+          path: verifier-evidence/**
+          if-no-files-found: warn
+          retention-days: 30
+
+  adversarial:
+    name: Execute Verifier test independently and prove mutation sensitivity
+    needs: verifier
+    if: needs.verifier.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          path: collected-evidence
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install only trusted verifier validation dependencies
+        run: uv sync --locked --extra quality
+      - name: Verify P4 contracts and negative mutation acceptance tests
+        run: |
+          uv run --no-sync python -m pytest tests/test_verifier_gate.py
+          uv run --no-sync python -m ruff check agentic/verifier_intake.py agentic/verifier_verdict.py
+      - name: Stage exact accepted candidate and real Verifier test by SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p p4-evidence
+          uv run --no-sync python -m agentic.verifier_intake \
+            --artifacts collected-evidence \
+            --original . \
+            --destination "$RUNNER_TEMP/cloudfide-verifier-positive-input" \
+            --receipt p4-evidence/admission.json
+      - name: Build statically reviewed sandbox with pinned dependencies
+        run: docker build -f sandbox/Dockerfile -t cloudfide-p4-sandbox:verified sandbox
+      - name: Execute original plus Verifier tests against real candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cloudfide-verifier-positive-output"
+          chmod 0777 "$RUNNER_TEMP/cloudfide-verifier-positive-output"
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges:true --pids-limit 128 \
+            --memory 768m --cpus 1.5 --user 65534:65534 \
+            --tmpfs /tmp:rw,nosuid,nodev,mode=1777,size=128m \
+            --volume "$RUNNER_TEMP/cloudfide-verifier-positive-input:/input:ro" \
+            --volume "$RUNNER_TEMP/cloudfide-verifier-positive-output:/out:rw" \
+            cloudfide-p4-sandbox:verified
+      - name: Independently recalculate original raw CSV and candidate output
+        shell: bash
+        run: |
+          set -uo pipefail
+          uv run --no-sync python -m agentic.p3_oracle \
+            --source sales.csv \
+            --sandbox-output "$RUNNER_TEMP/cloudfide-verifier-positive-output" \
+            --receipt "$RUNNER_TEMP/cloudfide-verifier-positive-output/verification.json"
+          result=$?
+          printf "%s\n" "$result" > p4-evidence/positive_oracle_exit_code.txt
+          exit 0
+      - name: Create negative-control copy with deliberately broken arithmetic
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp -a "$RUNNER_TEMP/cloudfide-verifier-positive-input" \
+            "$RUNNER_TEMP/cloudfide-verifier-negative-input"
+          cat > "$RUNNER_TEMP/cloudfide-verifier-negative-input/solution.py" <<'PY'
+          import pandas as pd
+          def add_virtual_column(*args, **kwargs):
+              return pd.DataFrame()
+          PY
+          mkdir -p "$RUNNER_TEMP/cloudfide-verifier-negative-output"
+          chmod 0777 "$RUNNER_TEMP/cloudfide-verifier-negative-output"
+      - name: Execute ONLY Verifier test against known-broken candidate (must FAIL)
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges:true --pids-limit 128 \
+            --memory 768m --cpus 1.5 --user 65534:65534 \
+            -e RUN_MODE=verifier_only \
+            --tmpfs /tmp:rw,nosuid,nodev,mode=1777,size=128m \
+            --volume "$RUNNER_TEMP/cloudfide-verifier-negative-input:/input:ro" \
+            --volume "$RUNNER_TEMP/cloudfide-verifier-negative-output:/out:rw" \
+            cloudfide-p4-sandbox:verified
+      - name: Machine-check both actual sandbox receipts and mutation sensitivity
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv run --no-sync python -m agentic.verifier_verdict \
+            --admission p4-evidence/admission.json \
+            --positive "$RUNNER_TEMP/cloudfide-verifier-positive-output" \
+            --negative "$RUNNER_TEMP/cloudfide-verifier-negative-output" \
+            --output p4-evidence/verifier_verdict.json
+      - name: Preserve actual independent results even on Verifier failure
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p p4-evidence
+          cp "$RUNNER_TEMP/cloudfide-verifier-positive-output"/tests.log p4-evidence/positive_tests.log 2>/dev/null || true
+          cp "$RUNNER_TEMP/cloudfide-verifier-positive-output"/pipeline.log p4-evidence/positive_pipeline.log 2>/dev/null || true
+          cp "$RUNNER_TEMP/cloudfide-verifier-positive-output"/verification.json p4-evidence/positive_finance_oracle.json 2>/dev/null || true
+          cp "$RUNNER_TEMP/cloudfide-verifier-negative-output"/tests.log p4-evidence/mutation_tests.log 2>/dev/null || true
+          cp "$RUNNER_TEMP/cloudfide-verifier-negative-output"/test_exit_code.txt p4-evidence/mutation_exit_code.txt 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p4-independent-adversarial-validation
+          path: p4-evidence/*
           if-no-files-found: warn
           retention-days: 30
