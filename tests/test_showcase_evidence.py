@@ -84,9 +84,10 @@ def test_showcase_is_bilingual_and_explains_the_real_delivery():
     assert 'id="reviewer-workspace"' in html
     assert 'id="reviewer-recalculate"' in html
     assert 'id="full-agent-console"' in html
-    assert 'https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/28' in html
-    assert 'https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44478568225' in html
+    assert 'https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/35' in html
+    assert 'https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44487613707' in html
     assert 'id="delivery-evidence"' in html
+    assert 'id="delivery-publication"' in html
     assert 'engineer-e2e.yml' in html
     assert '<link rel="stylesheet" href="./technical.css">' in html
     assert 'id="technical-start-form"' in html
