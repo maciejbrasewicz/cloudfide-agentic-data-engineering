@@ -63,7 +63,7 @@ jobs:
           grep -q 'Warstwa techniczna systemu' site-pl.html
           grep -q 'Technical implementation' site-en.html
           grep -q 'Uruchomienie workflow Microsoft Foundry' site-pl.html
-          grep -q 'Execute Microsoft Foundry workflow' site-en.html
+          grep -q 'Launch the complete three-agent Foundry workflow' site-en.html
           grep -q 'Source profiling confirms 1,507 rows' site-en.html
           grep -q 'Autonomiczny proces Data Engineering' site-pl.html
           grep -q 'Rzeczywista praca agentów' site-pl.html
