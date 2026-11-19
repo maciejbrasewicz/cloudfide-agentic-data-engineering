@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "9b53bcbe8c6721e345414ae05ca877ad910c348d",
+  "generated_at_utc": "2026-11-19T10:32:28.426573+00:00",
+  "source_manifest_sha256": "e764c9abfd4e1baa5e6794a0a75f513386d24972b7dabd0fe481b7107da44601",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Make successful reconciliation of TOTAL Quantity 37150 and Discount 65924.67 against parsed pre-deduplication transactions a blocking quality gate.",
+      "evidence": "The source contains one TOTAL row, and five exact duplicate rows make reconciliation order material.",
+      "risk": "The semantic meaning and calculation basis of the TOTAL discount value still require executable confirmation.",
+      "status": "pending_human_review",
+      "source_report_sha256": "a2c07d58bf30f6ede48e6dde53b121fb672fae9c3622bb30cd92ed2359747713",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative-quantity records only provisionally and require documented business confirmation that they represent returns.",
+      "evidence": "Six negative-quantity rows were measured, while the approved contract currently interprets them as returns.",
+      "risk": "If negatives represent corrections, data-entry errors, or another process, downstream revenue calculations may be misstated.",
+      "status": "pending_human_review",
+      "source_report_sha256": "a2c07d58bf30f6ede48e6dde53b121fb672fae9c3622bb30cd92ed2359747713",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit price inference for the four missing values only when exactly one valid parsed price exists for the applicable product and scope; otherwise fail closed.",
+      "evidence": "Four missing unit prices were measured, and the approved contract already specifies unique price per product or failure.",
+      "risk": "A product may legitimately have multiple prices over time, by region, or by transaction terms, making product-only inference unsafe.",
+      "status": "pending_human_review",
+      "source_report_sha256": "a2c07d58bf30f6ede48e6dde53b121fb672fae9c3622bb30cd92ed2359747713",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Require source-system confirmation that the five exact repeated rows are duplicate exports before treating their deletion as business-validated.",
+      "evidence": "Both implementations detect and remove five exact repeated rows, but the CSV contains no independent transaction-identity evidence proving they are erroneous.",
+      "risk": "Legitimate identical transactions would be understated if removed.",
+      "status": "pending_human_review",
+      "source_report_sha256": "680309e80ef8048280ff895bc97c8494685093cf679317a4a86556c8b86ca022",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Validate the six negative-quantity records against authoritative return or credit records and confirm discount treatment.",
+      "evidence": "The policy, implementation, and oracle all retain six negatives, but they share the same unproven return interpretation.",
+      "risk": "Revenue may be misstated if negatives are corrections or if discounts require different return accounting.",
+      "status": "pending_human_review",
+      "source_report_sha256": "680309e80ef8048280ff895bc97c8494685093cf679317a4a86556c8b86ca022",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Verify the four inferred prices against authoritative order or effective-dated pricing data rather than product uniqueness alone.",
+      "evidence": "The source has four blank prices and both implementations infer from a singleton set of observed product prices.",
+      "risk": "A product-only match can be deterministic yet historically or commercially incorrect.",
+      "status": "pending_human_review",
+      "source_report_sha256": "680309e80ef8048280ff895bc97c8494685093cf679317a4a86556c8b86ca022",
+      "approved_by": null
+    }
+  ]
+}
