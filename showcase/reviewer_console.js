@@ -93,6 +93,15 @@
       }
       files.append(list);detail.append(files);
     }
+    if(stage.codeExcerpt){
+      const excerpt=node("div","reviewer-detail-block");
+      excerpt.append(node("h5","",loc("Fragment rzeczywiście zapisanego kodu","Excerpt from actual authored source")+
+        " · "+stage.codeExcerpt.path+" · "+stage.codeExcerpt.lines));
+      const pre=node("pre","reviewer-code-excerpt");
+      pre.append(node("code","",stage.codeExcerpt.source));
+      excerpt.append(pre);
+      detail.append(excerpt);
+    }
     const note=isEN()?stage.riskEn:stage.riskPl;
     if(note)detail.append(node("p","reviewer-risk",note));
     const footer=node("div","reviewer-stage-footer");
