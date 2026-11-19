@@ -26,24 +26,6 @@ on:
         type: boolean
         required: true
         default: true
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/engineer-e2e.yml"
-      - "agentic/engineer.py"
-      - "agentic/rework.py"
-      - "agentic/verifier.py"
-      - "agentic/verifier_gate.py"
-      - "agentic/verifier_intake.py"
-      - "agentic/verifier_verdict.py"
-      - "tests/test_verifier_gate.py"
-      - "tests/test_rework.py"
-      - "agentic/workspace.py"
-      - "agentic/engineer_gate.py"
-      - "agentic/patch_policy.py"
-      - "agentic/schemas/engineer.py"
-      - "tests/test_engineer_gate.py"
-      - "tests/test_workspace_security.py"
 
 concurrency:
   group: cloudfide-engineer-p2
