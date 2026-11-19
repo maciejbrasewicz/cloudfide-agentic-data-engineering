@@ -32,9 +32,13 @@ jobs:
           node --check showcase/technical.js
           node --check showcase/delivery_status.js
           node --check showcase/delivery_gateway.mjs
+          node --check showcase/reviewer_console.js
+          node --check showcase/independent_oracle.mjs
+          node --check showcase/recalculation_gateway.mjs
+          node --check showcase/delivery_launch.mjs
           node --check showcase/live_gateway.mjs
           node --check showcase/server.mjs
-          node --test showcase/server.test.mjs showcase/live_gateway.test.mjs showcase/delivery_gateway.test.mjs
+          node --test showcase/server.test.mjs showcase/live_gateway.test.mjs showcase/delivery_gateway.test.mjs showcase/independent_oracle.test.mjs showcase/recalculation_gateway.test.mjs showcase/delivery_launch.test.mjs
       - uses: astral-sh/setup-uv@v6
       - uses: actions/setup-python@v5
         with:
@@ -62,6 +66,10 @@ jobs:
           grep -q 'Execute Microsoft Foundry workflow' site-en.html
           grep -q 'Source profiling confirms 1,507 rows' site-en.html
           grep -q 'Autonomiczny proces Data Engineering' site-pl.html
+          grep -q 'Rzeczywista praca agentów' site-pl.html
+          grep -q 'Actual agent work' site-en.html
+          grep -q 'Przelicz dane i sprawdź wynik' site-pl.html
+          grep -q 'Recalculate and verify' site-en.html
           grep -q 'run-foundry-absent-marker' site-pl.html && exit 1 || true
           if grep -Eiq 'ChatGPT|Engineering Lab' site-pl.html; then
             echo 'Unprofessional legacy copy leaked into unified experience' >&2
