@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "d62520362ff3057e5726d8616282297773a4069a",
+  "generated_at_utc": "2026-11-19T10:38:50.389220+00:00",
+  "source_manifest_sha256": "f8b45db849fd737ae06287cfa49545175654995401b932a92b7ed10b27a0a9f1",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "duplicates",
+      "proposal": "Remove exact duplicates only after reviewing every duplicate group and confirming that full-row identity represents accidental duplication.",
+      "evidence": "Five exact-duplicate rows were measured, and the approved contract currently requires their removal.",
+      "risk": "Identical legitimate transactions may be deleted if no stable event key or provenance distinguishes them.",
+      "status": "pending_human_review",
+      "source_report_sha256": "80604e29437f2a1e121135d53d671ef8bd2473e1bb334fae40ae3205da49f84b",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative quantities as returns only after row-level reconciliation to return or credit evidence.",
+      "evidence": "Six negative-quantity rows were measured, while the return interpretation appears only in the approved contract.",
+      "risk": "Negative values may represent corrections, entry errors, or another business event rather than returns.",
+      "status": "pending_human_review",
+      "source_report_sha256": "80604e29437f2a1e121135d53d671ef8bd2473e1bb334fae40ae3205da49f84b",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Impute each of the four missing prices only when the relevant product has exactly one defensible observed price; otherwise fail closed.",
+      "evidence": "Four missing unit prices were measured, and the approved contract uses unique price per product or fail.",
+      "risk": "Product prices may vary by date, region, promotion, or other dimensions absent from the inference rule.",
+      "status": "pending_human_review",
+      "source_report_sha256": "80604e29437f2a1e121135d53d671ef8bd2473e1bb334fae40ae3205da49f84b",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "duplicates",
+      "proposal": "Remove exact duplicates only after confirming each duplicate group represents repeated ingestion rather than separate transactions.",
+      "evidence": "Five exact-duplicate rows were measured, and the policy requires their removal.",
+      "risk": "Legitimate identical transactions could otherwise be deleted.",
+      "status": "pending_human_review",
+      "source_report_sha256": "39560a2d751e9f2a222d95a7de52f80ffa565365e680d849f8a1a1706d0c7d00",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain negative quantities as returns only after reconciling the six records to return or credit evidence.",
+      "evidence": "Six negative-quantity rows were measured, while the return interpretation is supplied by policy rather than corroborating source fields.",
+      "risk": "The negatives could instead be corrections or data-entry errors.",
+      "status": "pending_human_review",
+      "source_report_sha256": "39560a2d751e9f2a222d95a7de52f80ffa565365e680d849f8a1a1706d0c7d00",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "data_engineer",
+      "target": "missing_prices",
+      "proposal": "Impute a missing price only when the affected product has exactly one defensible observed price; otherwise fail closed.",
+      "evidence": "Four prices are missing, and the policy specifies unique price per product or fail.",
+      "risk": "Prices may vary by date, region, promotion, or another unmodeled dimension.",
+      "status": "pending_human_review",
+      "source_report_sha256": "39560a2d751e9f2a222d95a7de52f80ffa565365e680d849f8a1a1706d0c7d00",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Keep exact-row deduplication as a provisional policy only after validating all five duplicate groups against source-system lineage or explicit data-owner authorization.",
+      "evidence": "Five exact duplicate rows are removed consistently by the pipeline and independent oracle, but README states their accidental-duplication meaning cannot be proven from the export.",
+      "risk": "Distinct legitimate sales with identical exported fields may be deleted.",
+      "status": "pending_human_review",
+      "source_report_sha256": "8443436e0e6c9becc07450f84b1e28fabd696ad3849b14ebe2e620556edce4ff",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative quantities in net revenue only if return or credit semantics are externally confirmed; otherwise publish a conditional scenario or stop for a decision.",
+      "evidence": "Six negative rows are retained and documented as returns, but no independent return-status evidence exists in the reviewed source checks.",
+      "risk": "Corrections or data errors could be misclassified as returns and alter regional revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "8443436e0e6c9becc07450f84b1e28fabd696ad3849b14ebe2e620556edce4ff",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0009",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Validate the four inferred prices against date-effective authoritative pricing data while retaining the current fail-closed singleton check as a minimum technical safeguard.",
+      "evidence": "Both production and independent parsing find a unique observed same-product price, but uniqueness within this export does not prove historical price applicability.",
+      "risk": "A product may vary in price across time, region, customer, or promotion despite appearing unique in the available sample.",
+      "status": "pending_human_review",
+      "source_report_sha256": "8443436e0e6c9becc07450f84b1e28fabd696ad3849b14ebe2e620556edce4ff",
+      "approved_by": null
+    }
+  ]
+}
