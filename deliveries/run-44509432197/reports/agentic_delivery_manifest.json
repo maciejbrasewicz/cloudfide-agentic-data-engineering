@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "status": "HUMAN_REVIEW_REQUIRED",
+  "source_run_id": "44509432197",
+  "base_commit_sha": "a046477eb912719ca3c554c59eb882ea4186d6e0",
+  "selected_iteration": 3,
+  "p3_candidate_status": "PASSED",
+  "p4_independent_verifier_status": "PASSED",
+  "verifier_mutation_sensitivity": "PASSED",
+  "candidate_manifest_sha256": "a1209eb7144fd6aef5faad84ffdf13dffc1703a2bf869e890e023375a95e78b6",
+  "verifier_test_sha256": "638e6e470f411efb9686458e5c957a8541faec86689d57db60a70eaced708678",
+  "source_csv_sha256": "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4",
+  "original_tests_sha256": "5d3b633fc3b6e527b48bcfa373e4bed13f5a9d295c0d0f5331a27a976d63fff0",
+  "approved_policy_sha256": "254a87cf9fd20af7e3400c7f0a62e1655a5c95da63ffff96204db77b753936f4",
+  "verified_net_revenue": "2570247.03",
+  "published_files": {
+    "README.md": "4866ca78f4f981db4ce61da27a5217ae7b0f3d9ff05f8f64e1f6ea6707cf7afd",
+    "pipeline.py": "7bac783c273462ef6d3c0f8d1220ebeceb8194f1116ecd48f05d71e0a941946a",
+    "revenue_by_region.csv": "b3e59f4f4ec0ef3d0f172c69d3751eaf2fcbf0224266f0695ea2fb61b56fb29f",
+    "solution.py": "f6afa9c236747411d39731bb2debbfa308827a7e36ee32c9bf7b6e15ee01a3a1",
+    "tests/test_pipeline_and_solution.py": "dd7cce069ebb665265b2546d38cb09a3d74fdb3d419889feaa9eb4c3390ad34b",
+    "tests/test_verifier_generated.py": "638e6e470f411efb9686458e5c957a8541faec86689d57db60a70eaced708678"
+  },
+  "approval": "NO_AGENT_POLICY_APPROVAL_OR_AUTOMERGE",
+  "candidate_ci_status": "NOT_YET_RUN"
+}
