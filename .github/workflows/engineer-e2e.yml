@@ -653,7 +653,7 @@ jobs:
   verifier:
     name: Independent Foundry Verification Engineer proposes real falsification test
     needs: [p5-state]
-    if: ${{ needs['p5-state'].outputs.selected_status == 'WAITING_VERIFIER' }}
+    if: ${{ always() && needs['p5-state'].result == 'success' && needs['p5-state'].outputs.selected_status == 'WAITING_VERIFIER' }}
     runs-on: ubuntu-latest
     timeout-minutes: 16
     permissions:
@@ -704,7 +704,7 @@ jobs:
   adversarial:
     name: Execute Verifier test independently and prove mutation sensitivity
     needs: verifier
-    if: needs.verifier.result == 'success'
+    if: ${{ always() && needs.verifier.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
