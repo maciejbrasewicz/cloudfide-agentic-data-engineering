@@ -167,6 +167,7 @@ async def run_rework_foundry(
     workspace: CandidateWorkspace, engineer_ledger: EngineerLedger,
     rework_ledger: ReworkLedger, prior_root: Path, verdict: dict,
     feedback_dir: Path, architect_digest: str, endpoint: str, model: str,
+    iteration: int,
 ) -> str:
     from agent_framework import Agent
     from agent_framework.foundry import FoundryChatClient
@@ -188,7 +189,7 @@ async def run_rework_foundry(
         client=client,
         instructions=(
             instructions("rebuild")
-            + "\nTHIS IS ITERATION 2 AFTER A GENUINE P3 FAILURE. "
+            + "\nTHIS IS ITERATION " + str(iteration) + " AFTER A GENUINE P3 FAILURE. "
             "DO NOT pretend the previous candidate was accepted. "
             "First read_failure_evidence and read_previous_candidate for "
             "solution.py and pipeline.py (and earlier tests as needed), "
@@ -221,7 +222,8 @@ async def run_rework_foundry(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="P5 real Foundry rework round 2")
+    parser = argparse.ArgumentParser(description="P5 real Foundry rework (bounded to three attempts)")
+    parser.add_argument("--iteration", type=int, choices=(2, 3), required=True)
     parser.add_argument("--previous-engineer-dir", type=Path, required=True)
     parser.add_argument("--p3-dir", type=Path, required=True)
     parser.add_argument("--architect-dir", type=Path, required=True)
@@ -251,7 +253,7 @@ def main() -> None:
             engineer_ledger=engineer_ledger, rework_ledger=rework_ledger,
             prior_root=prior, verdict=outcome, feedback_dir=args.p3_dir,
             architect_digest=approved.report_sha256,
-            endpoint=endpoint, model=model,
+            endpoint=endpoint, model=model, iteration=args.iteration,
         ))
         from .input_manifest import verify_unchanged_inputs
         verify_unchanged_inputs(ROOT, inputs)
@@ -267,7 +269,7 @@ def main() -> None:
             previous_file_hashes=previous_hashes,
         )
         lineage.update({
-            "iteration": 2,
+            "iteration": args.iteration,
             "source_run_id": os.getenv("GITHUB_RUN_ID"),
             "previous_candidate_digest": prior_digest,
             "previous_p3_verdict_sha256": hashlib.sha256(
@@ -286,7 +288,7 @@ def main() -> None:
         if workspace.validation_requests:
             _export_files(workspace, args.output_dir / "candidate_bundle.zip")
         print(json.dumps({
-            "status": gate["status"], "iteration": 2,
+            "status": gate["status"], "iteration": args.iteration,
             "failure_evidence_read": rework_ledger.read_failure,
             "previous_files_read": sorted(rework_ledger.previous_reads),
             "actual_files_written": len(workspace.writes),
