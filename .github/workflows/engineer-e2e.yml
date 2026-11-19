@@ -577,3 +577,43 @@ jobs:
           path: sandbox-r3-evidence/*
           if-no-files-found: warn
           retention-days: 30
+
+  p5-state:
+    name: Deterministic 3-round delivery state and strict evidence verification
+    needs: [architect, engineer, sandbox-validate, rework-r2, sandbox-rework-r2, rework-r3, sandbox-rework-r3]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          path: collected-evidence
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install trusted controller dependencies
+        run: uv sync --locked --extra quality
+      - name: Prove bounded controller rejects missing evidence and forged lineage
+        run: |
+          uv run --no-sync python -m pytest tests/test_delivery_status.py tests/test_rework.py
+          uv run --no-sync python -m ruff check agentic/delivery_status.py agentic/rework.py
+      - name: Calculate truthful P5 decision from actual SHA-bound P3 receipts
+        run: |
+          uv run --no-sync python -m agentic.delivery_status \
+            --artifacts collected-evidence \
+            --original . \
+            --output-dir state-evidence
+      - name: Publish final state, source provenance and all iteration history
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p5-bounded-run-state
+          path: state-evidence/*.json
+          if-no-files-found: warn
+          retention-days: 30
