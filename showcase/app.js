@@ -5,6 +5,11 @@
   const en = {
     skip:"Skip to content",
     navLab:"System",
+    verifiedDeliveryLabel:"REFERENCE EXECUTION / VERIFIED",
+    verifiedDeliveryDesc:"Three actual iterations, an independently executed third-agent test, and 18/18 passing candidate tests. Published as a draft PR without replacing the trusted production pipeline.",
+    verifiedDeliveryRun:"Execution evidence #44433630928 ↗",
+    verifiedDeliveryPR:"Independently verified draft PR #28 ↗",
+    verifiedDeliveryCI:"Isolated CI / exact candidate SHA ↗",
     heroLab:"Technical specification",
     technicalEyebrow:"IMPLEMENTATION & OPERATIONS",
     technicalHeading:"Technical implementation",
