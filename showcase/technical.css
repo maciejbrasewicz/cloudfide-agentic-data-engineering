@@ -158,3 +158,6 @@
  .reviewer-stage-footer{align-items:flex-start;flex-direction:column}
  .reviewer-recalculate-button{white-space:normal;width:100%}
 }
+
+.reviewer-code-excerpt{margin:0;padding:16px 18px;overflow-x:auto;max-height:330px;background:#1f2922;color:#dfe9e1;border:1px solid #2d3a30;white-space:pre;text-align:left}
+.reviewer-code-excerpt code{font:11px/1.7 var(--mono);background:transparent;color:inherit}
