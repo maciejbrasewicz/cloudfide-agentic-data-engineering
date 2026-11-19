@@ -122,7 +122,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
       }finally{pendingStart=false;}
       return true;
     }
-    const m=/^\\/api\\/delivery\\/launch\\/session\\/([0-9a-f-]{36})$/i.exec(url.pathname);
+    const m=/^\/api\/delivery\/launch\/session\/([0-9a-f-]{36})$/i.exec(url.pathname);
     if(m&&method==="GET"){
       if(!ready){send(res,503,{error:"full_delivery_not_provisioned"});return true;}
       if(!UUID.test(m[1])){send(res,400,{error:"invalid_request"});return true;}
@@ -144,7 +144,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
         const jobs=(Array.isArray(result.jobs)?result.jobs:[]).map(x=>({
           name:String(x.name||"").slice(0,160),
           status:x.status,conclusion:x.conclusion,
-          url:/^https:\\/\\/github\\.com\\/maciejbrasewicz\\/cloudfide-agentic-data-engineering\\/actions\\/runs\\/\\d+\\/job\\/\\d+$/.test(x.html_url||"")?x.html_url:null,
+          url:/^https:\/\/github\.com\/maciejbrasewicz\/cloudfide-agentic-data-engineering\/actions\/runs\/\d+\/job\/\d+$/.test(x.html_url||"")?x.html_url:null,
           startedAt:x.started_at||null,completedAt:x.completed_at||null,
           steps:(x.steps||[]).map(step=>({
             name:String(step.name||"").slice(0,160),
