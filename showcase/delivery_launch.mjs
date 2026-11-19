@@ -114,7 +114,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
           })
         });
         lastDispatch=now();
-        send(res,202,{id,status:"dispatched",mode:"real_full_delivery",
+        send(res,202,{id,status:"dispatched",mode:"real_full_delivery",submittedAt:new Date(now()).toISOString(),
           pollUrl:"/api/delivery/launch/session/"+id,
           workflowUrl:"https://github.com/"+REPO+"/actions/workflows/"+WORKFLOW});
       }catch{
@@ -122,27 +122,74 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
       }finally{pendingStart=false;}
       return true;
     }
-    const m=/^\/api\/delivery\/launch\/session\/([0-9a-f-]{36})$/i.exec(url.pathname);
+    const m=/^\\/api\\/delivery\\/launch\\/session\\/([0-9a-f-]{36})$/i.exec(url.pathname);
     if(m&&method==="GET"){
       if(!ready){send(res,503,{error:"full_delivery_not_provisioned"});return true;}
       if(!UUID.test(m[1])){send(res,400,{error:"invalid_request"});return true;}
       try{
         const history=await runs();
         const run=history.find(x=>x.display_title==="CloudFide delivery · "+m[1]);
-        if(!run){send(res,200,{id:m[1],status:"dispatching",jobs:[],events:[]});return true;}
+        if(!run){
+          // GitHub dispatch is asynchronous; 204 means accepted, not created.
+          // Never fabricate job progress, but tell the reviewer what is known.
+          send(res,200,{
+            id:m[1],status:"awaiting_github_run",conclusion:null,
+            workflowUrl:"https://github.com/"+REPO+"/actions/workflows/"+WORKFLOW,
+            jobs:[],events:[],publication:{status:"not_yet_available",pullRequest:null,exactCi:null},
+            evidence:"github_run_not_yet_observed"
+          });
+          return true;
+        }
         const result=await query("/actions/runs/"+run.id+"/jobs?per_page=100");
-        const jobs=(result.jobs||[]).map(x=>({
-          name:String(x.name).slice(0,160),status:x.status,conclusion:x.conclusion,
+        const jobs=(Array.isArray(result.jobs)?result.jobs:[]).map(x=>({
+          name:String(x.name||"").slice(0,160),
+          status:x.status,conclusion:x.conclusion,
+          url:/^https:\\/\\/github\\.com\\/maciejbrasewicz\\/cloudfide-agentic-data-engineering\\/actions\\/runs\\/\\d+\\/job\\/\\d+$/.test(x.html_url||"")?x.html_url:null,
+          startedAt:x.started_at||null,completedAt:x.completed_at||null,
           steps:(x.steps||[]).map(step=>({
-            name:String(step.name).slice(0,160),status:step.status,conclusion:step.conclusion
+            name:String(step.name||"").slice(0,160),
+            status:step.status,conclusion:step.conclusion,number:step.number||null
           }))
         }));
+        let publication={status:"not_yet_available",pullRequest:null,exactCi:null};
+        if(jobs.some(j=>j.name==="Publish verified P4 candidate as human-reviewed draft PR (no Azure)"&&j.conclusion==="success")){
+          try{
+            const matches=await query("/pulls?state=all&head=maciejbrasewicz:agentic-delivery/run-"+run.id+"&per_page=10");
+            const pr=(Array.isArray(matches)?matches:[]).find(x=>
+              Number.isSafeInteger(x.number)&&x.head?.ref==="agentic-delivery/run-"+run.id&&
+              x.base?.ref==="main"&&x.merged_at==null&&x.draft===true&&
+              /^[0-9a-f]{40}$/.test(x.head?.sha||"")
+            );
+            if(pr){
+              publication={
+                status:"draft_created",pullRequest:{
+                  number:pr.number,draft:true,headSha:pr.head.sha,
+                  url:"https://github.com/"+REPO+"/pull/"+pr.number
+                },exactCi:null
+              };
+              try{
+                const checks=await query("/commits/"+pr.head.sha+"/status");
+                const exact=(Array.isArray(checks.statuses)?checks.statuses:[]).find(x=>
+                  x.context==="agentic-delivery/isolated-candidate-ci");
+                const state=["success","pending","error","failure"].includes(exact?.state)?
+                  exact.state:"not_reported";
+                publication.exactCi={state,context:"agentic-delivery/isolated-candidate-ci"};
+                if(state==="success"&&run.status==="completed"&&run.conclusion==="success"&&
+                  jobs.some(j=>j.name.startsWith("Final fail-closed P5/P4/P6 acceptance")&&j.conclusion==="success")){
+                  publication.status="verified_draft_awaiting_human";
+                }
+              }catch{publication.status="draft_ci_unavailable";}
+            }
+          }catch{publication.status="publication_check_unavailable";}
+        }
         send(res,200,{
           id:m[1],mode:"real_full_delivery",status:run.status,
-          conclusion:run.conclusion,githubRunUrl:"https://github.com/"+REPO+"/actions/runs/"+run.id,
-          jobs,events:[],
+          conclusion:run.conclusion,githubRunId:run.id,
+          githubRunUrl:"https://github.com/"+REPO+"/actions/runs/"+run.id,
+          createdAt:run.created_at||null,updatedAt:run.updated_at||null,
+          jobs,events:[],publication,
           evidence:"real_github_actions_jobs_no_simulation",
-          note:"After an independently passing P4, publisher creates a draft PR; exact-SHA CI is separate"
+          note:"P4 must pass before automatic draft PR. Human approval is only required to merge the PR."
         });
       }catch{send(res,503,{error:"github_evidence_temporarily_unavailable"});}
       return true;
