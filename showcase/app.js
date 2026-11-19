@@ -5,10 +5,10 @@
   const en = {
     skip:"Skip to content",
     navLab:"System",
-    verifiedDeliveryLabel:"REFERENCE EXECUTION / VERIFIED",
+    verifiedDeliveryLabel:"LATEST VERIFIED RUN / 19 NOV 2026",
     verifiedDeliveryDesc:"Three actual iterations, an independently executed third-agent test, and 18/18 passing candidate tests. Published as a draft PR without replacing the trusted production pipeline.",
-    verifiedDeliveryRun:"Execution evidence #44433630928 ↗",
-    verifiedDeliveryPR:"Independently verified draft PR #28 ↗",
+    verifiedDeliveryRun:"Execution evidence #44485096373 ↗",
+    verifiedDeliveryPR:"Independently verified draft PR #35 ↗",
     verifiedDeliveryCI:"Isolated CI / exact candidate SHA ↗",
     heroLab:"Technical specification",
     technicalEyebrow:"IMPLEMENTATION & OPERATIONS",
