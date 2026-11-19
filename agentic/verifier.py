@@ -283,10 +283,16 @@ def main() -> None:
             spec=spec, stage=root,
         )
         ledger = VerifierLedger()
-        model_response = asyncio.run(run_foundry_verifier(
-            spec, root, receipt, candidate_digest, p3_digest,
-            ledger, endpoint, model,
-        ))
+        from .role_telemetry import measure_role
+
+        with measure_role(
+            role="verification_engineer", output_dir=args.output_dir,
+            model_deployment=model, tool_call_count=lambda: len(ledger.calls),
+        ):
+            model_response = asyncio.run(run_foundry_verifier(
+                spec, root, receipt, candidate_digest, p3_digest,
+                ledger, endpoint, model,
+            ))
         try:
             report = VerificationReport.model_validate_json(model_response.strip())
         except ValueError:
