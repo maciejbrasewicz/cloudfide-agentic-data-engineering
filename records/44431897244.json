@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "69e85e5b99643070c0b5ccc580b9f6d5cd5dbe61",
+  "generated_at_utc": "2026-11-19T00:50:36.234417+00:00",
+  "source_manifest_sha256": "a863f90dfd89ec3231925158e23c1a0a68183dbf02984d9070e3c5d14deaaaac",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Make successful pre-deduplication reconciliation to both TOTAL control values a blocking quality gate, then exclude the TOTAL row from transactional output.",
+      "evidence": "The source contains one TOTAL row with Quantity 37150 and Discount 65924.67, and the approved policy requires verification before deduplication.",
+      "risk": "The intended aggregation meaning and numeric tolerance of the Discount control are not independently confirmed.",
+      "status": "pending_human_review",
+      "source_report_sha256": "1eda339785d584b2a3dd72a4b10ad81bb168ada553fa732833048836314018ea",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit price imputation only when the normalized product has exactly one distinct valid observed unit price; otherwise fail closed with an audit record.",
+      "evidence": "Four source rows have missing unit prices, and the approved policy already defines unique_price_per_product_or_fail.",
+      "risk": "A single historical product price may still be inappropriate for a particular date, region, or order context.",
+      "status": "pending_human_review",
+      "source_report_sha256": "1eda339785d584b2a3dd72a4b10ad81bb168ada553fa732833048836314018ea",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "quality_gate",
+      "proposal": "Require executable checks for every measured anomaly class and final-output invariants before accepting the deliverable.",
+      "evidence": "The source contains repeated headers, a control row, duplicates, negative quantities, mixed numeric formats, missing prices, regional variants, and blank discounts, while implementation, tests, and output were unavailable for independent inspection.",
+      "risk": "Repository execution may reveal additional anomaly classes or contract ambiguities not visible in aggregate profiling.",
+      "status": "pending_human_review",
+      "source_report_sha256": "1eda339785d584b2a3dd72a4b10ad81bb168ada553fa732833048836314018ea",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Bind provenance hashes to the exact immutable byte buffers used for source and policy parsing.",
+      "evidence": "run_pipeline currently performs separate hash and parse reads even though its report presents hashes as provenance for the processed artifacts.",
+      "risk": "Filesystem mutation is unlikely in the current read-only repository but remains possible when the CLI is used with external paths.",
+      "status": "pending_human_review",
+      "source_report_sha256": "41e48f693086cb09cd09bd48192d2c91dd1a8c26105b6d3ed8acde4e54798ade",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "quality_gate",
+      "proposal": "Require successful staging of both the final CSV and audit report before replacing either published artifact.",
+      "evidence": "The final CSV is currently written before the report, permitting a partial delivery if report publication fails.",
+      "risk": "Atomic replacement across distinct files or filesystems requires a clearly documented recovery strategy and may not provide a single cross-file atomic operation.",
+      "status": "pending_human_review",
+      "source_report_sha256": "41e48f693086cb09cd09bd48192d2c91dd1a8c26105b6d3ed8acde4e54798ade",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Require source-system or data-owner evidence before treating the five exact duplicate rows as non-events in a business-approved result.",
+      "evidence": "Both the implementation and independent oracle remove exact duplicate rows, while README.md acknowledges that the export alone cannot prove they are duplicate exports rather than genuine events.",
+      "risk": "Byte-identical valid transactions would be understated if row equality is not a reliable event identity rule.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f7c65891f161e09e79fbc63ca245ac99be7cc31bba24aa55f5fb7e1732f25fe3",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative rows provisionally, but verify them against return or credit records and confirm discount treatment.",
+      "evidence": "The policy and output consistently retain them, but no independently inspected return-status field or external record proves their meaning.",
+      "risk": "Misclassified corrections, cancellations, or malformed quantities could materially alter regional revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f7c65891f161e09e79fbc63ca245ac99be7cc31bba24aa55f5fb7e1732f25fe3",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Mark the four recovered prices as imputed and verify them against effective-dated authoritative pricing or order records.",
+      "evidence": "Each inference is reproducible only because the product has one observed source price; uniqueness does not establish historical applicability.",
+      "risk": "Product prices may vary outside the observed export by date, region, customer, or contract.",
+      "status": "pending_human_review",
+      "source_report_sha256": "f7c65891f161e09e79fbc63ca245ac99be7cc31bba24aa55f5fb7e1732f25fe3",
+      "approved_by": null
+    }
+  ]
+}
