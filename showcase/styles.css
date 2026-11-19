@@ -248,8 +248,6 @@ code{font:11px var(--mono);color:#485b50}
 
 
 /* Recruiter entry: direct, authenticated access under the global header. */
-.header-launch-action{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:10px 14px;border:1px solid #264c36;background:#264c36;color:#fff;font:600 11px/1.2 var(--sans)}
-.header-launch-action:hover{background:#173523;color:#fff}
 .reviewer-entry{padding:34px 0 36px;border-bottom:1px solid #cbd9cd;background:#edf3ed;scroll-margin-top:106px}
 .reviewer-entry-grid{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(380px,.96fr);gap:48px;align-items:center}
 .reviewer-entry-kicker{display:flex;align-items:center;gap:10px;color:#2f6645;font:500 10px/1.6 var(--mono);letter-spacing:.055em}
@@ -306,7 +304,6 @@ code{font:11px var(--mono);color:#485b50}
  .intro{grid-template-columns:1fr}
 }
 @media(max-width:760px){
- .header-launch-action{font-size:10px;padding:9px 10px}
  .reviewer-entry h2{font-size:30px}
  .reviewer-entry-lead{font-size:12px}
  .reviewer-entry-steps{grid-template-columns:1fr}
@@ -323,5 +320,24 @@ code{font:11px var(--mono);color:#485b50}
  .hero-workflow li{padding:11px 9px;min-height:122px}
  .hero-workflow li strong{font-size:11px}
  .hero-workflow li>span{font-size:10px}
- .header-launch-action{font-size:9px;padding:8px}
+}
+
+
+/* Hero, then live recruiter execution, then detailed technology/workflow.
+   This keeps the call to action discoverable before the lengthy engineering narrative. */
+.intro{padding-bottom:54px}
+.intro-main{align-self:center}
+.intro h1{font-size:clamp(43px,4.55vw,69px);line-height:1.085;max-width:900px}
+.intro .lead{margin-bottom:27px;max-width:780px}
+.intro .hero-actions{margin-bottom:0}
+.hero-system-section{padding-top:48px;padding-bottom:54px;border-bottom:1px solid var(--soft-line)}
+.hero-system-section .hero-system-map{margin-top:0;padding-top:0;border-top:0;gap:24px}
+.hero-system-section .hero-workflow{grid-template-columns:repeat(3,minmax(0,1fr))}
+.hero-system-section .hero-workflow li{min-height:98px}
+.hero-system-section .hero-system-group:last-child{margin-top:0}
+@media(max-width:760px){
+ .intro{padding-top:35px;padding-bottom:38px}
+ .intro h1{font-size:clamp(34px,8vw,49px)}
+ .hero-system-section{padding-top:32px;padding-bottom:42px}
+ .hero-system-section .hero-workflow{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
