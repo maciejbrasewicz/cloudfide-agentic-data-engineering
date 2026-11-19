@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "e50ed554c6dac8313d218906dcedefad531af262",
+  "generated_at_utc": "2026-11-19T00:17:38.747510+00:00",
+  "source_manifest_sha256": "e2270c786e98ecbed6696827e459295d666291f932c6058be92d8c88057accf6",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Define explicit formulas, fields, timing, and tolerances for TOTAL reconciliation and preserve both pre- and post-deduplication audit metrics.",
+      "evidence": "The source contains one TOTAL row with Quantity 37150 and Discount 65924.67, while the policy only states verification before deduplication.",
+      "risk": "The semantic meaning of the TOTAL values is not established by profiling alone.",
+      "status": "pending_human_review",
+      "source_report_sha256": "33fd66611bd47e14e42cf741866ee564b322f942627547f7dc94fcc594ae82b2",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Continue retaining negative quantities only if all six rows are validated as returns; otherwise fail closed or introduce an explicitly approved classification rule.",
+      "evidence": "Six negative-quantity rows were measured, and the current return interpretation is a documented assumption.",
+      "risk": "Incorrect return semantics could reverse quantities or financial amounts.",
+      "status": "pending_human_review",
+      "source_report_sha256": "33fd66611bd47e14e42cf741866ee564b322f942627547f7dc94fcc594ae82b2",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit price inference only when each affected product has exactly one normalized observed price and emit row-level lineage for the inferred value.",
+      "evidence": "Four unit prices are missing, and the current policy requires a unique product price or failure.",
+      "risk": "Product prices may vary by date, region, order, or discount context even when a unique candidate appears in this file.",
+      "status": "pending_human_review",
+      "source_report_sha256": "33fd66611bd47e14e42cf741866ee564b322f942627547f7dc94fcc594ae82b2",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "quality_gate",
+      "proposal": "Reject all monetary representations outside an explicit optional-sign, digits, and dot-or-comma cents grammar before Decimal conversion.",
+      "evidence": "parse_decimal currently relies on Decimal's broader string grammar, while the policy only approves dot or comma decimal separators and requires ambiguous data to fail closed.",
+      "risk": "The private task may intentionally permit a broader numeric grammar; confirm the accepted syntax before narrowing it.",
+      "status": "pending_human_review",
+      "source_report_sha256": "3986b6f25cd72c84d4066512f08688018453c1e52e1e07bf343e6b54690857f5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Hash and parse the source and policy from one captured byte sequence per file.",
+      "evidence": "run_pipeline currently hashes each file and later reopens it for processing, creating a provenance time-of-check/time-of-use window.",
+      "risk": "The practical risk is low for immutable local repository files but higher for externally supplied or concurrently replaceable paths.",
+      "status": "pending_human_review",
+      "source_report_sha256": "3986b6f25cd72c84d4066512f08688018453c1e52e1e07bf343e6b54690857f5",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Retain exact-row deduplication only after source-system evidence confirms that the five repeated rows are duplicate exports rather than distinct transactions.",
+      "evidence": "Both production and independent parsing identify five exact repeats, but README.md acknowledges that their business meaning cannot be proven from the export.",
+      "risk": "Removing legitimate repeated sales would understate regional and net revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "560ffc3f223a1b2543f6e11e3760a98f5333ea895014b0b766fafb9d1314e218",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative quantities as returns only after reconciliation to return or credit records.",
+      "evidence": "Six negative rows are consistently counted and included, but no return-specific source field or external accounting evidence was reviewed.",
+      "risk": "Incorrect sign semantics could materially distort revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "560ffc3f223a1b2543f6e11e3760a98f5333ea895014b0b766fafb9d1314e218",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Keep unique-product inference fail-closed, but validate the four inferred values against a dated authoritative price or order source.",
+      "evidence": "Each affected product has one observed candidate in this export, and ambiguity is tested, but uniqueness within one file does not prove historical price correctness.",
+      "risk": "A product may vary in price by date, region, customer, or contract even when only one reference value appears in this dataset.",
+      "status": "pending_human_review",
+      "source_report_sha256": "560ffc3f223a1b2543f6e11e3760a98f5333ea895014b0b766fafb9d1314e218",
+      "approved_by": null
+    }
+  ]
+}
