@@ -174,3 +174,15 @@ test("Publisher job success alone never establishes valid candidate CI",async()=
   assert.equal(data.publication.status,"draft_ci_not_confirmed");
   assert.equal(data.publication.exactCi.state,"failure");
 });
+
+
+test("GitHub durations are measured from real job timestamps; unavailable periods remain null",async()=>{
+  const first={...jobs[0],started_at:"2026-11-19T09:00:00Z",completed_at:"2026-11-19T09:01:23Z"};
+  const api=createDeliveryGateway({fetchImpl:async url=>({
+    ok:true,json:async()=>url.includes("/workflows/")?{workflow_runs:[run]}:{jobs:[first,...jobs.slice(1)]}
+  })});
+  const {data}=await query(api);
+  assert.equal(data.phases.find(x=>x.id==="architect").jobDurationMs,83000);
+  assert.equal(data.phases.find(x=>x.id==="engineer").jobDurationMs,null);
+  assert.equal(data.phases.find(x=>x.id==="publish-draft-pr").jobDurationMs,null);
+});
