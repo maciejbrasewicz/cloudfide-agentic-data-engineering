@@ -53,7 +53,7 @@ There is **no independent dashboard or second portal**. Existing `/engineering.h
 
 ### Optional authenticated recruiter execution
 
-The real execution UI is directly below the global header. It becomes available when Railway provisions the two private credentials; public evidence inspection never requires a reviewer code. The portal keeps original Foundry evidence available regardless. To enable the protected `workflow_dispatch` path, set Railway service variables:
+The real execution UI is directly below the main hero and above the detailed technology/workflow explanation. It becomes available when Railway provisions the two private credentials; public evidence inspection never requires a reviewer code. The portal keeps original Foundry evidence available regardless. To enable the protected `workflow_dispatch` path, set Railway service variables:
 
 - `GITHUB_WORKFLOW_TOKEN`: repository-scoped, short-lived fine-grained GitHub token allowing Actions read/write (dispatch plus run polling). Do not use a general account-level token.
 - `REVIEWER_ACCESS_CODE`: independent, high-entropy access code of at least 24 characters, distributed privately to an intended reviewer.
@@ -81,3 +81,7 @@ The latest review controls require authentic cloud execution for operational ver
 ### Recruiter-first entry and delivery process
 
 The top section now explains exactly what the reviewer launches: a new restricted Foundry Data Architect run, real Data Engineer source authoring with up to three sandbox-gated corrections, a distinct Verification Engineer falsification test, independently executed P4, and publication as a draft PR for human review with separate exact-SHA CI. A second, compact hero diagram separates **technology stack** (Foundry, Agent Framework, GitHub Actions, Azure OIDC, Python, Docker, pytest, SHA-256) from **six delivery stages** (approved specification, Architect, Engineer, P3/P5, Verifier/P4, draft PR/CI). The Architect does not dynamically create agents; GitHub Actions hosts the deterministic orchestration, and human approval is required for business-rule changes and final PR merging.
+
+### Real live reviewer acceptance interface
+
+The main product hero introduces the task first. The protected launch section follows it (not above the header), then the expanded technology stack and detailed gated workflow. The navigation bar has no redundant launch button; the hero provides a direct link to the protected panel. After a valid dispatch, the page distinguishes GitHub acceptance from an actual run ID, exposes real job and step statuses with a six-second refresh, labels skipped and failed jobs accurately, and links the automatically generated draft PR once it exists. It never claims successful P4 or exact-SHA CI merely from GitHub's overall workflow conclusion. A same-tab reload retains the random session ID but no access code.
