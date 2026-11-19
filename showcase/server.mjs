@@ -64,7 +64,7 @@ export function createAppServer({gateway=createLiveGateway(),deliveryGateway=cre
       res.end();return;
     }
     // Only explicit public assets; block dotfiles, source files and directory traversal.
-    const allowed = new Set(["/index.html","/styles.css","/technical.css","/app.js","/technical.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
+    const allowed = new Set(["/index.html","/styles.css","/technical.css","/app.js","/technical.js","/delivery_status.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
     if(!allowed.has(location)){
       res.writeHead(404,HEADERS);res.end();return;
     }
