@@ -131,6 +131,10 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
         const result=await query("/actions/runs/"+run.id+"/jobs?per_page=100");
         const jobs=(result.jobs||[]).map(x=>({
           name:String(x.name).slice(0,160),status:x.status,conclusion:x.conclusion,
+          jobDurationMs:(Number.isFinite(Date.parse(x.started_at||""))&&
+            Number.isFinite(Date.parse(x.completed_at||""))&&
+            Date.parse(x.completed_at)>=Date.parse(x.started_at))?
+            Date.parse(x.completed_at)-Date.parse(x.started_at):null,
           steps:(x.steps||[]).map(step=>({
             name:String(step.name).slice(0,160),status:step.status,conclusion:step.conclusion
           }))
