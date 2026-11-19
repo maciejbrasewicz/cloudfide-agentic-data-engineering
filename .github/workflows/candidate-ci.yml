@@ -1,0 +1,132 @@
+name: Candidate code - isolated exact-SHA pull-request CI
+
+# Runs only the explicitly selected draft candidate on the main-branch
+# TRUSTED workflow. Model-generated Python executes solely within Docker.
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Trusted draft branch (agentic-delivery/run-<source id>)"
+        required: true
+        type: string
+      expected_sha:
+        description: "Immutable draft candidate commit SHA"
+        required: true
+        type: string
+      base_sha:
+        description: "Original source workflow main commit SHA"
+        required: true
+        type: string
+      source_run_id:
+        description: "Original P1->P6 source workflow run id"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      statuses: write
+    env:
+      CANDIDATE_BRANCH: ${{ inputs.branch }}
+      EXPECTED_SHA: ${{ inputs.expected_sha }}
+      BASE_SHA: ${{ inputs.base_sha }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install only trusted P6 and original-source verification tools
+        run: uv sync --locked --extra quality
+      - name: Fetch exact branch without checking out or executing generated source
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CANDIDATE_BRANCH" =~ ^agentic-delivery/run-[0-9]{5,30}$ ]] || exit 1
+          [[ "$EXPECTED_SHA" =~ ^[a-f0-9]{40}$ ]] || exit 1
+          [[ "$BASE_SHA" =~ ^[a-f0-9]{40}$ ]] || exit 1
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]{5,30}$ ]] || exit 1
+          git fetch origin "refs/heads/$CANDIDATE_BRANCH:refs/remotes/origin/$CANDIDATE_BRANCH"
+      - name: Verify all candidate file hashes and exact branch parent
+        id: admit
+        run: |
+          uv run --no-sync python -m agentic.candidate_branch_ci \
+            --root . \
+            --stage "$RUNNER_TEMP/cloudfide-ci-candidate" \
+            --branch "$CANDIDATE_BRANCH" \
+            --sha "$EXPECTED_SHA" \
+            --base "$BASE_SHA" \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --receipt candidate-ci-evidence/admission.json
+      - name: Build static trusted P3 image, not the generated PR branch
+        run: docker build -f sandbox/Dockerfile -t cloudfide-candidate-ci:verified sandbox
+      - name: Run original and candidate tests, generated pipeline in isolated container
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cloudfide-ci-output"
+          chmod 0777 "$RUNNER_TEMP/cloudfide-ci-output"
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges:true --pids-limit 128 \
+            --memory 768m --cpus 1.5 --user 65534:65534 \
+            --tmpfs /tmp:rw,nosuid,nodev,mode=1777,size=128m \
+            --volume "$RUNNER_TEMP/cloudfide-ci-candidate:/input:ro" \
+            --volume "$RUNNER_TEMP/cloudfide-ci-output:/out:rw" \
+            cloudfide-candidate-ci:verified
+      - name: Independently reconcile true output against original CSV in trusted host
+        id: verify
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv run --no-sync python -m agentic.p3_oracle \
+            --source sales.csv \
+            --sandbox-output "$RUNNER_TEMP/cloudfide-ci-output" \
+            --receipt candidate-ci-evidence/verification.json
+      - name: Record signed result on exact PR commit SHA, not default branch
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ADMITTED: ${{ steps.admit.outcome }}
+          VERIFIED: ${{ steps.verify.outcome }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$EXPECTED_SHA" =~ ^[a-f0-9]{40}$ ]]; then exit 0; fi
+          state=failure
+          description="Exact-SHA isolated candidate tests or source integrity failed"
+          if [ "$ADMITTED" = "success" ] && [ "$VERIFIED" = "success" ]; then
+            state=success
+            description="Exact candidate SHA passed independent tests and Decimal oracle"
+          fi
+          gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$EXPECTED_SHA" \
+            -f state="$state" \
+            -f context="agentic-delivery/isolated-candidate-ci" \
+            -f description="$description" \
+            -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+      - name: Preserve trustworthy CI receipts and actual candidate test logs
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p candidate-ci-evidence
+          for name in tests.log pipeline.log test_exit_code.txt pipeline_exit_code.txt revenue_by_region.csv; do
+            cp "$RUNNER_TEMP/cloudfide-ci-output/$name" candidate-ci-evidence/ 2>/dev/null || true
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate-ci-exact-sha-evidence
+          path: candidate-ci-evidence/*
+          retention-days: 30
+          if-no-files-found: warn
