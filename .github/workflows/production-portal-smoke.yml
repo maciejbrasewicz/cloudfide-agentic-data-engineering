@@ -108,3 +108,50 @@ jobs:
             echo "- No GitHub API token or review code logged"
             echo "- Recalculation independently performed on the server"
           } >> "$GITHUB_STEP_SUMMARY"
+
+
+  replay-published-candidate:
+    name: Independently replay the ACTUAL model candidate in Docker, not root Python
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install only trusted pinned source verification dependencies
+        run: uv sync --locked --extra quality
+      - name: Replay source on the exact PR #35 SHA using no-network Docker
+        run: |
+          uv run --no-sync python scripts/replay_delivery.py \
+            --run-id 44485096373 \
+            --commit 73ab197159f8ed5a595bdd99a88b01707371d12e \
+            --base 737baf62ad7fb17f89a194a4dcb904bf0081ceea \
+            --evidence-dir reviewer-evidence
+      - name: Verify actual replay oracle and candidate tests
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          d=json.loads(pathlib.Path("reviewer-evidence/verification.json").read_text())
+          assert d["status"]=="PASSED"
+          assert d["reconciliation"]=="passed"
+          assert d["net_revenue"]=="2570247.03"
+          assert len(d["regions"])==5
+          assert d["sandbox_network"]=="disabled"
+          assert d["sandbox_test_exit_code"]==0
+          assert d["sandbox_pipeline_exit_code"]==0
+          tests=pathlib.Path("reviewer-evidence/tests.log").read_text()
+          assert "passed" in tests and "failed" not in tests
+          print("Verified independent exact-SHA Docker replay with P3 Decimal oracle")
+          PY
+      - name: Preserve exact isolated candidate replay proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewer-exact-sha-docker-replay
+          path: reviewer-evidence/
+          retention-days: 14
+          if-no-files-found: warn
