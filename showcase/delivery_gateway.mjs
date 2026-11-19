@@ -50,8 +50,10 @@ export function createDeliveryGateway({fetchImpl=fetch,now=Date.now,token=proces
   let pending=null;
 
   async function githubJson(path){
+    // Public PR and status endpoints need no extra scope on Railway Actions PAT.
+    const publicProof=path.startsWith("/pulls?")||path.includes("/status");
     const response=await fetchImpl(API+path,{
-      headers:{"Accept":"application/vnd.github+json","User-Agent":"cloudfide-public-delivery-evidence",...(token?{"Authorization":"Bearer "+token}:{})},
+      headers:{"Accept":"application/vnd.github+json","User-Agent":"cloudfide-public-delivery-evidence",...(!publicProof&&token?{"Authorization":"Bearer "+token}:{})},
       signal:AbortSignal.timeout(7000)
     });
     if(!response.ok)throw Error("Public GitHub evidence API returned "+response.status);
