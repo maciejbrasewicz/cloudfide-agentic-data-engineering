@@ -159,7 +159,27 @@
       $("technical-start").disabled=false;
     }
   }
-  window.addEventListener("cloudfide:language",()=>{renderModules();if(!state.id)capabilities();});
+  function resetSessionView(){
+    if(state.timer){clearInterval(state.timer);state.timer=null;}
+    state.id=null;
+    try{sessionStorage.removeItem(sessionKey);}catch{}
+    $("technical-run").hidden=true;
+    $("technical-run-link").hidden=true;
+    $("technical-job-steps").replaceChildren();
+    $("technical-live-events").replaceChildren();
+    $("technical-error").textContent="";
+    capabilities();
+  }
+  function translateView(){
+    renderModules();
+    $("technical-clear-session").textContent=local(
+      "Otwórz formularz nowego wykonania (poprzedni proces trwa dalej)",
+      "Open new execution form (previous run continues)"
+    );
+    if(!state.id)capabilities();
+  }
+  $("technical-clear-session").addEventListener("click",resetSessionView);
+  window.addEventListener("cloudfide:language",translateView);
   $("technical-start-form").addEventListener("submit",start);
   renderModules();capabilities();
   if(state.id){
