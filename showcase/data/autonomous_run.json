@@ -99,7 +99,12 @@
           "value": "output CSV missing"
         }
       ],
-      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928",
+      "codeExcerpt": {
+        "path": "pipeline.py",
+        "lines": "192–205",
+        "source": "def run_pipeline(\n    source: str | Path = \"sales.csv\",\n    destination: str | Path = \"revenue_by_region.csv\",\n) -> pd.DataFrame:\n    aggregate = revenue_by_region(clean_sales(source))\n    serialised.to_csv(destination, index=False, lineterminator=\"\\n\")\n    return aggregate\n\nif __name__ == \"__main__\":\n    run_pipeline()"
+      }
     },
     {
       "key": "engineer-2",
@@ -142,7 +147,12 @@
           "value": "CLI arguments"
         }
       ],
-      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928",
+      "codeExcerpt": {
+        "path": "pipeline.py",
+        "lines": "211–222",
+        "source": "def main(argv: Sequence[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(description=\"Clean and aggregate sales CSV data\")\n    parser.add_argument(\"source\", nargs=\"?\", default=\"sales.csv\")\n    parser.add_argument(\"destination\", nargs=\"?\", default=\"revenue_by_region.csv\")\n    args = parser.parse_args(argv)\n    run_pipeline(args.source, args.destination)\n    return 0"
+      }
     },
     {
       "key": "engineer-3",
@@ -189,7 +199,12 @@
           "value": "1500 unique transactions"
         }
       ],
-      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928",
+      "codeExcerpt": {
+        "path": "pipeline.py",
+        "lines": "209–221",
+        "source": "def main(argv: Sequence[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(description=\"Clean and aggregate sales CSV data\")\n    parser.add_argument(\"source\", nargs=\"?\", help=\"input CSV (default: sales.csv)\")\n    parser.add_argument(\"destination\", nargs=\"?\", help=\"output aggregate CSV\")\n    parser.add_argument(\"--input\", dest=\"input_path\", help=\"input sales CSV\")\n    parser.add_argument(\"--output\", dest=\"output_path\", help=\"output aggregate CSV\")\n    args = parser.parse_args(argv)\n    source = args.input_path or args.source or \"sales.csv\"\n    destination = args.output_path or args.destination or \"revenue_by_region.csv\"\n    run_pipeline(source, destination)\n    return 0"
+      }
     },
     {
       "key": "verifier",
@@ -231,7 +246,12 @@
           "value": "PASSED"
         }
       ],
-      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928",
+      "codeExcerpt": {
+        "path": "tests/test_verifier_generated.py",
+        "lines": "21–38",
+        "source": "actual = add_virtual_column(\n    source, \"quantity * unit_price - discount\", \"net_revenue\"\n)\nexpected = before.copy(deep=True)\nexpected[\"net_revenue\"] = [\n    Decimal(\"20.00\"), Decimal(\"-22.50\"), Decimal(\"1.10\"),\n]\nassert_frame_equal(actual, expected)\nassert_frame_equal(source, before)\nassert actual is not source\n\n# Separate invalid-operator test rejects: left / right"
+      }
     },
     {
       "key": "delivery",
