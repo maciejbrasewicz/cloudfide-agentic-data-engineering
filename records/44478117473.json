@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "87a6b20362641c859e2e9eabf59619b3f2f2a8f5",
+  "generated_at_utc": "2026-11-19T07:17:03.423688+00:00",
+  "source_manifest_sha256": "43ae0b2e910465d98e6f4547e0e84aa329fdddf0cdccbb78456a0b48085eb8fb",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Define explicit formulas, numeric tolerances, and stage ordering for reconciling the TOTAL row before it is excluded.",
+      "evidence": "The source has one TOTAL row containing 37150 in Quantity and 65924.67 in Discount, while the policy only states verify_before_deduplication.",
+      "risk": "The control values' intended measures are not established by their column placement alone.",
+      "status": "pending_human_review",
+      "source_report_sha256": "ee1db87d43d7f3dd1b93201c6fe69a02689071d098f5291dca36938473bd0343",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative rows only after documenting owner confirmation that they represent returns and defining their revenue treatment.",
+      "evidence": "Six negative-quantity rows were measured and the current policy assumes they are returns.",
+      "risk": "They could instead be corrections, entry errors, cancellations, or another transaction type.",
+      "status": "pending_human_review",
+      "source_report_sha256": "ee1db87d43d7f3dd1b93201c6fe69a02689071d098f5291dca36938473bd0343",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Apply unique-product-price inference only when an executable uniqueness and temporal-validity check passes; otherwise fail closed.",
+      "evidence": "Four rows have missing unit prices and the approved policy selects a unique product price or fails.",
+      "risk": "A single observed candidate may still be inapplicable to the missing row's date or commercial context.",
+      "status": "pending_human_review",
+      "source_report_sha256": "ee1db87d43d7f3dd1b93201c6fe69a02689071d098f5291dca36938473bd0343",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Define explicit formulas, tolerances, and stage ordering for reconciling the TOTAL row before exclusion.",
+      "evidence": "TOTAL contains 37150 under Quantity and 65924.67 under Discount, while the policy only specifies verification before deduplication.",
+      "risk": "The intended measures cannot be inferred reliably from column placement alone.",
+      "status": "pending_human_review",
+      "source_report_sha256": "03a744d64ad297f141417f544126bb3daa3427222642ddfc51c28b8d92052092",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six negative rows only after owner confirmation that they represent returns and after defining revenue-sign behavior.",
+      "evidence": "Six negative-quantity rows were measured, and the current policy classifies them as returns.",
+      "risk": "They may instead represent corrections, cancellations, or data-entry errors.",
+      "status": "pending_human_review",
+      "source_report_sha256": "03a744d64ad297f141417f544126bb3daa3427222642ddfc51c28b8d92052092",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "data_engineer",
+      "target": "missing_prices",
+      "proposal": "Permit product-price inference only after uniqueness and temporal-validity checks pass; otherwise fail closed.",
+      "evidence": "Four prices are missing and the policy selects a unique product price or fails.",
+      "risk": "A single observed product price may still be inapplicable to the affected transaction date or commercial context.",
+      "status": "pending_human_review",
+      "source_report_sha256": "03a744d64ad297f141417f544126bb3daa3427222642ddfc51c28b8d92052092",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Require authoritative order-line or export-log confirmation before permanently classifying the five exact duplicate rows as accidental copies.",
+      "evidence": "Independent parsing confirms five removable exact duplicates, but both the oracle and README acknowledge that source equality does not establish business duplication.",
+      "risk": "Genuine repeated transactions could be removed and revenue understated.",
+      "status": "pending_human_review",
+      "source_report_sha256": "d51e1707863bb65486e765c8ec53edbc22b3e46957a2943804b0671818f28a1d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Retain the six signed rows provisionally, but obtain return or credit evidence and validate the discount formula for those records.",
+      "evidence": "Six negative quantities are retained consistently by the policy, implementation, report, and independent arithmetic oracle.",
+      "risk": "If the rows are corrections or if return discounts follow different sign rules, net revenue is incorrect.",
+      "status": "pending_human_review",
+      "source_report_sha256": "d51e1707863bb65486e765c8ec53edbc22b3e46957a2943804b0671818f28a1d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0009",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Replace unique-product inference with authoritative effective-dated prices when available; otherwise keep fail-closed uniqueness checks and disclose the assumption.",
+      "evidence": "Four missing prices are recovered only because each product has one normalized observed candidate in the cleaned source.",
+      "risk": "Observed uniqueness does not prove that the candidate price applied on the missing transaction date.",
+      "status": "pending_human_review",
+      "source_report_sha256": "d51e1707863bb65486e765c8ec53edbc22b3e46957a2943804b0671818f28a1d",
+      "approved_by": null
+    }
+  ]
+}
