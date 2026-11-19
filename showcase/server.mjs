@@ -5,6 +5,8 @@ import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLiveGateway } from "./live_gateway.mjs";
 import { createDeliveryGateway } from "./delivery_gateway.mjs";
+import { createRecalculationGateway } from "./recalculation_gateway.mjs";
+import { createFullDeliveryLauncher } from "./delivery_launch.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const MEDIA = new Map([
@@ -37,11 +39,18 @@ const HEADERS = Object.freeze({
   "Cross-Origin-Resource-Policy": "same-origin"
 });
 
-export function createAppServer({gateway=createLiveGateway(),deliveryGateway=createDeliveryGateway()}={}){
+export function createAppServer({
+  gateway=createLiveGateway({env:{}}),
+  deliveryGateway=createDeliveryGateway(),
+  recalculationGateway=createRecalculationGateway(),
+  fullDeliveryLauncher=createFullDeliveryLauncher()
+}={}){
   return createServer(async(req,res)=>{
     const target=new URL(req.url||"/","http://localhost");
     if(await gateway.handle(req,res,target))return;
     if(await deliveryGateway.handle(req,res,target))return;
+    if(await recalculationGateway.handle(req,res,target))return;
+    if(await fullDeliveryLauncher.handle(req,res,target))return;
     const method = req.method;
     if(method!=="GET" && method!=="HEAD"){
       res.writeHead(405,{"Allow":"GET, HEAD",...HEADERS}); res.end(); return;
@@ -64,7 +73,7 @@ export function createAppServer({gateway=createLiveGateway(),deliveryGateway=cre
       res.end();return;
     }
     // Only explicit public assets; block dotfiles, source files and directory traversal.
-    const allowed = new Set(["/index.html","/styles.css","/technical.css","/app.js","/technical.js","/delivery_status.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
+    const allowed = new Set(["/index.html","/styles.css","/technical.css","/app.js","/technical.js","/delivery_status.js","/reviewer_console.js","/favicon.svg","/data/evidence.json","/data/agent_trace.json","/data/foundry_reports.json"]);
     if(!allowed.has(location)){
       res.writeHead(404,HEADERS);res.end();return;
     }
