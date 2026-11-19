@@ -115,6 +115,10 @@
           item.status==="in_progress"?"running":""
         ),label(item.conclusion||item.status))
       );
+      if(Number.isFinite(item.jobDurationMs)){
+        article.append(el("small","delivery-duration",choose("Czas joba: ","Job elapsed: ")+
+          (item.jobDurationMs/1000).toFixed(1)+" s"));
+      }
       jobsNode.append(article);
     }
     const result=latest.publication;
