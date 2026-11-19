@@ -48,14 +48,15 @@
     daily_limit_or_active_run:["Limit uruchomień lub aktywny przebieg.","Run limit exceeded or execution already active."],
     github_dispatch_failed:["Zlecenie do GitHub Actions zostało odrzucone.","GitHub Actions rejected the execution request."],
     too_many_attempts:["Przekroczony limit prób uwierzytelnienia.","Too many authentication attempts."],
-    live_not_provisioned:["Usługa nie ma skonfigurowanego dostępu do GitHub Actions.","GitHub Actions dispatch access has not been configured."],
+    full_delivery_not_provisioned:["Uruchomienie pełnych agentów wymaga tokenu Actions i kodu recenzenta na serwerze.","Launching full agents requires a scoped Actions token and reviewer code on the server."],
+    daily_quota_or_active_execution:["Dzienny limit uruchomień lub inny aktywny przebieg.","Daily quota reached or another execution active."],
     session_not_found_or_expired:["Przebieg jest niedostępny po wygaśnięciu sesji.","Run unavailable after the session expired."],
     origin_not_allowed:["Żądanie nie pochodzi z tego serwisu.","Request origin is not permitted."]
   };
   const err=(key)=>local(...(errors[key]||["Nie udało się zrealizować żądania.","Request could not be completed."]));
   async function capabilities(){
     try{
-      const response=await fetch("/api/live/capabilities",{cache:"no-store"});
+      const response=await fetch("/api/delivery/launch/capabilities",{cache:"no-store"});
       if(!response.ok)throw Error("bad_gateway");
       const info=await response.json();
       state.enabled=info.liveReady===true;
@@ -63,8 +64,8 @@
         local("Dostępne po autoryzacji","Available with authorization"):
         local("Uruchomienia na żądanie — nieaktywne","On-demand execution — not configured");
       $("technical-availability-note").textContent=state.enabled?
-        local("Po podaniu kodu uruchomimy istniejący workflow w GitHub Actions.","The access code authorizes dispatch of the existing GitHub Actions workflow."):
-        local("Wymagany jest ograniczony token GitHub Actions i kod dostępu skonfigurowany na serwerze. Historyczny przebieg Foundry i raporty są dostępne powyżej.","A scoped GitHub Actions token and reviewer access code must be configured server-side. The recorded Foundry run remains available above.");
+        local("Kod autoryzuje rzeczywiste wykonanie Architect → Engineer → Verifier, do trzech prób z niezależnymi testami.","The code authorizes real Architect → Engineer → Verifier execution, up to three attempts with independent tests."):
+        local("Pełny start agentów wymaga konfiguracji serwera. Rekruter może już oglądać ich rzeczywistą pracę i uruchomić niezależne przeliczenie CSV powyżej.","Server configuration is required for paid full-agent launch. The reviewer can already inspect real agent work and rerun independent CSV verification above.");
       $("technical-indicator").classList.toggle("available",state.enabled);
       $("technical-start").disabled=!state.enabled||Boolean(state.id);
     }catch{
@@ -93,7 +94,7 @@
     if(!state.id||state.polling)return;
     state.polling=true;
     try{
-      const response=await fetch("/api/live/session/"+encodeURIComponent(state.id),{cache:"no-store"});
+      const response=await fetch("/api/delivery/launch/session/"+encodeURIComponent(state.id),{cache:"no-store"});
       const run=await response.json();
       if(!response.ok)throw Error(run.error||"gateway_error");
       $("technical-run-title").textContent=local("Wykonanie","Execution")+" "+state.id.slice(0,8)+" · "+run.status+(run.conclusion?" / "+run.conclusion:"");
@@ -131,7 +132,7 @@
     $("technical-start").disabled=true;
     $("technical-error").textContent="";
     try{
-      const response=await fetch("/api/live/start",{
+      const response=await fetch("/api/delivery/launch",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({accessCode})
