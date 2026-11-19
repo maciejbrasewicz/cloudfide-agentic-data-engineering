@@ -4,6 +4,7 @@ import { readFile, stat } from "node:fs/promises";
 import { dirname, extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createLiveGateway } from "./live_gateway.mjs";
+import { createDeliveryGateway } from "./delivery_gateway.mjs";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const MEDIA = new Map([
@@ -36,10 +37,11 @@ const HEADERS = Object.freeze({
   "Cross-Origin-Resource-Policy": "same-origin"
 });
 
-export function createAppServer({gateway=createLiveGateway()}={}){
+export function createAppServer({gateway=createLiveGateway(),deliveryGateway=createDeliveryGateway()}={}){
   return createServer(async(req,res)=>{
     const target=new URL(req.url||"/","http://localhost");
     if(await gateway.handle(req,res,target))return;
+    if(await deliveryGateway.handle(req,res,target))return;
     const method = req.method;
     if(method!=="GET" && method!=="HEAD"){
       res.writeHead(405,{"Allow":"GET, HEAD",...HEADERS}); res.end(); return;
