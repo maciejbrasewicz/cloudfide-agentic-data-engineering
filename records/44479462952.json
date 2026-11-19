@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "f64e259c970dc5cd14fc3dffb60ecd8056c99b44",
+  "generated_at_utc": "2026-11-19T07:28:10.005273+00:00",
+  "source_manifest_sha256": "21e73f58eeedbd25972dbea15d19d6b87eccaf4f32450595117875a2671f4e67",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Define the exact metric and transaction population represented by each populated TOTAL field, and require reconciliation at the documented stage plus a post-dedup impact report.",
+      "evidence": "The source TOTAL row contains Quantity 37150 and Discount 65924.67, while five exact-duplicate rows exist and the policy currently verifies before deduplication.",
+      "risk": "The final deduplicated output may not reconcile to a control total calculated over physical source rows, and the Discount-positioned control value may represent an undocumented metric.",
+      "status": "pending_human_review",
+      "source_report_sha256": "aa279e98c6a135775bc3ef97176645583f33deee531925113763ed431f572d86",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Permit product-based unit-price inference only when the affected product has one contextually valid parsed price; otherwise reject the run and report the affected orders.",
+      "evidence": "Four unit prices are missing, and the approved policy already requires a unique product price or failure.",
+      "risk": "A nominally unique historical product price may still be invalid for a different date, region, or pricing context.",
+      "status": "pending_human_review",
+      "source_report_sha256": "aa279e98c6a135775bc3ef97176645583f33deee531925113763ed431f572d86",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Retain negative quantities only under an explicitly approved return-sign convention and report their count and aggregate financial effect separately.",
+      "evidence": "Six source rows have negative quantities, and the approved policy interprets them as returns.",
+      "risk": "Without source-system confirmation, negative values could represent corrections or data-entry errors rather than returns.",
+      "status": "pending_human_review",
+      "source_report_sha256": "aa279e98c6a135775bc3ef97176645583f33deee531925113763ed431f572d86",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "quality_gate",
+      "proposal": "Require every monetary source value, including the TOTAL discount, to match an explicitly documented conventional decimal grammar before Decimal conversion.",
+      "evidence": "The current parser enforces finiteness and cent precision but delegates lexical acceptance to Decimal, whose accepted syntax is broader than the policy's documented dot-or-comma formats.",
+      "risk": "Tightening the grammar without confirming allowed source syntax could reject a legitimate representation; the accepted sign, leading-zero, and decimal-digit rules should therefore be explicitly agreed first.",
+      "status": "pending_human_review",
+      "source_report_sha256": "0866f884467bdfb21a5c2a0767824ca0651d94abda3993ec5cc52452de3b3a44",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Validate the five removed rows against an authoritative order-line source before representing them as accidental export duplication.",
+      "evidence": "Both production and the independent oracle remove exact duplicate tuples, while documentation concedes that the CSV alone cannot prove their business identity.",
+      "risk": "Legitimate repeated sales with identical fields would be understated in regional revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "225f38311b8dfc9c4784cc7f7dbfba3b730b64c797a702540308cf5c938a0bf0",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Require source-owner confirmation of the return or credit sign convention and preserve a row-level list of the six affected orders in verification evidence.",
+      "evidence": "Six negative quantities are retained and included in net revenue, but no independent return indicator was demonstrated.",
+      "risk": "Corrections or data-entry errors could be misclassified as returns and materially change net revenue.",
+      "status": "pending_human_review",
+      "source_report_sha256": "225f38311b8dfc9c4784cc7f7dbfba3b730b64c797a702540308cf5c938a0bf0",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Verify each of the four inferred prices against an effective-dated authoritative source rather than relying solely on same-product uniqueness within this export.",
+      "evidence": "Both production and the oracle infer a price when all observed prices for that product agree, which proves determinism but not contextual validity.",
+      "risk": "A unique observed price can still be wrong for a different date, region, contract, or transaction context.",
+      "status": "pending_human_review",
+      "source_report_sha256": "225f38311b8dfc9c4784cc7f7dbfba3b730b64c797a702540308cf5c938a0bf0",
+      "approved_by": null
+    }
+  ]
+}
