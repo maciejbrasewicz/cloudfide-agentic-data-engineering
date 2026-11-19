@@ -59,7 +59,7 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
     return response.status===204?null:response.json();
   };
   async function runs(){
-    const result=await query("/actions/workflows/"+WORKFLOW+"/runs?event=workflow_dispatch&branch="+REF+"&per_page=50");
+    const result=await query("/actions/workflows/"+WORKFLOW+"/runs?branch="+REF+"&per_page=100");
     return Array.isArray(result.workflow_runs)?result.workflow_runs:[];
   }
   async function handle(req,res,url){
@@ -97,8 +97,10 @@ export function createFullDeliveryLauncher({env=process.env,fetchImpl=fetch,now=
       pendingStart=true;
       try{
         const history=await runs();
+        // Same GitHub concurrency group includes push and manually dispatched runs.
+        // A previous acceptance push can otherwise leave reviewer launches pending.
         const active=history.some(x=>x.status!=="completed");
-        const daily=history.filter(x=>now()-Date.parse(x.created_at)<DAY_MS).length;
+        const daily=history.filter(x=>x.event==="workflow_dispatch"&&now()-Date.parse(x.created_at)<DAY_MS).length;
         if(active||daily>=MAX_RUNS_PER_DAY){
           send(res,429,{error:"daily_quota_or_active_execution"});return true;
         }
