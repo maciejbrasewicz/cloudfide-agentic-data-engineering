@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "source": "recorded_github_actions_artifacts",
+  "runId": 44433630928,
+  "historical": true,
+  "publicNature": "sanitized_verified_evidence_with_model_claims_labeled",
+  "githubRunUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928",
+  "sourceWorkflowConclusion": "failure_at_initial_automated_pull_request_creation",
+  "recovery": "PR opened using authorized GitHub connector, source files packaged without modifications, exact-SHA CI PASSED",
+  "reference": {
+    "sourceSha": "393b847e5de31bdb288f02ecc3d429bb1507a2dc",
+    "candidateSha": "287b9d82237e90b753991cd43f3ebd5a2e514a53",
+    "manifestSha256": "b2856423963feaf100979e99797ff03e27a70cb0cd08a288cf785d7bbc80f57f",
+    "sourceCsvSha256": "811573152aa287b14d5006ce6901ebd0ca17586149e16a5b79de5ae69684c1d4",
+    "draftPullRequestUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/28",
+    "isolatedCIUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44478568225",
+    "reviewerVerdictStatus": "PASSED",
+    "finalTestCount": 18
+  },
+  "stages": [
+    {
+      "key": "architect",
+      "role": "Data Architect",
+      "classification": "verified_actions_and_model_proposal",
+      "status": "PASSED",
+      "headlinePl": "Odczytał wymagania i zaprojektował kontrakt danych",
+      "headlineEn": "Inspected original requirements and proposed the data contract",
+      "explanationPl": "Siedem rzeczywistych wywołań narzędzi: specyfikacja, testy pracodawcy, profil CSV, kontrola TOTAL, zatwierdzona polityka i walidacja propozycji. Nie zmieniał kodu i nie zatwierdzał samodzielnie reguł biznesowych.",
+      "explanationEn": "Seven recorded tool invocations: confidential specification, employer tests, CSV profiling, TOTAL reconciliation, approved policy and proposal validation. It neither edited code nor self-approved policy.",
+      "evidence": [
+        "architect_gate.json",
+        "contract_proposal.json"
+      ],
+      "tools": [
+        "read_spec",
+        "inspect_original_tests",
+        "profile_source",
+        "reconcile_raw_control",
+        "inspect_approved_policy",
+        "inspect_orders",
+        "validate_policy_proposal"
+      ],
+      "facts": [
+        {
+          "label": "Gate",
+          "value": "APPROVED_FOR_ENGINEERING"
+        },
+        {
+          "label": "Policy diff",
+          "value": "no changes"
+        },
+        {
+          "label": "Source rows",
+          "value": "1507"
+        }
+      ],
+      "riskPl": "Deduplikacja, ujemne ilości jako zwroty i odtwarzanie ceny pozostają założeniami biznesowymi.",
+      "riskEn": "Deduplication, negative quantities as returns, and historical price recovery remain business assumptions.",
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+    },
+    {
+      "key": "engineer-1",
+      "role": "Data Engineer · 1",
+      "classification": "real_generated_files_and_sandbox",
+      "status": "FAILED",
+      "headlinePl": "Napisał pierwszą wersję — sandbox wykrył brak wyniku",
+      "headlineEn": "Authored first candidate; sandbox caught missing output",
+      "explanationPl": "Wygenerował cztery rzeczywiste pliki. Test jednostkowy uruchomił się, ale wymagany revenue_by_region.csv nie powstał. Kontroler przekazał błąd do ponownego wygenerowania kodu.",
+      "explanationEn": "Authored four real files. The isolated test command ran, but the required revenue_by_region.csv was absent; actual failure logs went to the next repair iteration.",
+      "files": [
+        {
+          "name": "solution.py",
+          "sha256": "b3f999e7f0f0bdf40fd6d74511fe658f89d4086db1b17cab9f6cbec0666ca02b"
+        },
+        {
+          "name": "pipeline.py",
+          "sha256": "ac120d2be1e049ca90acc0cf98758ffb2d84abe8bc15e77d053fb2e1168b065e"
+        },
+        {
+          "name": "tests/test_solution_and_pipeline.py",
+          "sha256": "20b584757d932728346f96bcad603630d7963d1a46ff886d33a24378885e494b"
+        },
+        {
+          "name": "README.md",
+          "sha256": "57ffa2a1408df934169c238ee9a25a82aae7c79420e4ee6bb2ec40588fdaf122"
+        }
+      ],
+      "facts": [
+        {
+          "label": "Candidate",
+          "value": "4 authored files"
+        },
+        {
+          "label": "P3",
+          "value": "FAILED"
+        },
+        {
+          "label": "Failure",
+          "value": "output CSV missing"
+        }
+      ],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+    },
+    {
+      "key": "engineer-2",
+      "role": "Data Engineer · 2",
+      "classification": "real_generated_files_and_sandbox",
+      "status": "FAILED",
+      "headlinePl": "Przebudował CLI, ale poprawka nie obsłużyła flag",
+      "headlineEn": "Rebuilt CLI but did not support required flags",
+      "explanationPl": "Agent dostał rzeczywisty błąd i poprzedni kod. Stworzył kolejną wersję rozwiązania; niezależny runner wykazał błąd obsługi --input i --output. System nie zaakceptował poprawki.",
+      "explanationEn": "The agent received the previous source and actual failure. It generated a new candidate, but the independent runner exposed missing --input / --output CLI flags. The controller rejected it.",
+      "files": [
+        {
+          "name": "solution.py",
+          "sha256": "ef4838f09103eeecf39ebf2b814cae85e1ea9538ba6a38517dd6414f69644e27"
+        },
+        {
+          "name": "pipeline.py",
+          "sha256": "406cded2e7a472b88d1a0f36b68c28c8ea1f6198d342db198b285785f4f52ece"
+        },
+        {
+          "name": "tests/test_candidate.py",
+          "sha256": "a4c10a6da1780f7bd7d0b7c501d313df23615864f1267f474c4d6bb4b44f3771"
+        },
+        {
+          "name": "README.md",
+          "sha256": "c36dbddd484b50f52da6a39f03f49a0534f44bfe9d34b2bac10cb4"
+        }
+      ],
+      "facts": [
+        {
+          "label": "Repair",
+          "value": "iteration 2 / 3"
+        },
+        {
+          "label": "P3",
+          "value": "FAILED"
+        },
+        {
+          "label": "Failure",
+          "value": "CLI arguments"
+        }
+      ],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+    },
+    {
+      "key": "engineer-3",
+      "role": "Data Engineer · 3",
+      "classification": "real_generated_files_and_sandbox",
+      "status": "PASSED",
+      "headlinePl": "Naprawił CLI, a kod przeszedł niezależny sandbox",
+      "headlineEn": "Corrected CLI; independent sandbox accepted the source",
+      "explanationPl": "Trzecia wersja implementuje bezpieczny parser AST, ETL z Decimal, deduplikację i odtwarzanie ceny zgodnie z kontraktem. Obsługuje wymagane flagi, a 16 testów przed testami Verifiera i rekonsyliacja przeszły.",
+      "explanationEn": "Third version implemented restricted AST arithmetic, Decimal ETL, contracted cleaning and required CLI flags. Its initial isolated tests and revenue reconciliation passed.",
+      "files": [
+        {
+          "name": "solution.py",
+          "sha256": "d33195da484dbc405b0d7e3e4e63e17ff1d961052198c8c0460e9a16b2a4420d",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/287b9d82237e90b753991cd43f3ebd5a2e514a53/deliveries/run-44433630928/solution.py"
+        },
+        {
+          "name": "pipeline.py",
+          "sha256": "d7f29f06cf6adc7c68376e5e8c8dcc75f20f49b080e91a4acc88068c84bf1e28",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/287b9d82237e90b753991cd43f3ebd5a2e514a53/deliveries/run-44433630928/pipeline.py"
+        },
+        {
+          "name": "tests/test_pipeline_and_safety.py",
+          "sha256": "b007a2a4f8359fbd942b62a42bc2a515aab84e5aac5e5f79f7098899eed6935f",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/287b9d82237e90b753991cd43f3ebd5a2e514a53/deliveries/run-44433630928/tests/test_pipeline_and_safety.py"
+        },
+        {
+          "name": "README.md",
+          "sha256": "52b9a540b5fd0a97daaa540611ae906ea5aceef3d1dc34f94b53594d1e65e151",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/287b9d82237e90b753991cd43f3ebd5a2e514a53/deliveries/run-44433630928/README.md"
+        }
+      ],
+      "facts": [
+        {
+          "label": "Repair",
+          "value": "iteration 3 / 3"
+        },
+        {
+          "label": "P3",
+          "value": "PASSED"
+        },
+        {
+          "label": "Source CSV",
+          "value": "1500 unique transactions"
+        }
+      ],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+    },
+    {
+      "key": "verifier",
+      "role": "Verification Engineer",
+      "classification": "separately_falsified_generated_test",
+      "status": "PASSED",
+      "headlinePl": "Napisał własny test, który wykrył celową mutację",
+      "headlineEn": "Authored independent pytest; caught deliberate mutation",
+      "explanationPl": "Trzeci agent odczytał specyfikację, oryginalne testy, obie implementacje i niezależny raport P3. Napisał nowy pytest, sprawdzający Decimal, ujemne ilości, indeksy i niemutowanie danych. Test przeszedł na kandydacie, a nie przeszedł na celowo uszkodzonym rozwiązaniu.",
+      "explanationEn": "Read task, employer tests, both code modules and actual P3 receipt. Authored a new pytest checking Decimal arithmetic, negative quantities, indices and input immutability. It passed on the candidate and failed against a deliberately broken implementation.",
+      "tools": [
+        "read_spec",
+        "read_original_tests",
+        "read_approved_policy",
+        "read_candidate_file",
+        "read_candidate_file",
+        "read_p3_receipt",
+        "write_adversarial_test",
+        "request_independent_validation"
+      ],
+      "files": [
+        {
+          "name": "tests/test_verifier_generated.py",
+          "sha256": "2bb23bba79d6feae2a4293664ae42decaf8f64393f4a3dc6d925f6c405b12f2a",
+          "url": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/blob/287b9d82237e90b753991cd43f3ebd5a2e514a53/deliveries/run-44433630928/tests/test_verifier_generated.py"
+        }
+      ],
+      "facts": [
+        {
+          "label": "Original candidate",
+          "value": "18/18 PASS"
+        },
+        {
+          "label": "Broken mutation",
+          "value": "1 failure detected"
+        },
+        {
+          "label": "Verdict",
+          "value": "PASSED"
+        }
+      ],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44433630928"
+    },
+    {
+      "key": "delivery",
+      "role": "Independent CI & draft PR",
+      "classification": "github_provenance_and_exact_sha_ci",
+      "status": "PASSED",
+      "headlinePl": "Zweryfikowany kod opublikowano w draft PR",
+      "headlineEn": "Published SHA-verified candidate in a draft PR",
+      "explanationPl": "Pierwotne wykonanie GitHub Action nie mogło stworzyć PR z powodu uprawnień. Oddzielnie autoryzowane połączenie opublikowało dokładnie te same pliki jako draft, a CI ponownie wykonało 18 testów i niezależną rekonsyliację na dokładnym SHA. Główny pipeline nie został zastąpiony.",
+      "explanationEn": "The original GitHub Action was denied permission to create a PR. An authorized connection opened a draft with byte-identical code; CI reran 18 tests and independent reconciliation on the exact commit SHA. Existing platform files were preserved.",
+      "facts": [
+        {
+          "label": "Draft PR",
+          "value": "#28 · not merged"
+        },
+        {
+          "label": "Exact-SHA CI",
+          "value": "PASSED"
+        },
+        {
+          "label": "Code artifact",
+          "value": "deliveries/run-44433630928/"
+        }
+      ],
+      "sourceUrl": "https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/28"
+    }
+  ],
+  "result": {
+    "testCount": 18,
+    "testPassed": 18,
+    "regionCount": 5,
+    "netRevenue": "2570247.03",
+    "sourceRows": 1507,
+    "uniqueTransactions": 1500,
+    "duplicateExtras": 5,
+    "regionTotals": {
+      "Central": "515824.67",
+      "East": "442219.91",
+      "North": "665897.52",
+      "South": "504036.04",
+      "West": "442268.89"
+    },
+    "source": "independent_p4_and_exact_sha_p6_ci_receipts"
+  },
+  "labels": {
+    "newProduct": "agent_authored_source_is_deliverable",
+    "root": "trusted_orchestration_platform_not_autonomously_overwritten"
+  }
+}
