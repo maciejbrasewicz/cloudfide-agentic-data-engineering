@@ -130,3 +130,97 @@ test("older completed runs do not consume today's five-run allowance",async()=>{
   assert.equal((await call(gateway,"/api/delivery/launch","POST",JSON.stringify({accessCode:CODE}))).status,202);
   assert.equal(dispatchCount,1);
 });
+
+
+test("accepted dispatch without a visible GitHub run is clearly awaiting confirmation, not silently pending",async()=>{
+  const gateway=createFullDeliveryLauncher({
+    env,now:()=>T,fetchImpl:async(url)=>{
+      assert.match(url,/runs\?/);
+      return Response.json({workflow_runs:[]});
+    }
+  });
+  const status=await call(gateway,"/api/delivery/launch/session/"+ID);
+  assert.equal(status.status,200);
+  assert.equal(status.body.status,"awaiting_github_run");
+  assert.equal(status.body.githubRunUrl,undefined);
+  assert.equal(status.body.jobs.length,0);
+  assert.equal(status.body.evidence,"github_run_not_yet_observed");
+});
+
+test("actual live GitHub jobs expose execution steps, original run link and NO credentials",async()=>{
+  const gateway=createFullDeliveryLauncher({env,now:()=>T,fetchImpl:async(url)=>{
+    if(url.includes("/runs?"))return Response.json({workflow_runs:[{
+      id:12768,display_title:"CloudFide delivery · "+ID,
+      status:"in_progress",conclusion:null,created_at:new Date(T-150000).toISOString()
+    }]});
+    if(url.includes("/jobs?"))return Response.json({jobs:[{
+      name:"engineer",status:"in_progress",conclusion:null,
+      html_url:"https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/12768/job/876",
+      started_at:new Date(T-60000).toISOString(),
+      steps:[{name:"Foundry Engineer writes REAL candidate source (never executes it)",
+        status:"in_progress",conclusion:null,number:4}]
+    }]});
+    throw Error("Unexpected query "+url);
+  }});
+  const session=await call(gateway,"/api/delivery/launch/session/"+ID);
+  assert.equal(session.body.status,"in_progress");
+  assert.equal(session.body.githubRunId,12768);
+  assert.equal(session.body.jobs[0].status,"in_progress");
+  assert.match(session.body.jobs[0].steps[0].name,/Foundry Engineer/);
+  assert.match(session.body.jobs[0].url,/\/job\/876$/);
+  assert.equal(session.body.publication.status,"not_yet_available");
+  assert.doesNotMatch(JSON.stringify(session.body),new RegExp(TOKEN+"|"+CODE));
+});
+
+test("successful P4 and publisher report the ACTUAL draft PR and exact-SHA CI; never require approval to create",async()=>{
+  const sha="a".repeat(40);
+  const gateway=createFullDeliveryLauncher({env,now:()=>T,fetchImpl:async(url)=>{
+    if(url.includes("/runs?"))return Response.json({workflow_runs:[{
+      id:12769,display_title:"CloudFide delivery · "+ID,
+      status:"completed",conclusion:"success",created_at:new Date(T-300000).toISOString()
+    }]});
+    if(url.includes("/jobs?"))return Response.json({jobs:[
+      {name:"Publish verified P4 candidate as human-reviewed draft PR (no Azure)",
+        status:"completed",conclusion:"success",steps:[]},
+      {name:"Final fail-closed P5/P4/P6 acceptance (never infer from green jobs alone)",
+        status:"completed",conclusion:"success",steps:[]}
+    ]});
+    if(url.includes("/pulls?"))return Response.json([{
+      number:48,draft:true,merged_at:null,
+      head:{ref:"agentic-delivery/run-12769",sha},
+      base:{ref:"main"}
+    }]);
+    if(url.includes("/commits/"))return Response.json({statuses:[{
+      context:"agentic-delivery/isolated-candidate-ci",state:"success"
+    }]});
+    throw Error("Unexpected query "+url);
+  }});
+  const session=await call(gateway,"/api/delivery/launch/session/"+ID);
+  assert.equal(session.body.publication.status,"verified_draft_awaiting_human");
+  assert.equal(session.body.publication.pullRequest.number,48);
+  assert.equal(session.body.publication.pullRequest.draft,true);
+  assert.equal(session.body.publication.exactCi.state,"success");
+});
+
+test("draft PR with missing independent CI is visible but must not be marked verified",async()=>{
+  const sha="a".repeat(40);
+  const gateway=createFullDeliveryLauncher({env,now:()=>T,fetchImpl:async(url)=>{
+    if(url.includes("/runs?"))return Response.json({workflow_runs:[{
+      id:12770,display_title:"CloudFide delivery · "+ID,
+      status:"completed",conclusion:"success",created_at:new Date(T-300000).toISOString()
+    }]});
+    if(url.includes("/jobs?"))return Response.json({jobs:[{
+      name:"Publish verified P4 candidate as human-reviewed draft PR (no Azure)",
+      status:"completed",conclusion:"success",steps:[]
+    }]});
+    if(url.includes("/pulls?"))return Response.json([{
+      number:49,draft:true,merged_at:null,
+      head:{ref:"agentic-delivery/run-12770",sha},base:{ref:"main"}
+    }]);
+    if(url.includes("/commits/"))return Response.json({statuses:[]});
+    throw Error("Unexpected query "+url);
+  }});
+  const session=await call(gateway,"/api/delivery/launch/session/"+ID);
+  assert.equal(session.body.publication.status,"draft_created");
+  assert.equal(session.body.publication.exactCi.state,"not_reported");
+});
