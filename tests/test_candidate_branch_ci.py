@@ -54,6 +54,7 @@ def stage_repo(tmp_path: Path):
     git(root, "commit", "-m", "original trusted base")
     base = git(root, "rev-parse", "HEAD")
     delivery = root / "deliveries" / ("run-" + RUN)
+    delivery.mkdir(parents=True)
     generated = {
         "solution.py": b"def add_virtual_column(df, role, name):\n    return df\n",
         "pipeline.py": b"def main():\n    return 1\n",
