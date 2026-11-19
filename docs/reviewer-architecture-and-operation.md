@@ -87,7 +87,7 @@ and a strong distinct `REVIEWER_ACCESS_CODE`. Give a code only to an
 authorized reviewer. The server dispatches exactly `engineer-e2e.yml` on
 `main` with `mode=rebuild`, `max_rounds=3`,
 `publish_draft_pr=true`, and a UUID to correlate genuine GitHub job
-statuses. The backend enforces a persistent GitHub-run-derived limit of two
+statuses. The backend enforces a persistent GitHub-run-derived limit of five
 workflow_dispatch runs within 24 hours, one active run, plus a local
 authentication throttle. No third party can supply source code, change the
 task, choose a model, inspect private GitHub credentials or merge a PR.
@@ -96,8 +96,7 @@ The repository owner's separate Actions setting **Allow GitHub Actions to
 create and approve pull requests** is required for automatic creation of
 future draft PRs. The owner reports enabling it on 19 November 2026.
 This permission is not evidence that a new automated PR has been tested:
-that requires an actual new full Foundry run. The protected launch is
-explicitly unconfigured until the Railway variables exist.
+that requires an actual new full Foundry run. The protected launch is available after Railway service variables are provisioned, and the form is immediately below the global header on the same public portal.
 
 ### Source links
 
@@ -111,3 +110,7 @@ explicitly unconfigured until the Railway variables exist.
   https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/pull/28
 - Exact-SHA candidate CI:
   https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44478568225
+
+## Production reviewer launch verification
+
+The one-time authorized Railway HTTP POST generated real GitHub Actions `workflow_dispatch` [#44501856719](https://github.com/maciejbrasewicz/cloudfide-agentic-data-engineering/actions/runs/44501856719). Architect, Engineer, P3, round-two repair and P5 actually ran. Verifier and P4 were skipped due to a downstream GitHub job condition, not because an agent claimed they had run. Fixes #40–#42 now make this transition explicit and fail closed, while a new full run is required to validate the corrected path. The recruiter UI never treats this false-green historical execution as verified delivery.
