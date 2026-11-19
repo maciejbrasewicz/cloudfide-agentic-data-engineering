@@ -43,6 +43,10 @@ function cleanStatus(value){
 function cleanConclusion(value){
   return ["success","failure","skipped","cancelled","timed_out","action_required","neutral"].includes(value)?value:null;
 }
+function elapsedMs(item){
+  const a=Date.parse(item?.started_at||""),b=Date.parse(item?.completed_at||"");
+  return Number.isFinite(a)&&Number.isFinite(b)&&b>=a?b-a:null;
+}
 
 export function createDeliveryGateway({fetchImpl=fetch,now=Date.now,token=process.env.GITHUB_WORKFLOW_TOKEN||""}={}){
   let cached=null;
@@ -82,6 +86,7 @@ export function createDeliveryGateway({fetchImpl=fetch,now=Date.now,token=proces
         id,label,
         status:item?cleanStatus(item.status):"not_started",
         conclusion:item?cleanConclusion(item.conclusion):null,
+        jobDurationMs:item?elapsedMs(item):null,
       };
     });
     // Publication is verified only from the ACTUAL matching PR and exact-SHA
