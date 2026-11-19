@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "reviewed_commit": "d7b554e4c12abbda0937f59e0265e24034160d30",
+  "generated_at_utc": "2026-11-19T08:08:39.677957+00:00",
+  "source_manifest_sha256": "7891a5f3362fbcd78d3b0ba9e5d61f9d29ee67a55619d3c6961ebd8b9f01da4e",
+  "approval_boundary": "human_review_required",
+  "decisions": [
+    {
+      "id": "DD-0001",
+      "role": "data_architect",
+      "target": "source_controls",
+      "proposal": "Specify the exact fields, formulas, normalization order, tolerance, and failure message used to reconcile the TOTAL row before deduplication.",
+      "evidence": "The source has one TOTAL row with Quantity 37150 and Discount 65924.67, while the current contract states only 'verify_before_deduplication'.",
+      "risk": "An implementation could claim reconciliation while comparing the wrong aggregate, using an unjustified tolerance, or applying deduplication too early.",
+      "status": "pending_human_review",
+      "source_report_sha256": "0853aec9f046d6541ba5e43e50cc21049c20d7907d225878c934d1f360b5da04",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0002",
+      "role": "data_architect",
+      "target": "negative_quantities",
+      "proposal": "Continue retaining negative quantities only as a provisional rule, add row-level audit flags, and require data-owner confirmation that all six records represent returns.",
+      "evidence": "Six negative-quantity rows were measured and the contract labels them returns without supporting return metadata in the available profile.",
+      "risk": "Corrections or corrupt records could be misclassified as returns and alter downstream quantity or revenue measures.",
+      "status": "pending_human_review",
+      "source_report_sha256": "0853aec9f046d6541ba5e43e50cc21049c20d7907d225878c934d1f360b5da04",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0003",
+      "role": "data_architect",
+      "target": "missing_prices",
+      "proposal": "Impute only when exactly one normalized observed price exists for the affected product, record the source of the inferred value, and fail otherwise.",
+      "evidence": "Four unit prices are missing and the approved contract already requires a unique product price or failure.",
+      "risk": "A globally unique observed price may still be inappropriate if valid pricing varies by date, customer, or region.",
+      "status": "pending_human_review",
+      "source_report_sha256": "0853aec9f046d6541ba5e43e50cc21049c20d7907d225878c934d1f360b5da04",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0004",
+      "role": "data_engineer",
+      "target": "source_controls",
+      "proposal": "Bind source and policy provenance hashes to the exact in-memory bytes parsed by the ETL, or fail if post-processing hashes differ.",
+      "evidence": "run_pipeline currently hashes and parses each input through separate file reads.",
+      "risk": "Concurrent or accidental replacement could produce a report whose hashes do not identify the data or policy actually processed.",
+      "status": "pending_human_review",
+      "source_report_sha256": "d81a5a7877a2220f6b01139abcece9c67b0f4c79f718908f3f05814f62aeef7b",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0005",
+      "role": "data_engineer",
+      "target": "quality_gate",
+      "proposal": "Keep the current 288-test gate and require warning-free execution for project-controlled deprecation warnings.",
+      "evidence": "All tests pass, but tests/test_pandera_contracts.py triggers a pandas incompatible-dtype assignment FutureWarning.",
+      "risk": "A future pandas upgrade could turn the warning into a test error and obscure the contract behavior the test intends to verify.",
+      "status": "pending_human_review",
+      "source_report_sha256": "d81a5a7877a2220f6b01139abcece9c67b0f4c79f718908f3f05814f62aeef7b",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0006",
+      "role": "verification_engineer",
+      "target": "duplicates",
+      "proposal": "Retain source-exact deduplication only as an explicit provisional policy until the five duplicate groups are confirmed against source-system identity or export lineage.",
+      "evidence": "Two independent parsers establish that five additional source rows are exact repeats, and regression tests prevent normalization-based over-deduplication.",
+      "risk": "Identical but legitimate transactions would be removed if the export lacks a unique line identifier.",
+      "status": "pending_human_review",
+      "source_report_sha256": "c008cbd2f59f78d477fe4c5cd8525481bf55c0584ae771ab4d4c499fb1b6564d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0007",
+      "role": "verification_engineer",
+      "target": "negative_quantities",
+      "proposal": "Preserve all six negative rows and flag them in audit output, but require authoritative confirmation before describing them as verified returns.",
+      "evidence": "The reconciliation reports six negative quantities, while available tests establish arithmetic handling but no return linkage or business semantics.",
+      "risk": "Corrections, cancellations, or corrupt quantities could be misclassified as returns.",
+      "status": "pending_human_review",
+      "source_report_sha256": "c008cbd2f59f78d477fe4c5cd8525481bf55c0584ae771ab4d4c499fb1b6564d",
+      "approved_by": null
+    },
+    {
+      "id": "DD-0008",
+      "role": "verification_engineer",
+      "target": "missing_prices",
+      "proposal": "Continue fail-closed unique-product-price inference with row-level provenance, subject to confirmation that product alone is a valid pricing key.",
+      "evidence": "Four prices are recovered, and both production and oracle paths require exactly one normalized observed price per affected product.",
+      "risk": "A unique value in this extract may still be invalid for a transaction if legitimate prices vary by date, customer, contract, or region.",
+      "status": "pending_human_review",
+      "source_report_sha256": "c008cbd2f59f78d477fe4c5cd8525481bf55c0584ae771ab4d4c499fb1b6564d",
+      "approved_by": null
+    }
+  ]
+}
